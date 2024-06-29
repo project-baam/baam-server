@@ -10,11 +10,13 @@ import {
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
-import { json, urlencoded } from 'express';
+import { json, NextFunction, urlencoded } from 'express';
 import morganBody from 'morgan-body';
 import helmet from 'helmet';
 import { IncomingMessage, ServerResponse } from 'http';
-import { LogProvider } from './provider/log.provider';
+import { v4 as uuidV4 } from 'uuid';
+
+import { LogProvider } from './common/provider/log.provider';
 import { setupSwagger } from './docs/setup-swagger';
 
 async function bootstrap() {
@@ -31,6 +33,10 @@ async function bootstrap() {
   app.setGlobalPrefix(environmentService.get<string>('API_VERSION'), {
     exclude: [{ path: '/version', method: RequestMethod.GET }],
   });
+
+  app.use((_req: Request, _res: Response, next: NextFunction) =>
+    LogProvider.scope(uuidV4(), next),
+  );
 
   if (!isProduction) {
     setupSwagger(app);
@@ -76,6 +82,9 @@ async function bootstrap() {
       },
     },
   });
+
+  // TODO: serializer interceptor 옵션으로 excludeExtraneousValues: true 적용이 안 됨
+  // 해결 후 plainToInstance 하는 toDto 제거 예정
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 
@@ -92,6 +101,9 @@ async function bootstrap() {
       validationError: {
         target: true,
         value: true,
+      },
+      transformOptions: {
+        // excludeExtraneousValues: true,
       },
       exceptionFactory: (errors) => new BadRequestException(errors),
     }),

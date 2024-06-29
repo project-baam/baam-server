@@ -1,8 +1,9 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose, plainToInstance } from 'class-transformer';
-import { User } from 'src/module/user/domain/user';
 import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
 
 export class GetUserResponse {
+  @ApiProperty()
   @Expose()
   email: string;
 
@@ -12,7 +13,8 @@ export class GetUserResponse {
   @Expose()
   signedUpAt: Date;
 
-  static toDto(domain: User) {
-    return plainToInstance(this, domain, { excludeExtraneousValues: true });
+  // mapper
+  static toDto(entity: GetUserResponse) {
+    return plainToInstance(this, entity, { excludeExtraneousValues: true });
   }
 }

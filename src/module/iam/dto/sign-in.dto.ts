@@ -27,19 +27,19 @@ export class RefreshTokenPayload {
   sub: number;
   refreshTokenId: string;
 }
-
 export class JWT {
-  @ApiProperty()
+  @ApiProperty({
+    description: `expiration time: ${process.env.JWT_ACCESS_TOKEN_TTL}`,
+  })
   accessToken: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: `expiration time: ${process.env.JWT_REFRESH_TOKEN_TTL}`,
+  })
   refreshToken: string;
 }
 
 export class SignInResponse extends JWT {
   @ApiProperty({ type: OmitType(User, ['password']) })
   user: Omit<User, 'password'>;
-
-  @ApiProperty()
-  lastLoggedAt: Date;
 }

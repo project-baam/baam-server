@@ -9,8 +9,7 @@ import {
   validateSync,
 } from 'class-validator';
 import path from 'path';
-
-import { LogProvider } from 'src/provider/log.provider';
+import { LogProvider } from 'src/common/provider/log.provider';
 
 export enum SupportedEnvironment {
   local = 'local',

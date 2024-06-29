@@ -40,9 +40,7 @@ export class AuthenticationService {
       new CreateUserCommand(email, hashedPassword, grade),
     );
 
-    delete user.password;
-
-    return user;
+    return SignUpResonse.toDto(user);
   }
 
   async signIn(signInDto: SignInDto): Promise<SignInResponse> {
@@ -70,7 +68,6 @@ export class AuthenticationService {
     return {
       ...jwts,
       user,
-      lastLoggedAt: new Date(),
     };
   }
 

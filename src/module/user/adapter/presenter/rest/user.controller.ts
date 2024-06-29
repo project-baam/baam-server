@@ -1,14 +1,13 @@
 import { Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-
 import { ResponseData } from 'src/common/decorator/response-data.decorator';
+
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 import { ActiveUser } from 'src/module/iam/decorators/active-user.decorator';
 import { HttpController } from 'src/module/iam/decorators/http-controller.decorator';
 import { ActiveUserData } from 'src/module/iam/dto/sign-in.dto';
-import { ResponsesDataDto } from 'src/common/dto/responses-data.dto';
-import { GetUserResponse } from './dto/user.dto';
 import { UserService } from 'src/module/user/application/user.service';
+import { GetUserResponse } from './dto/user.dto';
 
 @HttpController('user')
 export class UserController {
@@ -19,8 +18,6 @@ export class UserController {
   @ApiBearerAuth(AuthorizationToken.BearerUserToken)
   @Get()
   async getUser(@ActiveUser() userData: ActiveUserData) {
-    const user = await this.userService.findOneByIdOrFail(userData.sub);
-
-    return new ResponsesDataDto(GetUserResponse.toDto(user));
+    return await this.userService.findOneByIdOrFail(userData.sub);
   }
 }

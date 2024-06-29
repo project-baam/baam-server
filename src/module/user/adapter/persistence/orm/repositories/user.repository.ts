@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserEntity } from '../entities/user.entity';
-import { User } from 'src/module/user/domain/user';
 import { PostgresqlErrorCodes } from 'src/common/constants/postgresql-error-codes';
 import { UserRepository } from 'src/module/user/application/port/user.repository';
 import {
@@ -36,7 +35,7 @@ export class OrmUserRepository implements UserRepository {
     return await this.userRepository.findOneBy({ email });
   }
 
-  async saveUniqueUserOrFail(user: Partial<User>): Promise<UserEntity> {
+  async saveUniqueUserOrFail(user: Partial<UserEntity>): Promise<UserEntity> {
     try {
       const newEntity = await this.userRepository.save(user);
 
