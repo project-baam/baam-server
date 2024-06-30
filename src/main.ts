@@ -6,9 +6,7 @@ import {
   BadRequestException,
   ClassSerializerInterceptor,
   HttpStatus,
-  RequestMethod,
   ValidationPipe,
-  VersioningType,
 } from '@nestjs/common';
 import { json, NextFunction, urlencoded } from 'express';
 import morganBody from 'morgan-body';
@@ -30,10 +28,6 @@ async function bootstrap() {
   const port = environmentService.get<number>('PORT')!;
   const isProduction = environmentService.isProduction();
 
-  app.setGlobalPrefix(environmentService.get<string>('API_VERSION')!, {
-    exclude: [{ path: '/version', method: RequestMethod.GET }],
-  });
-
   app.use((_req: Request, _res: Response, next: NextFunction) =>
     LogProvider.scope(uuidV4(), next),
   );
@@ -41,10 +35,6 @@ async function bootstrap() {
   if (!isProduction) {
     setupSwagger(app);
   }
-
-  app.enableVersioning({
-    type: VersioningType.URI,
-  });
 
   app.use(
     json({ limit: environmentService.get<string>('HTTP_BODY_SIZE_LIMIT') }),

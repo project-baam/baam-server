@@ -2,7 +2,6 @@ import { Expose, plainToInstance, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
-  IsLowercase,
   IsNotEmpty,
   IsPositive,
   IsString,
@@ -29,11 +28,6 @@ export class EnvironmentVariables {
   @Type(() => Number)
   @Expose()
   readonly PORT: number;
-
-  @IsNotEmpty()
-  @IsLowercase()
-  @Expose()
-  readonly API_VERSION: string;
 
   @IsNotEmpty()
   @IsString()
