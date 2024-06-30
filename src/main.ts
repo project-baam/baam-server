@@ -27,10 +27,10 @@ async function bootstrap() {
   const environmentService: EnvironmentService =
     app.get<EnvironmentService>(EnvironmentService);
 
-  const port = environmentService.get<number>('PORT');
+  const port = environmentService.get<number>('PORT')!;
   const isProduction = environmentService.isProduction();
 
-  app.setGlobalPrefix(environmentService.get<string>('API_VERSION'), {
+  app.setGlobalPrefix(environmentService.get<string>('API_VERSION')!, {
     exclude: [{ path: '/version', method: RequestMethod.GET }],
   });
 
@@ -83,8 +83,6 @@ async function bootstrap() {
     },
   });
 
-  // TODO: serializer interceptor 옵션으로 excludeExtraneousValues: true 적용이 안 됨
-  // 해결 후 plainToInstance 하는 toDto 제거 예정
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 

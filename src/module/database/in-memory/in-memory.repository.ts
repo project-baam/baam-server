@@ -8,7 +8,7 @@ export abstract class InMemoryRepository {
     ttl?: number,
   ): Promise<void>;
 
-  abstract find(key: string): Promise<string>;
+  abstract find(key: string): Promise<string | null>;
 
   abstract remove(key: string): Promise<void>;
 }

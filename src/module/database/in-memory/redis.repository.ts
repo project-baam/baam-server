@@ -17,7 +17,7 @@ export class RedisRepository
   constructor(private readonly environmentService: EnvironmentService) {}
 
   async onApplicationBootstrap() {
-    this.memory = new Redis(this.environmentService.get<string>('REDIS_PATH'));
+    this.memory = new Redis(this.environmentService.get<string>('REDIS_PATH')!);
   }
 
   onApplicationShutdown() {
@@ -35,7 +35,7 @@ export class RedisRepository
     }
   }
 
-  async find(key: string): Promise<string> {
+  async find(key: string): Promise<string | null> {
     return await this.memory.get(key);
   }
 

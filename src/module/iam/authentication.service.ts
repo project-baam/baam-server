@@ -40,7 +40,7 @@ export class AuthenticationService {
       new CreateUserCommand(email, hashedPassword, grade),
     );
 
-    return SignUpResonse.toDto(user);
+    return new SignUpResonse(user);
   }
 
   async signIn(signInDto: SignInDto): Promise<SignInResponse> {
@@ -63,12 +63,7 @@ export class AuthenticationService {
       email: user.email,
     });
 
-    delete user.password;
-
-    return {
-      ...jwts,
-      user,
-    };
+    return new SignInResponse(user, jwts);
   }
 
   private async generateTokens(payload: ActiveUserData): Promise<JWT> {

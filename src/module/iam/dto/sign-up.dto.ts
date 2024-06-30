@@ -3,7 +3,7 @@ import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
 import { PASSWORD_MIN_LENGTH } from '../constants/authentication';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
-import { Expose, plainToInstance } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 export class SignUpDto {
   @ApiProperty()
@@ -36,9 +36,10 @@ export class SignUpResonse {
   @Expose()
   signedUpAt: Date;
 
-  static toDto(entity: UserEntity): SignUpResonse {
-    return plainToInstance(this, entity, {
-      excludeExtraneousValues: true,
-    });
+  constructor(user: UserEntity) {
+    this.id = user.id;
+    this.email = user.email;
+    this.grade = user.grade;
+    this.signedUpAt = user.signedUpAt;
   }
 }

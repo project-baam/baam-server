@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export class EnvironmentService {
   constructor(private readonly configService: ConfigService) {}
 
-  get<T>(key: EnvironmentKey): T {
+  get<T>(key: EnvironmentKey): T | undefined {
     return this.configService.get<T>(key);
   }
 

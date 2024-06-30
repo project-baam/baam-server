@@ -18,6 +18,8 @@ export class UserController {
   @ApiBearerAuth(AuthorizationToken.BearerUserToken)
   @Get()
   async getUser(@ActiveUser() userData: ActiveUserData) {
-    return await this.userService.findOneByIdOrFail(userData.sub);
+    const user = await this.userService.findOneByIdOrFail(userData.sub);
+
+    return new GetUserResponse(user);
   }
 }

@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
+import { Exclude } from 'class-transformer';
 
 @Entity('user')
 export class UserEntity {
@@ -16,6 +17,7 @@ export class UserEntity {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column({ type: 'enum', enum: UserGrade })

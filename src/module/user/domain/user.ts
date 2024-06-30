@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserGrade } from './value-objects/user-grade';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 export class User {
   @ApiProperty()
@@ -12,7 +12,6 @@ export class User {
   email: string; // unique
 
   @ApiProperty()
-  @Exclude()
   password: string;
 
   @ApiProperty({ type: 'enum', enum: UserGrade })
@@ -20,5 +19,6 @@ export class User {
   grade: UserGrade;
 
   @ApiProperty()
+  @Expose()
   signedUpAt: Date;
 }

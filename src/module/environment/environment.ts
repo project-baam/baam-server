@@ -137,7 +137,7 @@ export function validate(
       );
     }
 
-    throw new Error(Object.values(errors[0].constraints).toString());
+    throw new Error(Object.values(errors[0].constraints!).toString());
   }
 
   Object.entries(validatedConfig).map((value: [string, unknown]) =>

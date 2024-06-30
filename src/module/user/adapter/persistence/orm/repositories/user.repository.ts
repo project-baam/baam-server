@@ -35,13 +35,15 @@ export class OrmUserRepository implements UserRepository {
     return await this.userRepository.findOneBy({ email });
   }
 
-  async saveUniqueUserOrFail(user: Partial<UserEntity>): Promise<UserEntity> {
+  async saveUniqueUserOrFail(
+    user: Partial<UserEntity> & { email: string },
+  ): Promise<UserEntity> {
     try {
       const newEntity = await this.userRepository.save(user);
 
       return newEntity;
-    } catch (err) {
-      if (err.code === PostgresqlErrorCodes.UniqueViolation) {
+    } catch (err: any) {
+      if (err?.code === PostgresqlErrorCodes.UniqueViolation) {
         throw new DuplicateValueError('User', 'email', user.email);
       }
 
