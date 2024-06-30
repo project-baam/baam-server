@@ -21,7 +21,7 @@ export enum SupportedEnvironment {
 export class EnvironmentVariables {
   // STAGE Environment
   @IsEnum(SupportedEnvironment)
-  @Expose()
+  @Expose({ name: 'NODE_ENV' })
   readonly ENV: SupportedEnvironment;
 
   // API SERVICE VARIABLE
