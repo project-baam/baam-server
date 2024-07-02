@@ -20,6 +20,6 @@ export class UserController {
   async getUser(@ActiveUser() userData: ActiveUserData) {
     const user = await this.userService.findOneByIdOrFail(userData.sub);
 
-    return new GetUserResponse(user);
+    return user;
   }
 }

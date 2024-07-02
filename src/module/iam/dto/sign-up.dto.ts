@@ -2,7 +2,7 @@ import { IsEmail, IsEnum, MinLength } from 'class-validator';
 import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
 import { PASSWORD_MIN_LENGTH } from '../constants/authentication';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
+import { User } from '@prisma/client';
 import { Expose } from 'class-transformer';
 
 export class SignUpDto {
@@ -34,12 +34,12 @@ export class SignUpResonse {
 
   @ApiProperty()
   @Expose()
-  signedUpAt: Date;
+  createdAt: Date;
 
-  constructor(user: UserEntity) {
+  constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
     this.grade = user.grade;
-    this.signedUpAt = user.signedUpAt;
+    this.createdAt = user.createdAt;
   }
 }

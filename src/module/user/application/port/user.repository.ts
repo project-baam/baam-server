@@ -1,9 +1,9 @@
 // outbound port
-import { UserEntity } from '../../adapter/persistence/orm/entities/user.entity';
+import { User, Prisma } from '@prisma/client';
 
 export abstract class UserRepository {
-  abstract findUniqueUserByEmail(email: string): Promise<UserEntity | null>;
-  abstract saveUniqueUserOrFail(user: Partial<UserEntity>): Promise<UserEntity>;
-  abstract findOneById(id: number): Promise<UserEntity | null>;
-  abstract findOneByIdOrFail(id: number): Promise<UserEntity>;
+  abstract findUniqueUserByEmail(email: string): Promise<User | null>;
+  abstract saveUniqueUserOrFail(user: Prisma.UserCreateInput): Promise<User>;
+  abstract findOneById(id: number): Promise<User | null>;
+  abstract findOneByIdOrFail(id: number): Promise<User>;
 }

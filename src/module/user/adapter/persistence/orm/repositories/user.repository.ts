@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
-import { UserEntity } from '../entities/user.entity';
+import { PrismaService } from 'src/module/database/orm/prisma.service';
+import { User, Prisma } from '@prisma/client';
 import { PostgresqlErrorCodes } from 'src/common/constants/postgresql-error-codes';
 import { UserRepository } from 'src/module/user/application/port/user.repository';
 import {
@@ -12,34 +11,29 @@ import {
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
-  constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-  ) {}
+  constructor(private readonly userRepository: PrismaService) {}
 
-  async findOneById(id: number): Promise<UserEntity | null> {
-    const user = await this.userRepository.findOneBy({ id });
+  async findOneById(id: number): Promise<User | null> {
+    const user = await this.userRepository.user.findUnique({ where: { id } });
 
     return user;
   }
 
-  async findOneByIdOrFail(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id });
+  async findOneByIdOrFail(id: number): Promise<User> {
+    const user = await this.userRepository.user.findUnique({ where: { id } });
     if (!user) {
       throw new ContentNotFoundError('user', id);
     }
 
     return user;
   }
-  async findUniqueUserByEmail(email: string): Promise<UserEntity | null> {
-    return await this.userRepository.findOneBy({ email });
+  async findUniqueUserByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.user.findUnique({ where: { email } });
   }
 
-  async saveUniqueUserOrFail(
-    user: Partial<UserEntity> & { email: string },
-  ): Promise<UserEntity> {
+  async saveUniqueUserOrFail(user: Prisma.UserCreateInput): Promise<User> {
     try {
-      const newEntity = await this.userRepository.save(user);
+      const newEntity = await this.userRepository.user.create({ data: user });
 
       return newEntity;
     } catch (err: any) {
