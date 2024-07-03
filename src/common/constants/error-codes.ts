@@ -1,19 +1,19 @@
 export enum ErrorCode {
   // 400
-  InvalidParameter = 'INVALID_PARAMETER',
+  InvalidParameter = 4000,
 
   // 401
-  MissingAuthToken = 'MISSING_AUTHENTICATION_TOKEN',
-  InvalidAccessToken = 'INVALID_ACCESS_TOKEN',
-  InvalidRefreshToken = 'INVALID_REFRESH_TOKEN',
-  IncorrectLoginInfo = 'INCORRECT_LOGIN_INFO',
+  MissingAuthToken = 4010,
+  InvalidAccessToken = 4011,
+  InvalidRefreshToken = 4012,
+  IncorrectLoginInfo = 4013,
 
   // 404
-  ContentNotFound = 'CONTENT_NOT_FOUND',
+  ContentNotFound = 4040,
 
   // 409
-  DuplicateValue = 'DUPLICATE_VALUE',
+  DuplicateValue = 4090,
 
   // 500
-  InternalServerError = 'SERVER_ERROR',
+  InternalServerError = 5000,
 }

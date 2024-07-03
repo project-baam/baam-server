@@ -1,11 +1,11 @@
-import { ErrorCode } from 'src/common/constants/error-codes';
-import { EnvironmentService } from './../../../module/environment/environment.service';
 import {
   ArgumentsHost,
   BadRequestException,
   Catch,
   ExceptionFilter,
 } from '@nestjs/common';
+import { ErrorCode } from 'src/common/constants/error-codes';
+import { EnvironmentService } from './../../../module/environment/environment.service';
 
 // main.ts 에 ValidationPipe 에러를 BAD_REQUEST 로 정의함
 @Catch(BadRequestException)
@@ -20,7 +20,6 @@ export class ParameterValidationExceptionFilter
     const isProduction = this.environmentService.isProduction();
 
     response.status(exception.getStatus()).json({
-      result: false,
       code: ErrorCode.InvalidParameter,
       message: isProduction
         ? exceptionObj.error

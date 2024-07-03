@@ -10,7 +10,6 @@ export class HttpExceptionFilter<T extends ApplicationException>
     const response = host.switchToHttp().getResponse<Response>();
 
     response.status(exception.getStatus()).json({
-      result: false,
       code: exception.code,
       message: exception.message,
     });

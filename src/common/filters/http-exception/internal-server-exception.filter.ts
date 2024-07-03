@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 import { Response } from 'express';
-import { ErrorCode } from 'src/common/constants/error-codes';
+import { ErrorCode } from './../../constants/error-codes';
 
 // 핸들링 되지 않은 서버 에러
 @Catch()
@@ -23,7 +23,6 @@ export class InternalServerErrorFilter extends BaseExceptionFilter {
     Logger.error(exception.stack);
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      result: false,
       code: ErrorCode.InternalServerError,
       message: `Oops! There was a problem with our server. We're working to fix it as soon as possible.`,
     });

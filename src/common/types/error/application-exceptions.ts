@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
-import { ErrorCode } from '../../constants/error-codes';
 import { CodeToStatus } from 'src/common/constants/error-code-to-status';
+import { ErrorCode } from 'src/common/constants/error-codes';
 
 export abstract class ApplicationException extends Error {
   code: ErrorCode;
