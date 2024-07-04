@@ -14,22 +14,13 @@ export const ResponseList = <TModel extends Type<unknown>>(
         allOf: [
           {
             properties: {
-              result: {
-                type: 'boolean',
-                example: true,
+              total: {
+                type: 'number',
+                example: 0,
               },
-              data: {
-                type: 'object',
-                properties: {
-                  total: {
-                    type: 'number',
-                    example: 0,
-                  },
-                  list: {
-                    type: 'array',
-                    items: { $ref: getSchemaPath(model) },
-                  },
-                },
+              list: {
+                type: 'array',
+                items: { $ref: getSchemaPath(model) },
               },
             },
           },

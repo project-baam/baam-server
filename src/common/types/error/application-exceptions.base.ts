@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { CodeToStatus } from 'src/common/constants/error-code-to-status';
 import { ErrorCode } from 'src/common/constants/error-codes';
 
-export abstract class ApplicationException extends Error {
+export class ApplicationException extends Error {
   code: ErrorCode;
 
   constructor(code?: ErrorCode, err?: string | Error) {

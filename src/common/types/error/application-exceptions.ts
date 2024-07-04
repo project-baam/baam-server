@@ -2,15 +2,19 @@ import { ErrorCode } from 'src/common/constants/error-codes';
 import { ApplicationException } from './application-exceptions.base';
 
 export class ContentNotFoundError extends ApplicationException {
-  constructor(resource: string, id: string | number) {
+  constructor(resource: string = '$resource', id: string | number = '$id') {
     const message = `${resource} #${id} not found`;
     super(ErrorCode.ContentNotFound, message);
   }
 }
 
 export class DuplicateValueError extends ApplicationException {
-  constructor(resource: string, property: string, value: string | number) {
-    const message = `Duplicate ${property} for ${resource}: ${value}`;
+  constructor(
+    resource: string = '$resource',
+    property: string = '$property',
+    value: string | number = '$value',
+  ) {
+    const message = `Duplicate *${property}* for *${resource}*: *${value}*`;
     super(ErrorCode.DuplicateValue, message);
   }
 }
