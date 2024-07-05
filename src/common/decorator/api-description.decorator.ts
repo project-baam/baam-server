@@ -31,9 +31,9 @@ export const ApiDescription = <
   dto: ApiDescriptionDto<TModel, TException>,
 ) => {
   // Swagger description 필드: API description + 예외 응답 코드 테이블
-  let description: string = dto.description || '';
+  let description: string = dto.description ?? '';
 
-  dto.exceptions = dto.exceptions || [];
+  dto.exceptions = dto.exceptions ?? [];
 
   // Add table header
   if (dto.auth || (!dto.auth && dto.exceptions.length)) {
