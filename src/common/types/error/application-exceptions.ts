@@ -1,40 +1,20 @@
-import { HttpStatus } from '@nestjs/common';
-import { CodeToStatus } from 'src/common/constants/error-code-to-status';
 import { ErrorCode } from 'src/common/constants/error-codes';
-
-export abstract class ApplicationException extends Error {
-  code: ErrorCode;
-
-  constructor(code?: ErrorCode, err?: string | Error) {
-    super();
-    this.code = code || ErrorCode.InternalServerError;
-
-    if (typeof err === 'string') {
-      this.message = err;
-    }
-
-    if (typeof err === 'object') {
-      this.name = err.name;
-      this.message = err.message;
-      this.stack = err.stack;
-    }
-  }
-
-  getStatus(): HttpStatus {
-    return CodeToStatus[this.code];
-  }
-}
+import { ApplicationException } from './application-exceptions.base';
 
 export class ContentNotFoundError extends ApplicationException {
-  constructor(resource: string, id: string | number) {
+  constructor(resource: string = '$resource', id: string | number = '$id') {
     const message = `${resource} #${id} not found`;
     super(ErrorCode.ContentNotFound, message);
   }
 }
 
 export class DuplicateValueError extends ApplicationException {
-  constructor(resource: string, property: string, value: string | number) {
-    const message = `Duplicate ${property} for ${resource}: ${value}`;
+  constructor(
+    resource: string = '$resource',
+    property: string = '$property',
+    value: string | number = '$value',
+  ) {
+    const message = `Duplicate *${property}* for *${resource}*: *${value}*`;
     super(ErrorCode.DuplicateValue, message);
   }
 }
