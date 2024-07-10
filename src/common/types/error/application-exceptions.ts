@@ -51,3 +51,9 @@ export class IncorrectLoginInfo extends ApplicationException {
     );
   }
 }
+
+export class NeisError extends ApplicationException {
+  constructor(message?: string) {
+    super(ErrorCode.NeisError, message);
+  }
+}
