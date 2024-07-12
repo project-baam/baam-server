@@ -6,17 +6,25 @@ import { UserModule } from './user/user.module';
 import { UtilModule } from './util/util.module';
 import { InMemoryModule } from './database/in-memory/in-memory.module';
 import { HttpModule } from '@nestjs/axios';
-import { NeisServiceModule } from './neis-service/neis-service.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OrmConfigModule } from './database/orm/orm.module';
+import { OrmConfigService } from './database/orm/orm.service';
+import { SchoolDatasetModule } from './school-dataset/school-dataset.module';
 
 @Module({
   imports: [
+    TypeOrmModule.forRootAsync({
+      imports: [OrmConfigModule],
+      inject: [OrmConfigService],
+      useClass: OrmConfigService,
+    }),
     EnvironmentModule,
     UtilModule,
     HttpModule,
     InMemoryModule,
     UserModule,
     IamModule,
-    NeisServiceModule,
+    SchoolDatasetModule,
   ],
 })
 export class MainModule {}

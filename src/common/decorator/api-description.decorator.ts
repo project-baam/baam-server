@@ -1,5 +1,10 @@
 import { applyDecorators, HttpStatus, Type } from '@nestjs/common';
-import { ApiBearerAuth, ApiExtraModels, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExtraModels,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { ApplicationException } from '../types/error/application-exceptions.base';
 import {
@@ -10,6 +15,7 @@ import { ResponseData } from './response-data.decorator';
 import { ResponseList } from './response-list.decorators';
 
 interface ApiDescriptionDto<TModel, TException> {
+  tags?: string | string[];
   summary: string;
   description?: string;
   auth?: string;
@@ -64,6 +70,14 @@ export const ApiDescription = <
   const decorators: MethodDecorator[] = [
     ApiOperation({ summary: dto.summary, description }),
   ];
+
+  if (typeof dto.tags === 'string' && dto.tags) {
+    decorators.push(ApiTags(dto.tags));
+  }
+
+  if (Array.isArray(dto.tags) && dto.tags.length) {
+    decorators.push(ApiTags(...dto.tags));
+  }
 
   if (dto.dataResponse) {
     decorators.push(

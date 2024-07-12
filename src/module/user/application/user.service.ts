@@ -4,7 +4,7 @@ import { FindUniqueUserQuery } from './dto/user.query';
 import { CreateUserCommand } from './dto/user.command';
 import { UserRepository } from './port/user.repository';
 import { Inject } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { UserEntity } from '../adapter/persistence/orm/entities/user.entity';
 
 export class UserService {
   constructor(
@@ -12,19 +12,19 @@ export class UserService {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async createUser(createUserDto: CreateUserCommand): Promise<User> {
+  async createUser(createUserDto: CreateUserCommand): Promise<UserEntity> {
     return await this.userRepository.saveUniqueUserOrFail(createUserDto);
   }
 
   async findUnqiueUser(
     findUniqueUserDto: FindUniqueUserQuery,
-  ): Promise<User | null> {
+  ): Promise<UserEntity | null> {
     return await this.userRepository.findUniqueUserByEmail(
       findUniqueUserDto.email,
     );
   }
 
-  async findOneByIdOrFail(id: number): Promise<User> {
+  async findOneByIdOrFail(id: number): Promise<UserEntity> {
     return await this.userRepository.findOneByIdOrFail(id);
   }
 }

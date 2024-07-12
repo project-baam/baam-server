@@ -1,15 +1,9 @@
-export class ResponsesListDto<T> {
-  result: boolean;
-  data: {
-    total: number;
-    list: Array<T>;
-  };
+export class ResponseListDto<T> {
+  total: number;
+  list: Array<T>;
 
-  constructor(list: Array<T> | null, total?: number, result = true) {
-    this.result = result;
-    this.data = {
-      total: total ? total : list ? list.length : 0,
-      list: list || [],
-    };
+  constructor(list: Array<T> | null, total?: number) {
+    this.total = total ? total : list ? list.length : 0;
+    this.list = list || [];
   }
 }
