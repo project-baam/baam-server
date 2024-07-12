@@ -10,6 +10,7 @@ import { School } from 'src/module/school-dataset/domain/school';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 import { GetSchoolsRequest } from './dto/school.dto';
 import { ClassResponse } from './dto/class.dto';
+import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 
 @Auth(AuthType.None)
 @HttpController('school-dataset')
@@ -19,7 +20,8 @@ export class SchoolDatasetController {
   // TODO: pagination
   @ApiDescription({
     tags: ['school-dataset'],
-    summary: '학교 목록 조회(학교명 검색, 페이지네이션 O)',
+    summary: '학교 목록 조회',
+    description: '페이지네이션, 학교명 검색(선택사항)',
     listResponse: {
       status: HttpStatus.OK,
       schema: School,
@@ -44,11 +46,13 @@ export class SchoolDatasetController {
 
   @ApiDescription({
     tags: ['school-dataset'],
-    summary: '학교별 학급 정보 조회(페이지네이션 X)',
+    summary: '학교별 학급 정보 조회',
+    description: '페이지네이션 없이 전체 학급 조회',
     listResponse: {
       status: HttpStatus.OK,
       schema: ClassResponse,
     },
+    exceptions: [ContentNotFoundError],
   })
   @Get('classes/:schoolId')
   async getClasses(
