@@ -12,4 +12,5 @@ export const CodeToStatus: {
   [ErrorCode.ContentNotFound]: HttpStatus.NOT_FOUND,
   [ErrorCode.DuplicateValue]: HttpStatus.CONFLICT,
   [ErrorCode.InternalServerError]: HttpStatus.INTERNAL_SERVER_ERROR,
+  [ErrorCode.NeisError]: HttpStatus.INTERNAL_SERVER_ERROR,
 } as const;

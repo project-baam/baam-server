@@ -16,4 +16,5 @@ export enum ErrorCode {
 
   // 500
   InternalServerError = 5000,
+  NeisError = 5001,
 }
