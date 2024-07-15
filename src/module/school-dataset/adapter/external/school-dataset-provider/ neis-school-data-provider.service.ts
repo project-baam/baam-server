@@ -22,6 +22,7 @@ import { ClassEntity } from '../../persistence/entities/class.entity';
 import { SchoolEntity } from '../../persistence/entities/school.entity';
 import { ClassInfo, ClassInfoRequest } from './dto/class-info.dto';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository';
+import { HighSchoolType } from 'src/module/school-dataset/domain/value-objects/school-type';
 
 @Injectable()
 export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
@@ -155,6 +156,7 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
         officeName: school.ATPT_OFCDC_SC_NM,
         postalCode: school.ORG_RDNZC,
         roadNameAddress: `${school.ORG_RDNMA} ${school.ORG_RDNDA}`,
+        type: school.HS_SC_NM as HighSchoolType,
       };
     });
   }
