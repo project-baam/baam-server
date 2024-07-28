@@ -8,6 +8,15 @@ import { ClassRepository } from './port/class.repository';
 import { SchoolRepository } from './port/school.repository';
 import { School } from '../domain/school';
 import { SchoolDatasetProvider } from '../adapter/external/school-dataset-provider/school-dataset-provider.interface';
+import { SubjectRepository } from './port/subject.repository';
+import {
+  SubjectCategoriesRequest,
+  SubjectCategoryResponse,
+} from '../adapter/presenter/rest/dto/subject-categories.dto';
+import {
+  SubjectRequestBase,
+  SubjectsRequest,
+} from '../adapter/presenter/rest/dto/subjects.dto';
 
 export class SchoolDatasetService {
   constructor(
@@ -19,6 +28,9 @@ export class SchoolDatasetService {
 
     @Inject(SchoolDatasetProvider)
     private readonly schoolDatasetProvider: SchoolDatasetProvider,
+
+    @Inject(SubjectRepository)
+    private readonly subjectRepository: SubjectRepository,
   ) {}
 
   // transactional
@@ -70,5 +82,24 @@ export class SchoolDatasetService {
       ) ?? [];
 
     return classesGroupByGrade;
+  }
+
+  async getSubjectCategories(
+    params: SubjectCategoriesRequest,
+  ): Promise<PaginatedList<SubjectCategoryResponse>> {
+    return this.subjectRepository.findCategories(
+      SubjectRequestBase.getCurriculumVersion(params.year, params.grade),
+      params.count,
+      params.page,
+    );
+  }
+
+  async getSubjects(params: SubjectsRequest): Promise<PaginatedList<string>> {
+    return this.subjectRepository.findSubjects(
+      SubjectRequestBase.getCurriculumVersion(params.year, params.grade),
+      params.count,
+      params.page,
+      { category: params?.category, search: params?.search },
+    );
   }
 }
