@@ -19,7 +19,6 @@ export class UserService {
       user.id,
       user.email,
       user.username,
-      user.password,
       user.thirdPartyId,
       user.provider,
     );
