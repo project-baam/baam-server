@@ -24,9 +24,9 @@ import { KakaoStrategy } from './adapter/external/kakao.strategy';
     RefreshTokenIdsStorage,
     {
       provide: 'KakaoStrategy',
-useClass: KakaoStrategy,
-},
-],
-controllers: [AuthenticationController],
+      useClass: KakaoStrategy,
+    },
+  ],
+  controllers: [AuthenticationController],
 })
 export class IamModule {}
