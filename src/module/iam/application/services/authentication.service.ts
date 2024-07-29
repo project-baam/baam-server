@@ -1,6 +1,7 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { SocialStrategy } from "../port/social-strategy.interface";
+import { UserService } from "../../../user/application/services/user.service";
 
 @Injectable()
 export class AuthenticationService {
@@ -12,7 +13,8 @@ export class AuthenticationService {
 
   async validateOAuthLogin(token: string, provider: string): Promise<any> {
     let user;
-    if (provider === 'kakao') user = await this.kakaoStrategy.authenticate(token);
+    if (provider === 'kakao')
+      user = await this.kakaoStrategy.authenticate(token);
 
     if (user) {
       const existingUser = await this.userService.findUserByEmail(user.email);
