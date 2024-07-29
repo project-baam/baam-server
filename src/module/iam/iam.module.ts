@@ -7,7 +7,7 @@ import { AuthenticationController } from './adapter/presenter/rest/authenticatio
 import { AuthenticationService } from './application/services/authentication.service';
 import { UserModule } from '../user/user.module';
 import { AuthenticationGuard } from './adapter/guards/authentication.guard';
-import { AccessTokenGuard } from './adapter/guards/access-token-guard';
+import { AccessTokenGuard } from './adapter/guards/access-token.guard';
 import { RefreshTokenIdsStorage } from './adapter/persistence/refresh-token-ids.storage';
 
 import { KakaoStrategy } from './adapter/external/kakao.strategy';

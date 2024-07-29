@@ -1,7 +1,8 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { SocialStrategy } from "../port/social-strategy.interface";
-import { UserService } from "../../../user/application/services/user.service";
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { SocialStrategy } from '../port/social-strategy.interface';
+import { UserService } from '../../../user/application/services/user.service';
+import { RefreshTokenIdsStorage } from '../../adapter/persistence/refresh-token-ids.storage';
 
 @Injectable()
 export class AuthenticationService {
@@ -9,6 +10,7 @@ export class AuthenticationService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     @Inject('KakaoStrategy') private readonly kakaoStrategy: SocialStrategy,
+    private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
   ) {}
 
   async validateOAuthLogin(token: string, provider: string): Promise<any> {
@@ -28,8 +30,20 @@ export class AuthenticationService {
 
   async login(user: any) {
     const payload = { username: user.username, sub: user.id };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    this.refreshTokenIdsStorage.add(refreshToken);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    if (!this.refreshTokenIdsStorage.contains(refreshToken)) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }
