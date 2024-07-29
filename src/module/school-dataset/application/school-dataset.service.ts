@@ -13,10 +13,8 @@ import {
   SubjectCategoriesRequest,
   SubjectCategoryResponse,
 } from '../adapter/presenter/rest/dto/subject-categories.dto';
-import {
-  SubjectRequestBase,
-  SubjectsRequest,
-} from '../adapter/presenter/rest/dto/subjects.dto';
+import { SubjectsRequest } from '../adapter/presenter/rest/dto/subjects.dto';
+import { getCurriculumVersion } from '../domain/value-objects/curriculum-version';
 
 export class SchoolDatasetService {
   constructor(
@@ -88,7 +86,7 @@ export class SchoolDatasetService {
     params: SubjectCategoriesRequest,
   ): Promise<PaginatedList<SubjectCategoryResponse>> {
     return this.subjectRepository.findCategories(
-      SubjectRequestBase.getCurriculumVersion(params.year, params.grade),
+      getCurriculumVersion(params.year, params.grade),
       params.count,
       params.page,
     );
@@ -96,7 +94,7 @@ export class SchoolDatasetService {
 
   async getSubjects(params: SubjectsRequest): Promise<PaginatedList<string>> {
     return this.subjectRepository.findSubjects(
-      SubjectRequestBase.getCurriculumVersion(params.year, params.grade),
+      getCurriculumVersion(params.year, params.grade),
       params.count,
       params.page,
       { category: params?.category, search: params?.search },

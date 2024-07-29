@@ -29,4 +29,6 @@ export abstract class SubjectRepository {
     page: number,
     filter: { category?: string; search?: string },
   ): Promise<PaginatedList<string>>;
+
+  abstract findIdByName(name: string): Promise<number | null>;
 }

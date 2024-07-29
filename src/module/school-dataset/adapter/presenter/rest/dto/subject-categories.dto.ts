@@ -10,9 +10,6 @@ export class SubjectCategoriesRequest extends IntersectionType(
 ) {}
 
 export class SubjectCategoryResponse {
-  @ApiProperty()
-  id: number;
-
   @ApiProperty({ description: '교과 분류' })
   category: string;
 

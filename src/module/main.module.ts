@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrmConfigModule } from './database/orm/orm.module';
 import { OrmConfigService } from './database/orm/orm.service';
 import { SchoolDatasetModule } from './school-dataset/school-dataset.module';
+import { TimetableModule } from './timetable/timetable.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SchoolDatasetModule } from './school-dataset/school-dataset.module';
     UserModule,
     IamModule,
     SchoolDatasetModule,
+    TimetableModule,
   ],
 })
 export class MainModule {}

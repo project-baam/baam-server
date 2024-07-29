@@ -65,4 +65,15 @@ export class OrmSubjectRepository implements SubjectRepository {
 
     return { list: subjects.map((e) => e.name) as string[], total };
   }
+
+  async findIdByName(name: string): Promise<number | null> {
+    return (
+      (
+        await this.subjectRepository.findOne({
+          select: { id: true },
+          where: { name },
+        })
+      )?.id ?? null
+    );
+  }
 }

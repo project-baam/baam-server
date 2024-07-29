@@ -25,4 +25,15 @@ export class OrmClassRepository implements ClassRepository {
   ): Promise<ClassEntity[] | null> {
     return this.classRepository.findBy({ schoolId, grade });
   }
+
+  findByNameAndGrade(
+    schoolName: string,
+    className: string,
+    grade: Grade,
+  ): Promise<ClassEntity | null> {
+    return this.classRepository.findOne({
+      relations: ['school'],
+      where: { name: className, grade, school: { name: schoolName } },
+    });
+  }
 }

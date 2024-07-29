@@ -8,4 +8,9 @@ export abstract class ClassRepository {
     schoolId: number,
     grade: Grade,
   ): Promise<ClassEntity[] | null>;
+  abstract findByNameAndGrade(
+    schoolName: string,
+    className: string,
+    grade: Grade,
+  ): Promise<ClassEntity | null>;
 }
