@@ -1,3 +1,3 @@
-export interface SocialStrategyInterface {
+export interface SocialStrategy {
   authenticate(token: string): Promise<any>;
 }
