@@ -1,5 +1,5 @@
-import { Controller, Post, Body, UnauthorizedException } from "@nestjs/common";
-import { AuthenticationService } from "../../../application/services/authentication.service";
+import { Controller, Post, Body } from '@nestjs/common';
+import { AuthenticationService } from '../../../application/services/authentication.service';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -12,5 +12,10 @@ export class AuthenticationController {
       body.provider,
     );
     return this.authenticationService.login(user);
+  }
+
+  @Post('refresh')
+  async refreshTokens(@Body() body: { refreshToken: string }) {
+    return this.authenticationService.refreshTokens(body.refreshToken);
   }
 }
