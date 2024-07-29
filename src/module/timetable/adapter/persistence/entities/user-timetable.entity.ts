@@ -1,4 +1,5 @@
 import {
+  BaseEntity,
   Column,
   Entity,
   JoinColumn,
@@ -15,7 +16,7 @@ import { Period } from 'src/module/timetable/domain/value-objects/period';
 
 @Unique(['userId', 'year', 'semester', 'day', 'period']) // 동일 교시에 중복되는 수업이 없어야 함
 @Entity('user_timetable')
-export class UserTimetableEntity {
+export class UserTimetableEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
