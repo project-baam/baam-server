@@ -14,5 +14,6 @@ import { OrmTimetablePersistenceModule } from '../timetable/adapter/persistence/
   ],
   providers: [SchoolDatasetService],
   controllers: [SchoolDatasetController],
+  exports: [SchoolDatasetService],
 })
 export class SchoolDatasetModule {}

@@ -1,4 +1,12 @@
-import { Body, Delete, Get, HttpStatus, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Delete,
+  Get,
+  HttpStatus,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 
 import { ApiDescription } from 'src/common/decorator/api-description.decorator';
 import { Auth } from 'src/module/iam/decorators/auth.decorator';
@@ -15,6 +23,7 @@ import {
 } from './dto/timetable.dto';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @HttpController('timetable')
 export class TimetableController {
@@ -40,6 +49,21 @@ export class TimetableController {
       await this.timetableService.findDefaultClassTimetable(params);
 
     return new ResponseListDto(TimetableMapper.mapToDomain(timetables ?? []));
+  }
+
+  @Auth(AuthType.None)
+  @Post('default')
+  @ApiExcludeEndpoint()
+  async setUserDefaultTimetable(
+    @Query('userId') userId: number,
+    @Query('classId') classId: number,
+  ): Promise<boolean> {
+    await this.timetableService.setUserDefaultTimetableWithFallbackFetch(
+      userId,
+      classId,
+    );
+
+    return true;
   }
 
   @Auth(AuthType.None) // TODO: 유저 인증 작업 머지 후 수정 필요

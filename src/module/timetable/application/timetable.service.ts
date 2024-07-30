@@ -14,6 +14,7 @@ import { UserTimetableEntity } from '../adapter/persistence/entities/user-timeta
 import { Weekday } from '../domain/value-objects/weekday';
 import { Period } from '../domain/value-objects/period';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
+import { SchoolDatasetService } from 'src/module/school-dataset/application/school-dataset.service';
 
 @Injectable()
 export class TimetableService {
@@ -23,6 +24,7 @@ export class TimetableService {
     private readonly userTimetableRepository: UserTimetableRepository,
     private readonly subjectRepository: SubjectRepository,
     private readonly classRepository: ClassRepository,
+    private readonly schoolDatasetService: SchoolDatasetService,
   ) {}
 
   async findDefaultClassTimetable(
@@ -49,10 +51,10 @@ export class TimetableService {
   }
 
   /**
-   * 회원가입시 기본 시간표를 설정
+   * 회원가입시 기본 시간표를 설정(필요한 경우 Neis API 를 통해 가져옴)
    * 회원가입 시점 = 2월 ~ 7월 이면 1학기, 8월 ~ 1월 이면 2학기
    */
-  async setUserDefaultTimetable(
+  async setUserDefaultTimetableWithFallbackFetch(
     userId: number,
     classId: number,
     //TODO: user id 만 받고, class id 는 user 에서 가져올지?
@@ -68,10 +70,19 @@ export class TimetableService {
         classId,
       );
 
-    if (defaultTimetables) {
+    // 해당 학급에 대해 기본 시간표가 있는 경우
+    if (defaultTimetables?.length) {
       await this.userTimetableRepository.upsert(
         defaultTimetables.map((e) => Object.assign(e, { userId })),
       );
+    } else {
+      // 해당 학급에 대해 기본 시간표가 없는 경우(유저가 최초 가입한 경우)
+      await this.schoolDatasetService.createDefaultTimetable(
+        thisYear,
+        semester,
+        classId,
+      );
+      await this.setUserDefaultTimetableWithFallbackFetch(userId, classId);
     }
   }
 

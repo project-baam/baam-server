@@ -61,27 +61,26 @@ export class SchoolDatasetService {
   async createDefaultTimetable(
     year: number,
     semester: Semester,
+    classId: number,
   ): Promise<void> {
-    const allClasses = await this.classRepository.findAll();
+    const cls = await this.classRepository.findByIdOrFail(classId);
 
     const defaultTimetables: UpsertDefaultTimetable[] = [];
 
     console.time('fetchDefaultTimetable');
-    for (const cls of allClasses) {
-      const defaultTimetables = (
-        await this.schoolDatasetProvider.fetchDefaultTimetable(
-          year,
-          semester,
-          cls.school.officeCode,
-          cls.school.code,
-          cls.grade,
-          cls.name,
-        )
-      ).map((e) => Object.assign(e, { classId: cls.id }));
+    const timetables = (
+      await this.schoolDatasetProvider.fetchDefaultTimetable(
+        year,
+        semester,
+        cls.school.officeCode,
+        cls.school.code,
+        cls.grade,
+        cls.name,
+      )
+    ).map((e) => Object.assign(e, { classId: cls.id }));
 
-      if (defaultTimetables?.length) {
-        defaultTimetables.push(...defaultTimetables);
-      }
+    if (timetables?.length) {
+      defaultTimetables.push(...timetables);
     }
 
     console.timeEnd('fetchDefaultTimetable');
