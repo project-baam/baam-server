@@ -48,6 +48,25 @@ export class SchoolDatasetController {
     return true;
   }
 
+  /**
+   * TODO: 속도 개선 필요
+   * 나이스 Open API 로 학년도/학기/학교/학급별 디폴트 시간표 추출
+   * 디폴트 시간표 테이블에 INSERT
+   */
+  @Auth(AuthType.None)
+  @ApiExcludeEndpoint()
+  @Post('timetable/default')
+  async createDefaultTimetable(
+    @Query('year') year: number,
+    @Query('semester') semester: number,
+  ): Promise<boolean> {
+    console.time('createDefaultTimetable');
+    await this.schoolDatasetService.createDefaultTimetable(year, semester);
+
+    console.timeEnd('createDefaultTimetable');
+    return true;
+  }
+
   @ApiDescription({
     tags: ['school-dataset: 학급'],
     summary: '학교별 학급 정보 조회',

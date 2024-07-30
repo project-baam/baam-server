@@ -2,7 +2,7 @@ import { PaginatedList } from 'src/common/dto/response.dto';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository';
 import { CurriculumVersion } from 'src/module/school-dataset/domain/value-objects/curriculum-version';
 import { SubjectEntity } from '../../entities/subject.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubjectCategoryResponse } from '../../../presenter/rest/dto/subject-categories.dto';
 import { plainToInstance } from 'class-transformer';
@@ -75,5 +75,14 @@ export class OrmSubjectRepository implements SubjectRepository {
         })
       )?.id ?? null
     );
+  }
+
+  async findExistingIds(names: string[]): Promise<number[]> {
+    const result = await this.subjectRepository.find({
+      select: ['id'],
+      where: { name: In(names) },
+    });
+
+    return result.map((e) => e.id);
   }
 }

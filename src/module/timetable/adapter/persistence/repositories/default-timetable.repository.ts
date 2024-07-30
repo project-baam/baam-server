@@ -13,6 +13,18 @@ export class OrmDefaultTimetableRepository
     private readonly timetableRepository: Repository<DefaultTimetableEntity>,
   ) {}
 
+  async upsertMany(
+    timetables: Partial<DefaultTimetableEntity>[],
+  ): Promise<void> {
+    await this.timetableRepository.upsert(timetables, [
+      'year',
+      'semester',
+      'classId',
+      'day',
+      'period',
+    ]);
+  }
+
   findDefaultClassTimetable(
     year: number,
     semester: Semester,

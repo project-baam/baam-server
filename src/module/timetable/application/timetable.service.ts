@@ -18,7 +18,6 @@ import { Semester } from 'src/module/school-dataset/domain/value-objects/semeste
 @Injectable()
 export class TimetableService {
   constructor(
-    // @Inject(DefaultTimetableRepository)
     private readonly defaultTimetableRepository: DefaultTimetableRepository,
     private readonly dateUtilService: DateUtilService,
     private readonly userTimetableRepository: UserTimetableRepository,

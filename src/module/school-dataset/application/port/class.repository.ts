@@ -13,4 +13,5 @@ export abstract class ClassRepository {
     className: string,
     grade: Grade,
   ): Promise<ClassEntity | null>;
+  abstract findAll(): Promise<ClassEntity[]>;
 }

@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entities/class.entity';
@@ -17,6 +18,7 @@ import { BaseEntity } from 'src/module/database/orm/base.entity';
  * 학급별 기본 시간표
  * - 학년도, 학기, (학교+학년+반)=class 에 따라 다름
  */
+@Unique(['year', 'semester', 'classId', 'day', 'period'])
 @Entity('default_timetable')
 export class DefaultTimetableEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')

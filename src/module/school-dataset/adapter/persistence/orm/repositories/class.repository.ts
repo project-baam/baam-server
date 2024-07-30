@@ -11,6 +11,10 @@ export class OrmClassRepository implements ClassRepository {
     private readonly classRepository: Repository<ClassEntity>,
   ) {}
 
+  findAll(): Promise<ClassEntity[]> {
+    return this.classRepository.find({ relations: ['school'] });
+  }
+
   async upsertMany(classes: ClassEntity[]): Promise<void> {
     await this.classRepository.upsert(classes, ['schoolId', 'grade', 'name']);
   }
