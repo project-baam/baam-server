@@ -60,14 +60,12 @@ export class SchoolDatasetController {
     @Query('semester') semester: number,
     @Query('schoolId') schoolId: number,
   ): Promise<boolean> {
-    console.time('createDefaultTimetable');
     await this.schoolDatasetService.createDefaultTimetable(
       year,
       semester,
       schoolId,
     );
 
-    console.timeEnd('createDefaultTimetable');
     return true;
   }
 

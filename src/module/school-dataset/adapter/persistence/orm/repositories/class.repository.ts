@@ -32,7 +32,7 @@ export class OrmClassRepository implements ClassRepository {
     await this.classRepository.upsert(classes, ['schoolId', 'grade', 'name']);
   }
 
-  findBySchoolId(schoolId: number): Promise<ClassEntity[] | null> {
+  findBySchoolId(schoolId: number): Promise<ClassEntity[]> {
     return this.classRepository.find({
       relations: ['school'],
       where: { schoolId },
@@ -42,7 +42,7 @@ export class OrmClassRepository implements ClassRepository {
   findBySchoolIdAndGrade(
     schoolId: number,
     grade: Grade,
-  ): Promise<ClassEntity[] | null> {
+  ): Promise<ClassEntity[]> {
     return this.classRepository.findBy({ schoolId, grade });
   }
 

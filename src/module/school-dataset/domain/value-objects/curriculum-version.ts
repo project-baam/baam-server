@@ -9,23 +9,21 @@ export const getCurriculumVersion = (
   year: number,
   grade: Grade,
 ): CurriculumVersion => {
-  switch (year) {
-    case 2024:
-      return CurriculumVersion.V2015;
+  const curriculumMap: {
+    [key: number]: CurriculumVersion | ((grade: Grade) => CurriculumVersion);
+  } = {
+    2024: CurriculumVersion.V2015,
+    2025: (grade) =>
+      grade === Grade.First ? CurriculumVersion.V2022 : CurriculumVersion.V2015,
+    2026: (grade) =>
+      grade === Grade.Third ? CurriculumVersion.V2015 : CurriculumVersion.V2022,
+    2027: CurriculumVersion.V2022,
+  };
 
-    case 2025:
-      return grade === Grade.First
-        ? CurriculumVersion.V2022
-        : CurriculumVersion.V2015;
-
-    case 2026:
-      return grade === Grade.Third
-        ? CurriculumVersion.V2015
-        : CurriculumVersion.V2022;
-
-    case 2027:
-      return CurriculumVersion.V2022;
+  const curriculum = curriculumMap[year];
+  if (curriculum) {
+    return typeof curriculum === 'function' ? curriculum(grade) : curriculum;
   }
 
-  throw new Error('Unsupported year');
+  throw new Error(`Unsupported year: ${year}`);
 };

@@ -41,7 +41,6 @@ export class SchoolEntity extends BaseEntity {
     type: 'enum',
     enum: HighSchoolType,
     comment: '고등학교 구분명',
-    nullable: true,
   })
-  type: HighSchoolType; // HS_SC_NM
+  type: HighSchoolType;
 }
