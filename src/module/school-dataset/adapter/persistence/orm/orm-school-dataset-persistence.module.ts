@@ -31,4 +31,4 @@ import { SubjectRepository } from 'src/module/school-dataset/application/port/su
   ],
   exports: [SchoolRepository, ClassRepository, SubjectRepository],
 })
-export class OrmSchoolDataasetPersistenceModule {}
+export class OrmSchoolDatasetPersistenceModule {}
