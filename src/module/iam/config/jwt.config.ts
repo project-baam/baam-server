@@ -1,15 +1,13 @@
-import { registerAs } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModuleOptions } from '@nestjs/jwt';
 
-export default registerAs('jwt', () => {
-  return {
-    secret: process.env.JWT_SECRET,
-    signOptions: {
-      audience: process.env.JWT_TOKEN_AUDIENCE,
-      issuer: process.env.JWT_TOKEN_ISSUER,
-    },
-    verifyOptions: {
-      audience: process.env.JWT_TOKEN_AUDIENCE,
-      issuer: process.env.JWT_TOKEN_ISSUER,
-    },
-  };
-});
+export default {
+  imports: [ConfigModule],
+  useFactory: async (
+    configService: ConfigService,
+  ): Promise<JwtModuleOptions> => ({
+    secret: configService.get<string>('JWT_SECRET'),
+    signOptions: { expiresIn: '60m' },
+  }),
+  inject: [ConfigService],
+};

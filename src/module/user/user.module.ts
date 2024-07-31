@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
-import { OrmUserPersistenceModule } from './adapter/persistence/orm/orm-user-persistence.module';
-import { UserService } from './application/user.service';
+import { UserService } from './application/services/user.service';
 import { UserController } from './adapter/presenter/rest/user.controller';
+import { UserRepositoryImpl } from './adapter/persistence/orm/user.repository';
 
 @Module({
-  imports: [OrmUserPersistenceModule],
-  providers: [UserService],
+  providers: [
+    UserService,
+    {
+      provide: 'UserRepository',
+      useClass: UserRepositoryImpl,
+    },
+  ],
   controllers: [UserController],
   exports: [UserService],
 })
