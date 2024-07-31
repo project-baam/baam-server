@@ -8,6 +8,16 @@ import { ClassRepository } from './port/class.repository';
 import { SchoolRepository } from './port/school.repository';
 import { School } from '../domain/school';
 import { SchoolDatasetProvider } from '../adapter/external/school-dataset-provider/school-dataset-provider.interface';
+import { SubjectRepository } from './port/subject.repository';
+import {
+  SubjectCategoriesRequest,
+  SubjectCategoryResponse,
+} from '../adapter/presenter/rest/dto/subject-categories.dto';
+import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository';
+import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
+import { SubjectsRequest } from '../adapter/presenter/rest/dto/subjects.dto';
+import { getCurriculumVersion } from '../domain/value-objects/curriculum-version';
+import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
 
 export class SchoolDatasetService {
   constructor(
@@ -19,6 +29,12 @@ export class SchoolDatasetService {
 
     @Inject(SchoolDatasetProvider)
     private readonly schoolDatasetProvider: SchoolDatasetProvider,
+
+    @Inject(SubjectRepository)
+    private readonly subjectRepository: SubjectRepository,
+
+    @Inject(DefaultTimetableRepository)
+    private readonly defaultTimetableRepository: DefaultTimetableRepository,
   ) {}
 
   // transactional
@@ -36,6 +52,41 @@ export class SchoolDatasetService {
         await this.classRepository.upsertMany(classes);
       }
     }
+  }
+
+  /**
+   * 나이스 Open API 로 학년도/학기/학교/학급별 디폴트 시간표 추출
+   * 디폴트 시간표 테이블에 데이터 삽입
+   */
+  async createDefaultTimetable(
+    year: number,
+    semester: Semester,
+    classId: number,
+  ): Promise<void> {
+    const cls = await this.classRepository.findByIdOrFail(classId);
+
+    const defaultTimetables: UpsertDefaultTimetable[] = [];
+
+    console.time('fetchDefaultTimetable');
+    const timetables = (
+      await this.schoolDatasetProvider.fetchDefaultTimetable(
+        year,
+        semester,
+        cls.school.officeCode,
+        cls.school.code,
+        cls.grade,
+        cls.name,
+      )
+    ).map((e) => Object.assign(e, { classId: cls.id }));
+
+    if (timetables?.length) {
+      defaultTimetables.push(...timetables);
+    }
+
+    console.timeEnd('fetchDefaultTimetable');
+    console.log(defaultTimetables.length);
+
+    await this.defaultTimetableRepository.upsertMany(defaultTimetables);
   }
 
   async getSchools(params: GetSchoolsRequest): Promise<PaginatedList<School>> {
@@ -70,5 +121,24 @@ export class SchoolDatasetService {
       ) ?? [];
 
     return classesGroupByGrade;
+  }
+
+  async getSubjectCategories(
+    params: SubjectCategoriesRequest,
+  ): Promise<PaginatedList<SubjectCategoryResponse>> {
+    return this.subjectRepository.findCategories(
+      getCurriculumVersion(params.year, params.grade),
+      params.count,
+      params.page,
+    );
+  }
+
+  async getSubjects(params: SubjectsRequest): Promise<PaginatedList<string>> {
+    return this.subjectRepository.findSubjects(
+      getCurriculumVersion(params.year, params.grade),
+      params.count,
+      params.page,
+      { category: params?.category, search: params?.search },
+    );
   }
 }

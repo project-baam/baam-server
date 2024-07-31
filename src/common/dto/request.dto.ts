@@ -8,7 +8,7 @@ export class PaginationDto {
   @Type(() => Number)
   count: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: '페이지 번호(0 ~)' })
   @Min(0)
   @IsNumber()
   @Type(() => Number)

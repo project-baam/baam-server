@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 import { BaseEntity } from 'src/module/database/orm/base.entity';
+import { HighSchoolType } from './../../../domain/value-objects/school-type';
 
 @Unique(['officeName', 'name'])
 @Entity('school')
@@ -35,4 +36,11 @@ export class SchoolEntity extends BaseEntity {
 
   @Column('varchar', { comment: '도로명 주소(상세 주소 포함)' })
   roadNameAddress: string; // ORG_RDNMA + ORG_RDNDA
+
+  @Column({
+    type: 'enum',
+    enum: HighSchoolType,
+    comment: '고등학교 구분명',
+  })
+  type: HighSchoolType;
 }
