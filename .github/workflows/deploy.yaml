@@ -29,6 +29,12 @@ jobs:
         run: |
           ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
+      - name: Create remote directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << 'EOF'
+          mkdir -p /home/${{ secrets.SSH_USER }}/baam-server
+          EOF
+
       - name: Sync files via rsync
         run: |
           rsync -avz --delete --exclude='.env' ./ ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }}:/home/${{ secrets.SSH_USER }}/baam-server
