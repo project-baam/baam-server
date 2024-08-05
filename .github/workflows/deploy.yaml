@@ -39,7 +39,7 @@ jobs:
           cd /home/${{ secrets.SSH_USER }}/baam-server
           npm install --production
           npm run build
-          pm2 restart all || pm2 start dist/main.js --name baam-server
+          pm2 restart all || pm2 start dist/src/main.js --name baam-server
           EOF
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
