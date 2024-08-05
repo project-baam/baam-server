@@ -38,8 +38,7 @@ jobs:
           fi
           cd /home/${{ secrets.SSH_USER }}/baam-server
           npm install --production
-          npm run build
-          pm2 restart all || pm2 start dist/src/main.js --name baam-server
+          npm run build && npm run start
           EOF
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
