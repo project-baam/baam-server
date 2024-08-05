@@ -38,6 +38,7 @@
     "helmet": "^7.1.0",
     "ioredis": "^5.4.1",
     "morgan-body": "^2.6.9",
+    "pm2": "^5.4.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
