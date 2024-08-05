@@ -1,0 +1,46 @@
+name: Baam Server Deployment
+on:
+  push:
+    branches: [ deploy-test ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Add Droplet to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+
+      - name: Sync files via rsync
+        run: |
+          rsync -avz --delete --exclude='.env' ./ ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }}:/home/${{ secrets.SSH_USER }}/baam-server
+
+      - name: Install PM2 if not installed and restart application
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << 'EOF'
+          if ! command -v pm2 > /dev/null; then
+            npm install -g pm2
+          fi
+          cd /home/${{ secrets.SSH_USER }}/baam-server
+          npm install --production
+          npm run build
+          pm2 restart all || pm2 start dist/main.js --name baam-server
+          EOF
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DROPLET_IP: ${{ secrets.DROPLET_IP }}
