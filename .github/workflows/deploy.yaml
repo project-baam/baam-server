@@ -17,9 +17,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Nest CLI
-        run: npm install -g @nestjs/cli
-
       - name: Add SSH key
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -31,25 +28,19 @@ jobs:
 
       - name: Create remote directory
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << 'EOF'
-          mkdir -p /home/${{ secrets.SSH_USER }}/baam-server
-          EOF
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/baam-server"
 
       - name: Sync files via rsync
         run: |
           rsync -avz --delete --exclude='.env' ./ ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }}:/home/${{ secrets.SSH_USER }}/baam-server
 
-      - name: Install PM2 if not installed
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << 'EOF'
-          if ! command -v pm2 > /dev/null; then
-            npm install -g pm2
-          fi
       - name: Install dependencies, build and start application
         run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << 'EOF'
           cd /home/${{ secrets.SSH_USER }}/baam-server
-          npm install --production
-          npm run build && npm run start
+          npm install
+          npm run build
+          npm run start
           EOF
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
