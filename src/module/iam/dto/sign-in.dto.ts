@@ -3,7 +3,6 @@ import { PASSWORD_MIN_LENGTH } from '../constants/authentication';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-import { User } from '@prisma/client';
 import { GetUserResponse } from './../../user/adapter/presenter/rest/dto/user.dto';
 
 export class SignInDto {
@@ -48,7 +47,7 @@ export class SignInResponse extends JWT {
   @Expose()
   user: GetUserResponse;
 
-  constructor(user: User, jwts: JWT) {
+  constructor(user: any, jwts: JWT) {
     super();
     this.user = user;
     this.accessToken = jwts.accessToken;
