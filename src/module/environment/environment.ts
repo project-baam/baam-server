@@ -118,6 +118,11 @@ export class EnvironmentVariables {
   @Type(() => Boolean)
   @Expose()
   readonly USE_SENTRY: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly DISCORD_WEBHOOK_URL: string;
 }
 
 export const getEnvFilePath = (): string =>

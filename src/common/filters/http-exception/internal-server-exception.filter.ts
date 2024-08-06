@@ -20,14 +20,14 @@ export class InternalServerErrorFilter extends BaseExceptionFilter {
     const { method, body, query, params, url, headers, _startTime } =
       http.getRequest();
 
-    ReportProvider.report(exception, {
+    ReportProvider.error(exception, {
       method,
       body,
       query,
       params,
       url,
       headers,
-      startTime: _startTime,
+      _startTime,
     });
 
     // Error Log
