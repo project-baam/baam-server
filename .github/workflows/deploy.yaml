@@ -1,7 +1,7 @@
 name: Baam Server Deployment
 on:
   push:
-    branches: [ deploy-test ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
