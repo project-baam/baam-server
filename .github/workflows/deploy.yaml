@@ -40,7 +40,7 @@ jobs:
           cd /home/${{ secrets.SSH_USER }}/baam-server
           npm install
           npm run build
-          npm run start
+          nohup npm run start > /dev/null 2>&1 &
           EOF
         env:
           SSH_USER: ${{ secrets.SSH_USER }}

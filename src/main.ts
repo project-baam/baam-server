@@ -13,6 +13,7 @@ import morganBody from 'morgan-body';
 import helmet from 'helmet';
 import { IncomingMessage, ServerResponse } from 'http';
 import { v4 as uuidV4 } from 'uuid';
+import * as Sentry from '@sentry/node';
 
 import { LogProvider } from './common/provider/log.provider';
 import { setupSwagger } from './docs/setup-swagger';
@@ -52,6 +53,13 @@ async function bootstrap() {
       contentSecurityPolicy: false,
     }),
   );
+
+  Sentry.init({
+    dsn: environmentService.get<string>('SENTRY_DSN'),
+    enabled: environmentService.get<boolean>('USE_SENTRY'),
+    environment: environmentService.get<string>('ENV'),
+    attachStacktrace: true,
+  });
 
   morganBody(app.getHttpAdapter().getInstance(), {
     noColors: true,
