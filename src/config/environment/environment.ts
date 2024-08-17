@@ -107,6 +107,22 @@ export class EnvironmentVariables {
   @IsString()
   @Expose()
   readonly NEIS_API_KEY: string;
+
+  // Sentry
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly SENTRY_DSN: string;
+
+  @IsBoolean()
+  @Type(() => Boolean)
+  @Expose()
+  readonly USE_SENTRY: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly DISCORD_WEBHOOK_URL: string;
 }
 
 export const getEnvFilePath = (): string =>

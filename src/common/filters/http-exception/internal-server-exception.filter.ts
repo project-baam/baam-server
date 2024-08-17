@@ -8,6 +8,7 @@ import {
 import { BaseExceptionFilter } from '@nestjs/core';
 import { Response } from 'express';
 import { ErrorCode } from './../../constants/error-codes';
+import { ReportProvider } from 'src/common/provider/report.provider';
 
 // 핸들링 되지 않은 서버 에러
 @Catch()
@@ -16,7 +17,18 @@ export class InternalServerErrorFilter extends BaseExceptionFilter {
     const http = host.switchToHttp();
     const response = http.getResponse<Response>();
 
-    // TODO: 에러 리포팅
+    const { method, body, query, params, url, headers, _startTime } =
+      http.getRequest();
+
+    ReportProvider.error(exception, {
+      method,
+      body,
+      query,
+      params,
+      url,
+      headers,
+      _startTime,
+    });
 
     // Error Log
     Logger.error(exception.message);
