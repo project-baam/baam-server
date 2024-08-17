@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { OrmConfigService } from './orm.service';
+import { OrmConfigService } from './orm.config.service';
 
 @Module({
   providers: [OrmConfigService],

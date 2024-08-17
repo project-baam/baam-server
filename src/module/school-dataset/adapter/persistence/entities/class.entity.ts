@@ -7,9 +7,9 @@ import {
   Unique,
 } from 'typeorm';
 
-import { BaseEntity } from 'src/module/database/orm/base.entity';
 import { SchoolEntity } from './school.entity';
 import { Grade } from 'src/module/school-dataset/domain/value-objects/grade';
+import { BaseEntity } from 'src/config/database/orm/base.entity';
 
 @Unique(['schoolId', 'grade', 'name'])
 @Entity('class', { comment: '학교별 학급 정보' })

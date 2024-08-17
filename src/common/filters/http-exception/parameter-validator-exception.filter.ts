@@ -5,7 +5,7 @@ import {
   ExceptionFilter,
 } from '@nestjs/common';
 import { ErrorCode } from 'src/common/constants/error-codes';
-import { EnvironmentService } from './../../../module/environment/environment.service';
+import { EnvironmentService } from '../../../config/environment/environment.service';
 
 // main.ts 에 ValidationPipe 에러를 BAD_REQUEST 로 정의함
 @Catch(BadRequestException)

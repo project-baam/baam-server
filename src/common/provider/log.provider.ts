@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { Logger } from '@nestjs/common';
-import { SupportedEnvironment } from 'src/module/environment/environment';
+import { SupportedEnvironment } from 'src/config/environment/environment';
 
 export class LogProvider {
   private static als = new AsyncLocalStorage();

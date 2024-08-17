@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { MainModule } from './module/main.module';
-import { EnvironmentService } from './module/environment/environment.service';
+import { EnvironmentService } from './config/environment/environment.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {
   BadRequestException,

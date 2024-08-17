@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 
-import { EnvironmentModule } from './environment/environment.module';
+import { EnvironmentModule } from '../config/environment/environment.module';
 import { IamModule } from './iam/iam.module';
 import { UserModule } from './user/user.module';
 import { UtilModule } from './util/util.module';
-import { InMemoryModule } from './database/in-memory/in-memory.module';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrmConfigModule } from './database/orm/orm.module';
-import { OrmConfigService } from './database/orm/orm.service';
 import { SchoolDatasetModule } from './school-dataset/school-dataset.module';
 import { TimetableModule } from './timetable/timetable.module';
+import { OrmConfigModule } from 'src/config/database/orm/orm.config.module';
+import { OrmConfigService } from 'src/config/database/orm/orm.config.service';
+import { InMemoryModule } from 'src/config/database/in-memory/in-memory.module';
 
 @Module({
   imports: [

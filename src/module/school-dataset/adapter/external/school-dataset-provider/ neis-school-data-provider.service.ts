@@ -16,7 +16,7 @@ import { validateSync } from 'class-validator';
 import { plainToInstance, ClassConstructor } from 'class-transformer';
 import { LogProvider } from 'src/common/provider/log.provider';
 import { SchoolInfo, SchoolInfoRequest } from './dto/school-info.dto';
-import { EnvironmentService } from 'src/module/environment/environment.service';
+import { EnvironmentService } from 'src/config/environment/environment.service';
 import { SchoolDatasetProvider } from './school-dataset-provider.interface';
 import { ClassEntity } from '../../persistence/entities/class.entity';
 import { SchoolEntity } from '../../persistence/entities/school.entity';

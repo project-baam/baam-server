@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
-import { BaseEntity } from 'src/module/database/orm/base.entity';
 import { CurriculumVersion } from 'src/module/school-dataset/domain/value-objects/curriculum-version';
+import { BaseEntity } from 'src/config/database/orm/base.entity';
 
 @Unique(['curriculumVersion', 'name'])
 @Entity('subject')
