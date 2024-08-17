@@ -6,13 +6,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { ApplicationException } from '../types/error/application-exceptions.base';
+import { ApplicationException } from '../../common/types/error/application-exceptions.base';
 import {
   InvalidAccessTokenError,
   MissingAuthTokenError,
-} from '../types/error/application-exceptions';
-import { ResponseData } from './response-data.decorator';
-import { ResponseList } from './response-list.decorators';
+} from '../../common/types/error/application-exceptions';
+import { ResponseData } from '../../common/decorator/response-data.decorator';
+import { ResponseList } from '../../common/decorator/response-list.decorators';
 
 interface ApiDescriptionDto<TModel, TException> {
   tags?: string | string[];

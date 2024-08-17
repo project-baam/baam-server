@@ -1,18 +1,19 @@
-import { IsEmail, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { PASSWORD_MIN_LENGTH } from '../constants/authentication';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
 import { GetUserResponse } from './../../user/adapter/presenter/rest/dto/user.dto';
 
-export class SignInDto {
-  @ApiProperty()
-  @IsEmail()
-  email: string;
+export class ExternalLoginRequest {
+  @ApiProperty({ description: '인증 서버에서 발급 받은 코드' })
+  @IsString()
+  code: string;
 
-  @ApiProperty()
-  @MinLength(PASSWORD_MIN_LENGTH)
-  password: string;
+  // @ApiProperty({ description: 'redirect url', required: false })
+  // @IsString()
+  // @IsOptional()
+  // callbackUrl?: string;
 }
 
 // access token payload

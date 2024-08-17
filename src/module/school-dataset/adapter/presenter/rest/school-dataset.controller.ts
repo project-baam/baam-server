@@ -1,7 +1,7 @@
 import { Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
 
-import { HttpController } from 'src/module/iam/decorators/http-controller.decorator';
-import { ApiDescription } from 'src/common/decorator/api-description.decorator';
+import { RestApi } from 'src/common/decorator/rest-api.decorator';
+import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
 import { Auth } from 'src/module/iam/decorators/auth.decorator';
 import { AuthType } from 'src/module/iam/enums/auth-type.enum';
 import { School } from 'src/module/school-dataset/domain/school';
@@ -21,7 +21,7 @@ import { Meal } from 'src/module/school-dataset/domain/meal';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Auth(AuthType.None)
-@HttpController('school-dataset')
+@RestApi('school-dataset')
 export class SchoolDatasetController {
   constructor(private readonly schoolDatasetService: SchoolDatasetService) {}
 

@@ -9,15 +9,15 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception/http-exce
 import { InternalServerErrorFilter } from 'src/common/filters/http-exception/internal-server-exception.filter';
 import { ParameterValidationExceptionFilter } from 'src/common/filters/http-exception/parameter-validator-exception.filter';
 
-export function HttpController(): MethodDecorator & ClassDecorator;
-export function HttpController(
+export function RestApi(): MethodDecorator & ClassDecorator;
+export function RestApi(
   prefix: string | string[],
 ): MethodDecorator & ClassDecorator;
-export function HttpController(
+export function RestApi(
   options: ControllerOptions,
 ): MethodDecorator & ClassDecorator;
 
-export function HttpController(param?: string | string[] | ControllerOptions) {
+export function RestApi(param?: string | string[] | ControllerOptions) {
   // !! 필터는 역순으로 적용됨(params validation > http > 500)
   const exceptionFilters = [
     InternalServerErrorFilter,

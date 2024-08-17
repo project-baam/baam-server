@@ -4,12 +4,10 @@ import { randomUUID } from 'crypto';
 
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { HashingService } from '../util/hashing/hashing.service.abstract';
-import { SignUpDto, SignUpResonse } from './dto/sign-up.dto';
 import {
   ActiveUserData,
   JWT,
   RefreshTokenPayload,
-  SignInDto,
   SignInResponse,
 } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -32,18 +30,7 @@ export class AuthenticationService {
     private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<SignUpResonse> {
-    const { email, password, grade } = signUpDto;
-    const hashedPassword = await this.hashingService.hash(password);
-
-    const user = await this.userService.createUser(
-      new CreateUserCommand(email, hashedPassword, grade),
-    );
-
-    return new SignUpResonse(user);
-  }
-
-  async signIn(signInDto: SignInDto): Promise<SignInResponse> {
+  async signIn(signInDto: any): Promise<SignInResponse> {
     const user = await this.userService.findUnqiueUser(
       new FindUniqueUserQuery(signInDto.email),
     );
