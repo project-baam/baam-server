@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AUTH_TYPE_KEY } from '../decorators/auth.decorator';
-import { AuthType } from '../enums/auth-type.enum';
+import { AuthType } from '../../../../domain/enums/auth-type.enum';
 import { AccessTokenGuard } from './access-token.guard';
 import { ApplicationException } from 'src/common/types/error/application-exceptions.base';
 

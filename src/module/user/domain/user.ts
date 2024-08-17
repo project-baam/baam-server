@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserGrade } from './value-objects/user-grade';
 import { Expose } from 'class-transformer';
+import { UserStatus } from './enum/user-status.enum';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { UserGrade } from './value-objects/user-grade';
 
 export class User {
   @ApiProperty()
@@ -9,16 +11,33 @@ export class User {
 
   @ApiProperty()
   @Expose()
-  email: string; // unique
+  status: UserStatus;
 
   @ApiProperty()
-  password: string;
+  @Expose()
+  provider: SignInProvider;
 
-  @ApiProperty({ type: 'enum', enum: UserGrade })
+  @ApiProperty()
+  @Expose()
+  schoolName: number;
+
+  @ApiProperty()
   @Expose()
   grade: UserGrade;
 
   @ApiProperty()
   @Expose()
-  signedUpAt: Date;
+  className: string;
+
+  @ApiProperty()
+  @Expose()
+  fullName: string;
+
+  @ApiProperty()
+  @Expose()
+  profileImageUrl: string;
+
+  @ApiProperty()
+  @Expose()
+  isProfilePublic: boolean;
 }

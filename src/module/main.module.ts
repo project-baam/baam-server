@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { EnvironmentModule } from '../config/environment/environment.module';
-import { IamModule } from './iam/iam.module';
+import { IamModule } from './iam/application/iam.module';
 import { UserModule } from './user/user.module';
 import { UtilModule } from './util/util.module';
 import { HttpModule } from '@nestjs/axios';

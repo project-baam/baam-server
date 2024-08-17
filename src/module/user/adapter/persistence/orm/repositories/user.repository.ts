@@ -9,6 +9,7 @@ import {
   ContentNotFoundError,
   DuplicateValueError,
 } from 'src/common/types/error/application-exceptions';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
@@ -17,22 +18,43 @@ export class OrmUserRepository implements UserRepository {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findOneById(id: number): Promise<UserEntity | null> {
-    const user = await this.userRepository.findOneBy({ id });
+  async findOneByProvider(
+    provider: SignInProvider,
+    providerUserId: string,
+  ): Promise<UserEntity | null> {
+    return this.userRepository.findOne({
+      where: {
+        provider,
+        providerUserId,
+      },
+    });
+  }
 
-    return user;
+  findOneById(id: number): Promise<UserEntity | null> {
+    return this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        profile: true,
+      },
+    });
   }
 
   async findOneByIdOrFail(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        profile: true,
+      },
+    });
     if (!user) {
       throw new ContentNotFoundError('user', id);
     }
 
     return user;
-  }
-  async findUniqueUserByEmail(email: string): Promise<UserEntity | null> {
-    return await this.userRepository.findOneBy({ email });
   }
 
   async saveUniqueUserOrFail(

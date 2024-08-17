@@ -13,4 +13,6 @@ export const CodeToStatus: {
   [ErrorCode.DuplicateValue]: HttpStatus.CONFLICT,
   [ErrorCode.InternalServerError]: HttpStatus.INTERNAL_SERVER_ERROR,
   [ErrorCode.NeisError]: HttpStatus.INTERNAL_SERVER_ERROR,
+  [ErrorCode.SocialAuthenticationFailed]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.IncompleteProfile]: HttpStatus.FORBIDDEN,
 } as const;

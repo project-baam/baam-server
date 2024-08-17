@@ -2,8 +2,8 @@ import { Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
 
 import { RestApi } from 'src/common/decorator/rest-api.decorator';
 import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
-import { Auth } from 'src/module/iam/decorators/auth.decorator';
-import { AuthType } from 'src/module/iam/enums/auth-type.enum';
+import { Auth } from 'src/module/iam/adapter/presenter/rest/decorators/auth.decorator';
+import { AuthType } from 'src/module/iam/domain/enums/auth-type.enum';
 import { School } from 'src/module/school-dataset/domain/school';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 import { GetSchoolsRequest } from './dto/school.dto';

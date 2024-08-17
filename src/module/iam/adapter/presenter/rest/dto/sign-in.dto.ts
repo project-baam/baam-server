@@ -1,28 +1,32 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
-import { PASSWORD_MIN_LENGTH } from '../constants/authentication';
+import { IsEnum, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-import { GetUserResponse } from './../../user/adapter/presenter/rest/dto/user.dto';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { User } from 'src/module/user/domain/user';
+import { UserMapper } from 'src/module/user/adapter/presenter/rest/mappers/user.mapper';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 
-export class ExternalLoginRequest {
+export class SignInRequest {
   @ApiProperty({ description: '인증 서버에서 발급 받은 코드' })
   @IsString()
   code: string;
 
-  // @ApiProperty({ description: 'redirect url', required: false })
-  // @IsString()
-  // @IsOptional()
-  // callbackUrl?: string;
+  @ApiProperty({
+    type: 'enum',
+    enum: SignInProvider,
+    description: '로그인 타입',
+  })
+  @IsEnum(SignInProvider)
+  provider: SignInProvider;
 }
 
-// access token payload
-export class ActiveUserData {
+export class AccessTokenPayload {
   @Expose()
   sub: number; // user id
 
   @Expose()
-  email: string;
+  provider: SignInProvider;
 }
 
 export class RefreshTokenPayload {
@@ -44,13 +48,13 @@ export class JWT {
 }
 
 export class SignInResponse extends JWT {
-  @ApiProperty({ type: GetUserResponse })
+  @ApiProperty({ type: User })
   @Expose()
-  user: GetUserResponse;
+  user: User;
 
-  constructor(user: any, jwts: JWT) {
+  constructor(user: UserEntity, jwts: JWT) {
     super();
-    this.user = user;
+    this.user = UserMapper.toDomain(user);
     this.accessToken = jwts.accessToken;
     this.refreshToken = jwts.refreshToken;
   }

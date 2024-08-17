@@ -7,6 +7,10 @@ export enum ErrorCode {
   InvalidAccessToken = 4011,
   InvalidRefreshToken = 4012,
   IncorrectLoginInfo = 4013,
+  SocialAuthenticationFailed = 4014,
+
+  // 403
+  IncompleteProfile = 4030,
 
   // 404
   ContentNotFound = 4040,

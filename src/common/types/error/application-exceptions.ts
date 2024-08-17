@@ -1,5 +1,6 @@
 import { ErrorCode } from 'src/common/constants/error-codes';
 import { ApplicationException } from './application-exceptions.base';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 
 export class ContentNotFoundError extends ApplicationException {
   constructor(resource: string = '$resource', id: string | number = '$id') {
@@ -55,5 +56,30 @@ export class IncorrectLoginInfo extends ApplicationException {
 export class NeisError extends ApplicationException {
   constructor(message?: string) {
     super(ErrorCode.NeisError, message);
+  }
+}
+
+class SocialAuthenticationError extends ApplicationException {
+  constructor(provider: string, details?: string) {
+    const message = `Authentication failed with ${provider}. ${details || ''}`;
+    super(ErrorCode.SocialAuthenticationFailed, message);
+  }
+}
+
+export class KakaoAuthError extends SocialAuthenticationError {
+  constructor(details?: string) {
+    super(SignInProvider.KAKAO, details);
+  }
+}
+
+// export class AppleAuthError extends SocialAuthenticationError {
+//   constructor(details?: string) {
+//     super(SignInProvider.APPLE, details);
+//   }
+// }
+
+export class IncompleteProfileError extends ApplicationException {
+  constructor() {
+    super(ErrorCode.IncompleteProfile, '필수 프로필 정보 누락');
   }
 }

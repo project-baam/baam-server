@@ -1,15 +1,22 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { REQUEST_USER_KEY } from '../constants/authentication';
+
+import { REQUEST_USER_KEY } from '../../../../domain/constants/authentication';
 import {
+  IncompleteProfileError,
   InvalidAccessTokenError,
   MissingAuthTokenError,
 } from 'src/common/types/error/application-exceptions';
+import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
+import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userRepository: UserRepository,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -17,18 +24,26 @@ export class AccessTokenGuard implements CanActivate {
     if (!token) {
       throw new MissingAuthTokenError();
     }
+
+    let userId: number;
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      request[REQUEST_USER_KEY] = payload;
+      userId = payload.sub;
     } catch (err) {
       throw new InvalidAccessTokenError();
+    }
+
+    const user = await this.userRepository.findOneById(userId);
+    request[REQUEST_USER_KEY] = user;
+
+    if (user?.status === UserStatus.INCOMPLETE_PROFILE) {
+      throw new IncompleteProfileError();
     }
     return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, token] = request.headers.authorization?.split(' ') ?? [];
+    const [, token] = request.headers.authorization?.split(' ') ?? [];
     return token;
   }
 }

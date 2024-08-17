@@ -5,6 +5,8 @@ import { CreateUserCommand } from './dto/user.command';
 import { UserRepository } from './port/user.repository.abstract';
 import { Inject } from '@nestjs/common';
 import { UserEntity } from '../adapter/persistence/orm/entities/user.entity';
+import { UserMapper } from '../adapter/presenter/rest/mappers/user.mapper';
+import { User } from './../domain/user';
 
 export class UserService {
   constructor(
@@ -16,15 +18,18 @@ export class UserService {
     return await this.userRepository.saveUniqueUserOrFail(createUserDto);
   }
 
-  async findUnqiueUser(
+  async findUserByProviderId(
     findUniqueUserDto: FindUniqueUserQuery,
   ): Promise<UserEntity | null> {
-    return await this.userRepository.findUniqueUserByEmail(
-      findUniqueUserDto.email,
+    return await this.userRepository.findOneByProvider(
+      findUniqueUserDto.provider,
+      findUniqueUserDto.providerUserId,
     );
   }
 
-  async findOneByIdOrFail(id: number): Promise<UserEntity> {
-    return await this.userRepository.findOneByIdOrFail(id);
+  async getUserProfile(userId: number): Promise<User> {
+    return UserMapper.toDomain(
+      await this.userRepository.findOneByIdOrFail(userId),
+    );
   }
 }

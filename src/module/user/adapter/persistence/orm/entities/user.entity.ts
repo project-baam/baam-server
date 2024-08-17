@@ -1,31 +1,34 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  Unique,
 } from 'typeorm';
-import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
-import { Exclude } from 'class-transformer';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { BaseEntity } from 'src/config/database/orm/base.entity';
+import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
+import { UserProfileEntity } from './user-profile.entity';
 
+@Unique(['provider', 'providerUserId'])
 @Entity('user')
-export class UserEntity {
+export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ unique: true })
-  email: string;
+  @Column('enum', { enum: SignInProvider })
+  provider: SignInProvider;
 
-  @Column()
-  @Exclude()
-  password: string;
+  @Column('enum', { enum: UserStatus, default: UserStatus.INCOMPLETE_PROFILE })
+  status: UserStatus;
 
-  @Column({ type: 'enum', enum: UserGrade })
-  grade: UserGrade;
+  @Column('varchar')
+  providerUserId: string;
 
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
+  @OneToOne(() => UserProfileEntity, {
+    cascade: true,
+  })
+  @JoinColumn()
+  profile: UserProfileEntity;
 }

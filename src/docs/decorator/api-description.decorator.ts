@@ -8,6 +8,7 @@ import {
 
 import { ApplicationException } from '../../common/types/error/application-exceptions.base';
 import {
+  IncompleteProfileError,
   InvalidAccessTokenError,
   MissingAuthTokenError,
 } from '../../common/types/error/application-exceptions';
@@ -59,6 +60,7 @@ export const ApiDescription = <
     const authenticationExceptions = [
       MissingAuthTokenError,
       InvalidAccessTokenError,
+      IncompleteProfileError,
     ];
 
     authenticationExceptions.forEach((exception) => {

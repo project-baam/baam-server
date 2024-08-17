@@ -123,6 +123,22 @@ export class EnvironmentVariables {
   @IsString()
   @Expose()
   readonly DISCORD_WEBHOOK_URL: string;
+
+  // 카카오 로그인
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly KAKAO_CLIENT_ID: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly KAKAO_CLIENT_SECRET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly KAKAO_REDIRECT_URI: string;
 }
 
 export const getEnvFilePath = (): string =>

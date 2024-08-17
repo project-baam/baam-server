@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 
 import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
-import { Auth } from 'src/module/iam/decorators/auth.decorator';
+import { Auth } from 'src/module/iam/adapter/presenter/rest/decorators/auth.decorator';
 import { RestApi } from 'src/common/decorator/rest-api.decorator';
-import { AuthType } from 'src/module/iam/enums/auth-type.enum';
+import { AuthType } from 'src/module/iam/domain/enums/auth-type.enum';
 import { TimetableMapper } from 'src/module/timetable/application/mappers/timetable.mapper';
 import { TimetableService } from 'src/module/timetable/application/timetable.service';
 import { Timetable } from 'src/module/timetable/domain/timetable';

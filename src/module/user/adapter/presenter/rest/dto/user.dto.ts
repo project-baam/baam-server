@@ -1,17 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
 
 export class GetUserResponse {
   @ApiProperty()
   @Expose()
-  email: string;
+  id: number;
 
   @ApiProperty()
   @Expose()
-  grade: UserGrade;
+  status: UserStatus;
 
   @ApiProperty()
   @Expose()
-  createdAt: Date;
+  provider: SignInProvider;
 }

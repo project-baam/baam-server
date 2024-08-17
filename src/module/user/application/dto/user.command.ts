@@ -1,9 +1,8 @@
-import { UserGrade } from 'src/module/user/domain/value-objects/user-grade';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 
 export class CreateUserCommand {
   constructor(
-    public readonly email: string,
-    public readonly password: string,
-    public readonly grade: UserGrade,
+    public readonly provider: SignInProvider,
+    public readonly providerUserId: string,
   ) {}
 }
