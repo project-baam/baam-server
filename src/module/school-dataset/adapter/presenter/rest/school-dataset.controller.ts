@@ -53,17 +53,17 @@ export class SchoolDatasetController {
    * 디폴트 시간표 테이블에 INSERT
    */
   @Auth(AuthType.None)
-  @ApiExcludeEndpoint()
+  // @ApiExcludeEndpoint() // TODO:
   @Post('timetable/default')
   async createDefaultTimetable(
     @Query('year') year: number,
     @Query('semester') semester: number,
-    @Query('schoolId') schoolId: number,
+    @Query('classId') classId: number,
   ): Promise<boolean> {
     await this.schoolDatasetService.createDefaultTimetable(
       year,
       semester,
-      schoolId,
+      classId,
     );
 
     return true;

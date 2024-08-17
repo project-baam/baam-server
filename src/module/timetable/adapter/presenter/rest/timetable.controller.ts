@@ -53,7 +53,7 @@ export class TimetableController {
 
   @Auth(AuthType.None)
   @Post('default')
-  @ApiExcludeEndpoint()
+  // @ApiExcludeEndpoint() // TODO:
   async setUserDefaultTimetable(
     @Query('userId') userId: number,
     @Query('classId') classId: number,

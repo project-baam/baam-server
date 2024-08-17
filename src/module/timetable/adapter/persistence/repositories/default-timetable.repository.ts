@@ -30,8 +30,8 @@ export class OrmDefaultTimetableRepository
     semester: Semester,
     classId: number,
   ): Promise<DefaultTimetableEntity[] | null> {
-    console.log(classId)
     return this.timetableRepository.find({
+      relations: ['subject'],
       where: { year, semester, classId },
     });
   }
