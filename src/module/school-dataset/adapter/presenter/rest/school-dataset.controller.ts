@@ -1,5 +1,4 @@
 import { Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
-import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 import { HttpController } from 'src/module/iam/decorators/http-controller.decorator';
 import { ApiDescription } from 'src/common/decorator/api-description.decorator';
@@ -16,6 +15,9 @@ import {
   SubjectCategoriesRequest,
 } from './dto/subject-categories.dto';
 import { SchoolDatasetService } from './../../../application/school-dataset.service';
+import dayjs from 'dayjs';
+import { MealRequest } from './dto/meal.dto';
+import { Meal } from 'src/module/school-dataset/domain/meal';
 
 @Auth(AuthType.None)
 @HttpController('school-dataset')
@@ -40,7 +42,7 @@ export class SchoolDatasetController {
     return new ResponseListDto(schools.list, schools.total);
   }
 
-  @ApiExcludeEndpoint()
+  // @ApiExcludeEndpoint()
   @Post('initialize')
   async initializeSchoolDataset() {
     await this.schoolDatasetService.initializeSchoolDataset();
@@ -115,5 +117,28 @@ export class SchoolDatasetController {
     @Query() params: SubjectsRequest,
   ): Promise<ResponseListDto<string>> {
     return this.schoolDatasetService.getSubjects(params);
+  }
+
+  @ApiDescription({
+    tags: ['school-dataset: 급식'],
+    summary: '학교/날짜별 급식 조회',
+    listResponse: {
+      status: HttpStatus.OK,
+      schema: Meal,
+    },
+    exceptions: [ContentNotFoundError],
+  })
+  @Get('meal')
+  async getMealBySchoolIdAndDate(
+    @Query() dto: MealRequest,
+  ): Promise<ResponseListDto<Meal>> {
+    const { schoolId, date } = dto;
+    const meals =
+      await this.schoolDatasetService.getMealBySchoolIdAndDateWithFallbackFetch(
+        schoolId,
+        dayjs(date),
+      );
+
+    return new ResponseListDto(meals);
   }
 }

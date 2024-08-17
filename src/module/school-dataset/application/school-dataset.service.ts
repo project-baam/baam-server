@@ -18,6 +18,10 @@ import { Semester } from 'src/module/school-dataset/domain/value-objects/semeste
 import { SubjectsRequest } from '../adapter/presenter/rest/dto/subjects.dto';
 import { getCurriculumVersion } from '../domain/value-objects/curriculum-version';
 import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
+import { Dayjs } from 'dayjs';
+import { MealRepository } from './port/meal.repository';
+import { Meal } from '../domain/meal';
+import { MealMapper } from './mappers/meal.mapper';
 
 export class SchoolDatasetService {
   constructor(
@@ -26,6 +30,9 @@ export class SchoolDatasetService {
 
     @Inject(ClassRepository)
     private readonly classRepository: ClassRepository,
+
+    @Inject(MealRepository)
+    private readonly mealRepository: MealRepository,
 
     @Inject(SchoolDatasetProvider)
     private readonly schoolDatasetProvider: SchoolDatasetProvider,
@@ -140,5 +147,36 @@ export class SchoolDatasetService {
       params.page,
       { category: params?.category, search: params?.search },
     );
+  }
+
+  /**
+   * 급식 정보 조회
+   * 없을 경우 Neis API 를 통해 가져옴
+   */
+  async getMealBySchoolIdAndDateWithFallbackFetch(
+    schoolId: number,
+    date: Dayjs,
+  ): Promise<Meal[]> {
+    const meals = await this.mealRepository.findBySchoolIdAndDate(
+      schoolId,
+      date,
+    );
+
+    if (meals?.length) {
+      return meals.map((e) => MealMapper.toDomain(e));
+    } else {
+      const school = await this.schoolRepository.findByIdOrFail(schoolId);
+      const mealData = await this.schoolDatasetProvider.fetchMealData(
+        school.officeCode,
+        school.code,
+        date,
+        date,
+      );
+      await this.mealRepository.upsertMany(
+        mealData.map((e) => MealMapper.toPersistence(e, schoolId)),
+      );
+
+      return this.getMealBySchoolIdAndDateWithFallbackFetch(schoolId, date);
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 import {
   NEIS_MAX_PAGE_SIZE,
@@ -27,6 +28,9 @@ import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { Weekday } from 'src/module/timetable/domain/value-objects/weekday';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository';
+import { MealInfo, MealInfoRequest } from './dto/meal-info.dto';
+import { MealEntity } from '../../persistence/entities/meal.entity';
+import { toMealType } from './mapper/meal.mapper';
 
 @Injectable()
 export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
@@ -126,6 +130,16 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     this.validate(ClassInfoRequest, dto);
 
     const data = await this.fetchData<ClassInfo>(NeisCategory.ClassInfo, {
+      ...dto,
+    });
+
+    return data;
+  }
+
+  private async requestNeisMealInfo(dto: MealInfoRequest): Promise<MealInfo[]> {
+    this.validate(MealInfoRequest, dto);
+
+    const data = await this.fetchData<MealInfo>(NeisCategory.MealInfo, {
       ...dto,
     });
 
@@ -308,5 +322,33 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     }
 
     return defaultTimetables;
+  }
+
+  async fetchMealData(
+    officeCode: string,
+    schoolCode: string,
+    fromDate: Dayjs,
+    toDate: Dayjs,
+  ): Promise<Pick<MealEntity, 'date' | 'type' | 'menu'>[]> {
+    const meals = await this.requestNeisMealInfo({
+      Type: 'json',
+      ATPT_OFCDC_SC_CODE: officeCode,
+      SD_SCHUL_CODE: schoolCode,
+      MLSV_FROM_YMD: fromDate.format('YYYYMMDD'),
+      MLSV_TO_YMD: toDate.format('YYYYMMDD'),
+    });
+
+    return meals.map((e) => {
+      return {
+        date: dayjs(e.MLSV_YMD).format('YYYY-MM-DD'),
+        type: toMealType(e.MMEAL_SC_CODE),
+        menu: e.DDISH_NM.split('<br/>').map((meal) =>
+          meal
+            .replace(/<br\/>/g, '') // <br/> 태그 제거
+            .replace(/\(.*\)/g, '') // 괄호 전체 제거
+            .trim(),
+        ),
+      };
+    });
   }
 }
