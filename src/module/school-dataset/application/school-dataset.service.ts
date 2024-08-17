@@ -8,12 +8,10 @@ import { ClassRepository } from './port/class.repository.abstract';
 import { SchoolRepository } from './port/school.repository.abstract';
 import { School } from '../domain/school';
 import { SchoolDatasetProvider } from '../adapter/external/school-dataset-provider/school-dataset-provider.abstract';
-import { SubjectRepository } from './port/subject.repository.abstract';
 import {
   SubjectCategoriesRequest,
   SubjectCategoryResponse,
 } from '../adapter/presenter/rest/dto/subject-categories.dto';
-import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository.abstract';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { SubjectsRequest } from '../adapter/presenter/rest/dto/subjects.dto';
 import { getCurriculumVersion } from '../domain/value-objects/curriculum-version';
@@ -22,6 +20,9 @@ import { Dayjs } from 'dayjs';
 import { MealRepository } from './port/meal.repository.abstract';
 import { Meal } from '../domain/meal';
 import { MealMapper } from './mappers/meal.mapper';
+import { MealEntity } from '../adapter/persistence/entities/meal.entity';
+import { SubjectRepository } from './port/subject.repository.abstract';
+import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository.abstract';
 
 export class SchoolDatasetService {
   constructor(
@@ -176,7 +177,7 @@ export class SchoolDatasetService {
         mealData.map((e) => MealMapper.toPersistence(e, schoolId)),
       );
 
-      return this.getMealBySchoolIdAndDateWithFallbackFetch(schoolId, date);
+      return (mealData as MealEntity[]).map((e) => MealMapper.toDomain(e));
     }
   }
 }
