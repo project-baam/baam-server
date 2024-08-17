@@ -18,6 +18,7 @@ import { SchoolDatasetService } from './../../../application/school-dataset.serv
 import dayjs from 'dayjs';
 import { MealRequest } from './dto/meal.dto';
 import { Meal } from 'src/module/school-dataset/domain/meal';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Auth(AuthType.None)
 @HttpController('school-dataset')
@@ -42,7 +43,7 @@ export class SchoolDatasetController {
     return new ResponseListDto(schools.list, schools.total);
   }
 
-  // @ApiExcludeEndpoint()
+  @ApiExcludeEndpoint()
   @Post('initialize')
   async initializeSchoolDataset() {
     await this.schoolDatasetService.initializeSchoolDataset();
@@ -55,7 +56,7 @@ export class SchoolDatasetController {
    * 디폴트 시간표 테이블에 INSERT
    */
   @Auth(AuthType.None)
-  // @ApiExcludeEndpoint() // TODO:
+  @ApiExcludeEndpoint() // TODO:
   @Post('timetable/default')
   async createDefaultTimetable(
     @Query('year') year: number,

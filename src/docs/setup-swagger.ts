@@ -3,6 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { name, version } from '../../package.json';
 import { AuthorizationToken } from './constant/authorization-token';
 import { ErrorCode } from 'src/common/constants/error-codes';
+import { customCss } from './constant/custom-css';
 
 export function setupSwagger(app: INestApplication): void {
   const options = new DocumentBuilder()
@@ -38,6 +39,8 @@ export function setupSwagger(app: INestApplication): void {
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('documentation', app, document, {
+    customCss,
+    customSiteTitle: 'Baam API Documentation',
     swaggerOptions: {
       tagsSorter: 'alpha',
       operationsSorter: 'alpha',
