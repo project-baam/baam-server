@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { InMemoryRepository } from './in-memory.repository';
+import { InMemoryRepository } from './in-memory.repository.abstract';
 import { RedisRepository } from './redis.repository';
 
 @Global()

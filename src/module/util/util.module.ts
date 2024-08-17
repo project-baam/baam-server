@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { HashingService } from './hashing/hashing.service';
+import { HashingService } from './hashing/hashing.service.abstract';
 import { BcryptService } from './hashing/bycrypt.service';
 import { DateUtilService } from './date-util.service';
 

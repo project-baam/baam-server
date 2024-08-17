@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InvalidatedRefreshTokenError } from 'src/common/types/error/application-exceptions';
-import { InMemoryRepository } from 'src/config/database/in-memory/in-memory.repository';
+import { InMemoryRepository } from 'src/config/database/in-memory/in-memory.repository.abstract';
 
 @Injectable()
 export class RefreshTokenIdsStorage {

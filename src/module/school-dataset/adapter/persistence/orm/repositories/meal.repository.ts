@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs';
-import { MealRepository } from 'src/module/school-dataset/application/port/meal.repository';
+import { MealRepository } from 'src/module/school-dataset/application/port/meal.repository.abstract';
 import { Repository } from 'typeorm';
 import { MealEntity } from '../../entities/meal.entity';
 import { InjectRepository } from '@nestjs/typeorm';

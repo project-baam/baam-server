@@ -2,7 +2,7 @@
 
 import { FindUniqueUserQuery } from './dto/user.query';
 import { CreateUserCommand } from './dto/user.command';
-import { UserRepository } from './port/user.repository';
+import { UserRepository } from './port/user.repository.abstract';
 import { Inject } from '@nestjs/common';
 import { UserEntity } from '../adapter/persistence/orm/entities/user.entity';
 

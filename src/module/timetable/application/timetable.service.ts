@@ -1,8 +1,8 @@
-import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository';
-import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository';
-import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository';
+import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
+import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
+import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
 import { Injectable } from '@nestjs/common';
-import { DefaultTimetableRepository } from './repository/default-timetable.repository';
+import { DefaultTimetableRepository } from './repository/default-timetable.repository.abstract';
 import { DefaultTimetableEntity } from '../adapter/persistence/entities/default-timetable.entity';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';

@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { UserEntity } from '../entities/user.entity';
 import { PostgresqlErrorCodes } from 'src/common/constants/postgresql-error-codes';
-import { UserRepository } from 'src/module/user/application/port/user.repository';
+import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
 import {
   ContentNotFoundError,
   DuplicateValueError,

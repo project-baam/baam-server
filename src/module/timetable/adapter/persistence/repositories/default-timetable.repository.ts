@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { DefaultTimetableEntity } from '../entities/default-timetable.entity';
-import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository';
+import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository.abstract';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 
 export class OrmDefaultTimetableRepository

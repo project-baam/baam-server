@@ -6,7 +6,7 @@ import {
 import Redis from 'ioredis';
 
 import { EnvironmentService } from 'src/config/environment/environment.service';
-import { InMemoryRepository } from './in-memory.repository';
+import { InMemoryRepository } from './in-memory.repository.abstract';
 
 @Injectable()
 export class RedisRepository

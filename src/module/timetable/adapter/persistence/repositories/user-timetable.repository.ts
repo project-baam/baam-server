@@ -1,4 +1,4 @@
-import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository';
+import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
 import { UserTimetableEntity } from '../entities/user-timetable.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

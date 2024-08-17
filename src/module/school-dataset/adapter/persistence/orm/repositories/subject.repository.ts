@@ -1,5 +1,5 @@
 import { PaginatedList } from 'src/common/dto/response.dto';
-import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository';
+import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { CurriculumVersion } from 'src/module/school-dataset/domain/value-objects/curriculum-version';
 import { SubjectEntity } from '../../entities/subject.entity';
 import { In, Repository } from 'typeorm';

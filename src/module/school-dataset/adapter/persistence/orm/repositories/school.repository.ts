@@ -1,4 +1,4 @@
-import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository';
+import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { SchoolEntity } from '../../entities/school.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOptionsWhere, Like, Repository } from 'typeorm';

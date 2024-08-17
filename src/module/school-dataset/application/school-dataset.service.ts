@@ -4,22 +4,22 @@ import { PaginatedList } from 'src/common/dto/response.dto';
 import { GetSchoolsRequest } from '../adapter/presenter/rest/dto/school.dto';
 import { SchoolMapper } from './mappers/school.mapper';
 import { ClassResponse } from '../adapter/presenter/rest/dto/class.dto';
-import { ClassRepository } from './port/class.repository';
-import { SchoolRepository } from './port/school.repository';
+import { ClassRepository } from './port/class.repository.abstract';
+import { SchoolRepository } from './port/school.repository.abstract';
 import { School } from '../domain/school';
-import { SchoolDatasetProvider } from '../adapter/external/school-dataset-provider/school-dataset-provider.interface';
-import { SubjectRepository } from './port/subject.repository';
+import { SchoolDatasetProvider } from '../adapter/external/school-dataset-provider/school-dataset-provider.abstract';
+import { SubjectRepository } from './port/subject.repository.abstract';
 import {
   SubjectCategoriesRequest,
   SubjectCategoryResponse,
 } from '../adapter/presenter/rest/dto/subject-categories.dto';
-import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository';
+import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository.abstract';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { SubjectsRequest } from '../adapter/presenter/rest/dto/subjects.dto';
 import { getCurriculumVersion } from '../domain/value-objects/curriculum-version';
 import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
 import { Dayjs } from 'dayjs';
-import { MealRepository } from './port/meal.repository';
+import { MealRepository } from './port/meal.repository.abstract';
 import { Meal } from '../domain/meal';
 import { MealMapper } from './mappers/meal.mapper';
 

@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ClassEntity } from '../../entities/class.entity';
-import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository';
+import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { Grade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 
