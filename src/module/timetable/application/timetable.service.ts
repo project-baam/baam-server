@@ -106,8 +106,8 @@ export class TimetableService {
     return userTimetables;
   }
 
-  async editOrAddTimetable(params: EditOrAddTimetableRequest) {
-    const { year, semester, userId, subjectName, day, period } = params;
+  async editOrAddTimetable(userId: number, params: EditOrAddTimetableRequest) {
+    const { year, semester, subjectName, day, period } = params;
     const subjectId = await this.subjectRepository.findIdByName(subjectName);
     if (!subjectId) {
       throw new ContentNotFoundError('subject', subjectName);

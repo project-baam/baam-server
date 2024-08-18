@@ -48,21 +48,9 @@ export class UserTimetableRequest {
   @IsDateString()
   @Length(10, 10)
   date: string;
-
-  @ApiProperty()
-  @IsNumber()
-  @Type(() => Number)
-  userId: number; // TODO: 유저 인증 작업 머지 후
-  // 쿼리 파라미터가 아닌 헤더의 jwt 로 userId 를 가져오는 방식으로 변경 필요
 }
 
 export class EditOrAddTimetableRequest {
-  @ApiProperty()
-  @IsNumber()
-  @Type(() => Number)
-  userId: number; // TODO: 유저 인증 작업 머지 후
-  // 쿼리 파라미터가 아닌 헤더의 jwt 로 userId 를 가져오는 방식으로 변경 필요
-
   @ApiProperty()
   @IsNumber()
   year: number;
@@ -86,12 +74,6 @@ export class EditOrAddTimetableRequest {
 }
 
 export class DeleteTimetableRequest {
-  @ApiProperty()
-  @IsNumber()
-  @Type(() => Number)
-  userId: number; // TODO: 유저 인증 작업 머지 후
-  // 쿼리 파라미터가 아닌 헤더의 jwt 로 userId 를 가져오는 방식으로 변경 필요
-
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)

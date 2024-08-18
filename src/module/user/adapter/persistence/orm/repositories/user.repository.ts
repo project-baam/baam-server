@@ -76,8 +76,8 @@ export class OrmUserRepository implements UserRepository {
     return user;
   }
 
-  async upseretOne(user: Partial<UserEntity>): Promise<void> {
-    await this.userRepository.upsert(user, ['provider', 'providerUserId']);
+  async insertOne(user: Partial<UserEntity>): Promise<void> {
+    await this.userRepository.save(this.userRepository.create(user));
   }
 
   async upsertProfile(profile: UserProfileEntity): Promise<void> {

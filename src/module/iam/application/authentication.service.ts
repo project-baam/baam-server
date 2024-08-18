@@ -46,9 +46,8 @@ export class AuthenticationService {
     let user = await this.userService.findUserByProviderId(
       new FindUniqueUserQuery(signInDto.provider, id),
     );
-
     if (!user) {
-      await this.userRepository.upseretOne({
+      await this.userRepository.insertOne({
         provider: signInDto.provider,
         providerUserId: id,
       });

@@ -8,7 +8,7 @@ export abstract class UserRepository {
   ): Promise<UserEntity | null>;
   abstract findOneById(id: number): Promise<UserEntity | null>;
   abstract findOneByIdOrFail(id: number): Promise<UserEntity>;
-  abstract upseretOne(user: Partial<UserEntity>): Promise<void>;
+  abstract insertOne(user: Partial<UserEntity>): Promise<void>;
   abstract updateOne(user: Partial<UserEntity> & { id: number }): Promise<void>;
   abstract upsertProfile(user: Partial<UserProfileEntity>): Promise<void>;
   abstract updateProfile(

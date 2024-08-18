@@ -24,6 +24,8 @@ import {
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/active-user.decorator';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 
 @RestApi('timetable')
 export class TimetableController {
@@ -66,7 +68,6 @@ export class TimetableController {
     return true;
   }
 
-  @Auth(AuthType.None) // TODO: 유저 인증 작업 머지 후 수정 필요
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 조회',
@@ -77,13 +78,14 @@ export class TimetableController {
   })
   @Get()
   async getUserTimetable(
+    @ActiveUser() user: UserEntity,
     @Query() params: UserTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
     const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
       new Date(params.date),
     );
     const timetables = await this.timetableService.findUserTimetable(
-      params.userId,
+      user.id,
       year,
       semester,
     );
@@ -91,7 +93,6 @@ export class TimetableController {
     return new ResponseListDto(TimetableMapper.mapToDomain(timetables ?? []));
   }
 
-  @Auth(AuthType.None) // TODO: 유저 인증 작업 머지 후 수정 필요
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 추가/수정',
@@ -105,11 +106,12 @@ export class TimetableController {
   })
   @Put()
   async editOrAddTimetable(
+    @ActiveUser() user: UserEntity,
     @Body() params: EditOrAddTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
-    await this.timetableService.editOrAddTimetable(params);
+    await this.timetableService.editOrAddTimetable(user.id, params);
     const updatedTimetables = await this.timetableService.findUserTimetable(
-      params.userId,
+      user.id,
       params.year,
       params.semester,
     );
@@ -119,7 +121,6 @@ export class TimetableController {
     );
   }
 
-  @Auth(AuthType.None) // TODO: 유저 인증 작업 머지 후 수정 필요
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 항목 삭제',
@@ -131,12 +132,16 @@ export class TimetableController {
   })
   @Delete()
   async deleteTimetable(
+    @ActiveUser() user: UserEntity,
     @Query() params: DeleteTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
-    await this.timetableService.deleteTimetable(params);
+    await this.timetableService.deleteTimetable({
+      ...params,
+      userId: user.id,
+    });
 
     const updatedTimetables = await this.timetableService.findUserTimetable(
-      params.userId,
+      user.id,
       params.year,
       params.semester,
     );
