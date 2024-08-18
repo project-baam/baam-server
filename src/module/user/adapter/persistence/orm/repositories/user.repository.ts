@@ -34,6 +34,13 @@ export class OrmUserRepository implements UserRepository {
     providerUserId: string,
   ): Promise<UserEntity | null> {
     return this.userRepository.findOne({
+      relations: {
+        profile: {
+          class: {
+            school: true,
+          },
+        },
+      },
       where: {
         provider,
         providerUserId,
@@ -57,18 +64,13 @@ export class OrmUserRepository implements UserRepository {
   }
 
   async findOneByIdOrFail(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        profile: {
-          class: {
-            school: true,
-          },
-        },
-      },
-    });
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile')
+      .leftJoinAndSelect('profile.class', 'class')
+      .leftJoinAndSelect('class.school', 'school')
+      .where('user.id = :id', { id })
+      .getOne();
     if (!user) {
       throw new ContentNotFoundError('user', id);
     }

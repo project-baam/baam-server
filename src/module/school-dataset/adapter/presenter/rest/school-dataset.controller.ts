@@ -56,7 +56,7 @@ export class SchoolDatasetController {
    * 디폴트 시간표 테이블에 INSERT
    */
   @Auth(AuthType.None)
-  @ApiExcludeEndpoint() // TODO:
+  // @ApiExcludeEndpoint() // TODO:
   @Post('timetable/default')
   async createDefaultTimetable(
     @Query('year') year: number,

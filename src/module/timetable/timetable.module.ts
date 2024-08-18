@@ -13,5 +13,6 @@ import { SchoolDatasetModule } from '../school-dataset/school-dataset.module';
   ],
   providers: [TimetableService],
   controllers: [TimetableController],
+  exports: [TimetableService],
 })
 export class TimetableModule {}

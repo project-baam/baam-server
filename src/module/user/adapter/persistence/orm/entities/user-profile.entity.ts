@@ -12,7 +12,7 @@ import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entit
 
 @Entity('user_profile')
 export class UserProfileEntity extends BaseEntity {
-  @PrimaryColumn('int')
+  @PrimaryColumn('int', { name: 'user_id' })
   userId: number;
 
   @Column('varchar')
@@ -29,7 +29,7 @@ export class UserProfileEntity extends BaseEntity {
   profileImageUrl?: string | null;
 
   @OneToOne(() => UserEntity, (user) => user.profile, {
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

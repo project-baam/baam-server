@@ -4,12 +4,14 @@ import { UserService } from './application/user.service';
 import { UserController } from './adapter/presenter/rest/user.controller';
 import { OrmSchoolDatasetPersistenceModule } from '../school-dataset/adapter/persistence/orm/orm-school-dataset-persistence.module';
 import { ObjectStorageModule } from '../object-storage/application/object-storage.module';
+import { TimetableModule } from '../timetable/timetable.module';
 
 @Module({
   imports: [
     OrmUserPersistenceModule,
     OrmSchoolDatasetPersistenceModule,
     ObjectStorageModule,
+    TimetableModule,
   ],
   providers: [UserService],
   controllers: [UserController],

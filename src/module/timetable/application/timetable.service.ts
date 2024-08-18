@@ -88,7 +88,19 @@ export class TimetableService {
         semester,
         classId,
       );
-      await this.setUserDefaultTimetableWithFallbackFetch(userId, classId);
+
+      const defaultTimetables =
+        await this.defaultTimetableRepository.findDefaultClassTimetable(
+          thisYear,
+          semester,
+          classId,
+        );
+
+      if (defaultTimetables?.length) {
+        await this.userTimetableRepository.upsert(
+          defaultTimetables.map((e) => Object.assign(e, { userId })),
+        );
+      }
     }
   }
 

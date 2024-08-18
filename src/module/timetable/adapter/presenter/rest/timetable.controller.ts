@@ -26,6 +26,7 @@ import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/active-user.decorator';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
+import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 
 @RestApi('timetable')
 export class TimetableController {
@@ -71,6 +72,7 @@ export class TimetableController {
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 조회',
+    auth: AuthorizationToken.BearerUserToken,
     listResponse: {
       status: HttpStatus.OK,
       schema: Timetable,
@@ -96,6 +98,7 @@ export class TimetableController {
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 추가/수정',
+    auth: AuthorizationToken.BearerUserToken,
     description:
       '같은 요일 같은 교시에 이미 수업이 있는 경우 > 덮어씌움\n\
     수정된 시간표 반환',
@@ -124,6 +127,7 @@ export class TimetableController {
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 항목 삭제',
+    auth: AuthorizationToken.BearerUserToken,
     description: '수정된 시간표 반환',
     listResponse: {
       status: HttpStatus.OK,

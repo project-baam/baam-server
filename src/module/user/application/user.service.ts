@@ -1,3 +1,4 @@
+import { TimetableService } from 'src/module/timetable/application/timetable.service';
 import { EnvironmentService } from 'src/config/environment/environment.service';
 // inbound port
 
@@ -25,6 +26,7 @@ export class UserService {
     private readonly classRepository: ClassRepository,
     private readonly objectStorageService: ObjectStorageService,
     private readonly environmentService: EnvironmentService,
+    private readonly timetableService: TimetableService,
   ) {}
 
   async findUserByProviderId(
@@ -89,6 +91,13 @@ export class UserService {
       ).id;
     }
 
+    if (classId) {
+      this.timetableService.setUserDefaultTimetableWithFallbackFetch(
+        user.id,
+        classId,
+      );
+    }
+
     let profileImageUrl: string | undefined;
     if (file) {
       profileImageUrl = await this.upsertProfileImage(user.id, file);
@@ -117,7 +126,7 @@ export class UserService {
       updatedUser.profile?.fullName
     ) {
       await this.userRepository.updateOne({
-        ...updatedUser,
+        id: user.id,
         status: UserStatus.ACTIVE,
       });
     }

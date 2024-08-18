@@ -26,9 +26,6 @@ export class UserEntity extends BaseEntity {
   @Column('varchar')
   providerUserId: string;
 
-  @OneToOne(() => UserProfileEntity, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
-  profile?: UserProfileEntity;
+  @OneToOne(() => UserProfileEntity, (profile) => profile.user)
+  profile: UserProfileEntity;
 }
