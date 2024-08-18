@@ -28,7 +28,9 @@ export class UserProfileEntity extends BaseEntity {
   @Column('varchar', { nullable: true })
   profileImageUrl: string;
 
-  @OneToOne(() => UserEntity, (user) => user.profile)
+  @OneToOne(() => UserEntity, (user) => user.profile, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 

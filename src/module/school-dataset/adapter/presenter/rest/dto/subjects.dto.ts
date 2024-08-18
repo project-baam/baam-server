@@ -1,18 +1,18 @@
 import { ApiProperty, IntersectionType } from '@nestjs/swagger';
 import { IsEnum, IsIn, IsOptional, IsString } from 'class-validator';
-import { Grade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { Type } from 'class-transformer';
 import { PaginationDto } from 'src/common/dto/request.dto';
 import {
   supportedYears,
   SupportedYears,
 } from 'src/module/school-dataset/domain/value-objects/supported-years';
+import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
 export class SubjectRequestBase {
-  @ApiProperty({ type: 'enum', enum: Grade, description: '학년' })
-  @IsEnum(Grade)
+  @ApiProperty({ type: 'enum', enum: UserGrade, description: '학년' })
+  @IsEnum(UserGrade)
   @Type(() => Number)
-  grade: Grade;
+  grade: UserGrade;
 
   @ApiProperty({
     description: '학년도',

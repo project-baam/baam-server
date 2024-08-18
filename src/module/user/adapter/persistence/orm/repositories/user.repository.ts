@@ -3,20 +3,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserEntity } from '../entities/user.entity';
-import { PostgresqlErrorCodes } from 'src/common/constants/postgresql-error-codes';
 import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
-import {
-  ContentNotFoundError,
-  DuplicateValueError,
-} from 'src/common/types/error/application-exceptions';
+import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { UserProfileEntity } from '../entities/user-profile.entity';
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+
+    @InjectRepository(UserProfileEntity)
+    private readonly profileRepository: Repository<UserProfileEntity>,
   ) {}
+
+  async updateOne(user: Partial<UserEntity> & { id: number }): Promise<void> {
+    await this.userRepository.update(user.id, user);
+  }
 
   async findOneByProvider(
     provider: SignInProvider,
@@ -35,9 +39,6 @@ export class OrmUserRepository implements UserRepository {
       where: {
         id,
       },
-      relations: {
-        profile: true,
-      },
     });
   }
 
@@ -46,9 +47,7 @@ export class OrmUserRepository implements UserRepository {
       where: {
         id,
       },
-      relations: {
-        profile: true,
-      },
+      relations: { profile: true },
     });
     if (!user) {
       throw new ContentNotFoundError('user', id);
@@ -57,19 +56,15 @@ export class OrmUserRepository implements UserRepository {
     return user;
   }
 
-  async saveUniqueUserOrFail(
-    user: Partial<UserEntity> & { email: string },
-  ): Promise<UserEntity> {
-    try {
-      const newEntity = await this.userRepository.save(user);
+  async upseretOne(user: Partial<UserEntity>): Promise<void> {
+    await this.userRepository.upsert(user, ['provider', 'providerUserId']);
+  }
 
-      return newEntity;
-    } catch (err: any) {
-      if (err?.code === PostgresqlErrorCodes.UniqueViolation) {
-        throw new DuplicateValueError('User', 'email', user.email);
-      }
+  async upsertProfile(profile: UserProfileEntity): Promise<void> {
+    await this.profileRepository.upsert(profile, ['userId']);
+  }
 
-      throw err;
-    }
+  async deleteOne(id: number): Promise<void> {
+    await this.profileRepository.delete(id);
   }
 }

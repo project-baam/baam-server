@@ -15,6 +15,7 @@ import { Weekday } from '../domain/value-objects/weekday';
 import { Period } from '../domain/value-objects/period';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { SchoolDatasetService } from 'src/module/school-dataset/application/school-dataset.service';
+import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 
 @Injectable()
 export class TimetableService {
@@ -24,20 +25,25 @@ export class TimetableService {
     private readonly userTimetableRepository: UserTimetableRepository,
     private readonly subjectRepository: SubjectRepository,
     private readonly classRepository: ClassRepository,
+    private readonly schoolRepository: SchoolRepository,
     private readonly schoolDatasetService: SchoolDatasetService,
   ) {}
 
   async findDefaultClassTimetable(
     params: DefaultTimetableRequest,
   ): Promise<DefaultTimetableEntity[] | null> {
-    const { year, semester, schoolName, className, grade } = params;
+    const { year, semester, schoolId, className, grade } = params;
+    const school = await this.schoolRepository.findByIdOrFail(schoolId);
     const classEntity = await this.classRepository.findByNameAndGrade(
-      schoolName,
+      schoolId,
       className,
       grade,
     );
     if (!classEntity) {
-      throw new ContentNotFoundError('class', `${schoolName} ${className}`);
+      throw new ContentNotFoundError(
+        'class',
+        `${schoolId}-${school.name} ${className}`,
+      );
     }
 
     const defaultTimetables =

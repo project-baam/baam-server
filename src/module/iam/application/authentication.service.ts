@@ -48,7 +48,7 @@ export class AuthenticationService {
     );
 
     if (!user) {
-      await this.userService.createUser({
+      await this.userRepository.upseretOne({
         provider: signInDto.provider,
         providerUserId: id,
       });

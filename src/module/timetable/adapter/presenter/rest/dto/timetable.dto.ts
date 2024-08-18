@@ -10,8 +10,8 @@ import {
   IsString,
   Length,
 } from 'class-validator';
+import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
-import { Grade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { Period } from 'src/module/timetable/domain/value-objects/period';
 import { Weekday } from 'src/module/timetable/domain/value-objects/weekday';
@@ -30,12 +30,12 @@ export class DefaultTimetableRequest {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  schoolName: string;
+  schoolId: number;
 
   @ApiProperty()
-  @IsEnum(Grade)
+  @IsEnum(UserGrade)
   @Type(() => Number)
-  grade: Grade;
+  grade: UserGrade;
 
   @ApiProperty()
   @IsString()

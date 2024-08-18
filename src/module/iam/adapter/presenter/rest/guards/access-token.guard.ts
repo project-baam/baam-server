@@ -36,6 +36,20 @@ export class AccessTokenGuard implements CanActivate {
     const user = await this.userRepository.findOneById(userId);
     request[REQUEST_USER_KEY] = user;
 
+    if (!user) {
+      throw new InvalidAccessTokenError();
+    }
+
+    // 프로필 업데이트 API는 INCOMPLETE_PROFILE도 접근 가능(회원가입시 사용)
+    const allowedApis = [{ path: '/user', method: 'PATCH' }];
+    const isAllowed = allowedApis.some(
+      (api) => api.path === request.path && api.method === request.method,
+    );
+
+    if (isAllowed) {
+      return true;
+    }
+
     if (user?.status === UserStatus.INCOMPLETE_PROFILE) {
       throw new IncompleteProfileError();
     }

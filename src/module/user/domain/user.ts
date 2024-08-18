@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { UserStatus } from './enum/user-status.enum';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
-import { UserGrade } from './value-objects/user-grade';
+import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
 export class User {
   @ApiProperty()

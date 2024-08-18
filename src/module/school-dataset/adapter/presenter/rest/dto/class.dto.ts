@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Grade } from 'src/module/school-dataset/domain/value-objects/grade';
+import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
 export class ClassResponse {
   @ApiProperty({
     type: 'enum',
-    enum: Grade,
+    enum: UserGrade,
     description: '학년',
-    example: Grade.First,
+    example: UserGrade.First,
   })
-  grade: Grade;
+  grade: UserGrade;
 
   @ApiProperty({
     type: 'string',

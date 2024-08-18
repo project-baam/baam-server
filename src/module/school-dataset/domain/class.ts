@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Grade } from './value-objects/grade';
+import { UserGrade } from './value-objects/grade';
 
 // 학교별 학급
 export class Class {
@@ -10,7 +10,7 @@ export class Class {
   schoolId: number;
 
   @Expose()
-  grade: Grade;
+  grade: UserGrade;
 
   @Expose()
   name: number;

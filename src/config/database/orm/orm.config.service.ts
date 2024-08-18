@@ -19,6 +19,7 @@ export class OrmConfigService implements TypeOrmOptionsFactory {
       synchronize: this.environmentService.get<boolean>('DB_USE_SYNCHRONIZE'),
       namingStrategy: new SnakeNamingStrategy(),
       logging: true,
+      // logger: 'advanced-console',
       useUTC: true,
     };
   }
