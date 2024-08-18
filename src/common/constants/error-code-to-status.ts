@@ -5,6 +5,9 @@ export const CodeToStatus: {
   [key in ErrorCode]: HttpStatus;
 } = {
   [ErrorCode.InvalidParameter]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.InvalidFileNameExtension]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.InvalidFilenameCharacters]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.MissingRequiredFields]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MissingAuthToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidAccessToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidRefreshToken]: HttpStatus.UNAUTHORIZED,

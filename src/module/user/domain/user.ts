@@ -17,6 +17,11 @@ export class User {
   @Expose()
   provider: SignInProvider;
 
+  // Neis Open API 특성 고려 우리 서비스 DB의 schoolId 를 함꼐 가지고 있는게 편리함
+  @ApiProperty()
+  @Expose()
+  schoolId: number;
+
   @ApiProperty()
   @Expose()
   schoolName: number;

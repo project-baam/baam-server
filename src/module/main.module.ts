@@ -11,6 +11,7 @@ import { TimetableModule } from './timetable/timetable.module';
 import { OrmConfigModule } from 'src/config/database/orm/orm.config.module';
 import { OrmConfigService } from 'src/config/database/orm/orm.config.service';
 import { InMemoryModule } from 'src/config/database/in-memory/in-memory.module';
+import { ObjectStorageModule } from './object-storage/application/object-storage.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { InMemoryModule } from 'src/config/database/in-memory/in-memory.module';
     IamModule,
     SchoolDatasetModule,
     TimetableModule,
+    ObjectStorageModule,
   ],
 })
 export class MainModule {}

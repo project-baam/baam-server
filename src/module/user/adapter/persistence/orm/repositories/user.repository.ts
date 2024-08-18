@@ -18,6 +18,13 @@ export class OrmUserRepository implements UserRepository {
     private readonly profileRepository: Repository<UserProfileEntity>,
   ) {}
 
+  async updateProfile(
+    userId: number,
+    user: Partial<UserProfileEntity>,
+  ): Promise<void> {
+    await this.profileRepository.update(userId, user);
+  }
+
   async updateOne(user: Partial<UserEntity> & { id: number }): Promise<void> {
     await this.userRepository.update(user.id, user);
   }
@@ -36,6 +43,13 @@ export class OrmUserRepository implements UserRepository {
 
   findOneById(id: number): Promise<UserEntity | null> {
     return this.userRepository.findOne({
+      relations: {
+        profile: {
+          class: {
+            school: true,
+          },
+        },
+      },
       where: {
         id,
       },
@@ -47,7 +61,13 @@ export class OrmUserRepository implements UserRepository {
       where: {
         id,
       },
-      relations: { profile: true },
+      relations: {
+        profile: {
+          class: {
+            school: true,
+          },
+        },
+      },
     });
     if (!user) {
       throw new ContentNotFoundError('user', id);

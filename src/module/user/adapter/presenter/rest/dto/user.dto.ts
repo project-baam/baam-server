@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
   IsBoolean,
+  IsBooleanString,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -52,14 +53,15 @@ export class UpdateProfileRequest {
 
   @ApiProperty()
   @Expose()
-  @IsNotEmpty()
-  @IsOptional()
-  @IsOptional()
-  profileImageUrl: string;
-
-  @ApiProperty()
-  @Expose()
-  @IsBoolean()
+  @IsBooleanString()
   @IsOptional()
   isProfilePublic: boolean;
 }
+// UpdateProfileRequest 랑 동일
+export const updateProfileProperty = {
+  schoolId: { type: 'number' },
+  grade: { type: 'enum', enum: UserGrade },
+  className: { type: 'string' },
+  fullName: { type: 'string' },
+  isProfilePublic: { type: 'boolean' },
+};

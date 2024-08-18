@@ -26,7 +26,7 @@ export class UserProfileEntity extends BaseEntity {
   isProfilePublic: boolean;
 
   @Column('varchar', { nullable: true })
-  profileImageUrl: string;
+  profileImageUrl?: string | null;
 
   @OneToOne(() => UserEntity, (user) => user.profile, {
     cascade: true,

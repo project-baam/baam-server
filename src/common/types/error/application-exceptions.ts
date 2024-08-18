@@ -83,3 +83,30 @@ export class IncompleteProfileError extends ApplicationException {
     super(ErrorCode.IncompleteProfile, '필수 프로필 정보 누락');
   }
 }
+
+export class InvalidFileNameExtensionError extends ApplicationException {
+  constructor() {
+    super(
+      ErrorCode.InvalidFileNameExtension,
+      'Invalid Filename Extension. Only JPG, PNG, JPEG and GIF files are allowed.',
+    );
+  }
+}
+
+export class InvalidFileNameCharatersError extends ApplicationException {
+  constructor() {
+    super(
+      ErrorCode.InvalidFilenameCharacters,
+      'File names can only contain English letters (a-z, A-Z), numbers (0-9), Korean characters, underscores (_), hyphens (-), and periods (.)',
+    );
+  }
+}
+
+export class MissingRequiredFieldsError extends ApplicationException {
+  constructor(properties?: string[]) {
+    super(
+      ErrorCode.MissingRequiredFields,
+      `Missing required fields:[ ${properties?.join(', ')}] must all be provided together.`,
+    );
+  }
+}

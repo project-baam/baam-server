@@ -1,4 +1,12 @@
-import { Body, Delete, Get, HttpStatus, Patch } from '@nestjs/common';
+import {
+  Body,
+  Delete,
+  Get,
+  HttpStatus,
+  Patch,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/active-user.decorator';
@@ -8,8 +16,18 @@ import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
 import { User } from 'src/module/user/domain/user';
 import { UserEntity } from '../../persistence/orm/entities/user.entity';
 import { UserMapper } from './mappers/user.mapper';
-import { UpdateProfileRequest } from './dto/user.dto';
+import { updateProfileProperty, UpdateProfileRequest } from './dto/user.dto';
 import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiFile } from 'src/docs/decorator/api-file-request';
+import { profileImageMulterOptions } from 'src/module/user/domain/config/profile-image-multer-options';
+import {
+  ContentNotFoundError,
+  InvalidFileNameCharatersError,
+  InvalidFileNameExtensionError,
+  MissingRequiredFieldsError,
+} from 'src/common/types/error/application-exceptions';
+import { ErrorCode } from 'src/common/constants/error-codes';
 
 @RestApi('user')
 export class UserController {
@@ -32,18 +50,48 @@ export class UserController {
   @ApiDescription({
     tags: ['User'],
     summary: '유저 정보 업데이트',
+    description: `모든 필드 optional,\n
+    학교 정보 변경시 schoolId(학교), className(학급), grade(학년)\n
+    모두 포함, 하나라도 미포함시 ${ErrorCode.MissingRequiredFields}\n\
+    존재하지 않는 학교나 학급의 경우 ${ErrorCode.ContentNotFound}`,
     auth: AuthorizationToken.BearerUserToken,
     dataResponse: {
-      status: HttpStatus.CREATED,
+      status: HttpStatus.OK,
       schema: User,
     },
+    exceptions: [
+      InvalidFileNameCharatersError,
+      InvalidFileNameExtensionError,
+      MissingRequiredFieldsError,
+      ContentNotFoundError,
+    ],
   })
+  @UseInterceptors(FileInterceptor('file', profileImageMulterOptions))
+  @ApiFile('file', updateProfileProperty)
   @Patch()
   async updateProfile(
     @ActiveUser() user: UserEntity,
     @Body() params: UpdateProfileRequest,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.userService.updateProfile(user.id, params);
+    return this.userService.updateProfile(user, params, file);
+  }
+
+  @ApiDescription({
+    tags: ['User'],
+    summary: '유저 프로필 이미지 삭제',
+    auth: AuthorizationToken.BearerUserToken,
+    dataResponse: {
+      status: HttpStatus.OK,
+      schema: User,
+    },
+  })
+  @Delete('profile/image')
+  async deleteUserProfileImage(@ActiveUser() user: UserEntity) {
+    return this.userService.deleteProfileImage({
+      id: user.id,
+      profileImageUrl: user.profile!.profileImageUrl!,
+    });
   }
 
   // TODO: 기획 확인 필요

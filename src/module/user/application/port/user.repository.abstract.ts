@@ -11,5 +11,9 @@ export abstract class UserRepository {
   abstract upseretOne(user: Partial<UserEntity>): Promise<void>;
   abstract updateOne(user: Partial<UserEntity> & { id: number }): Promise<void>;
   abstract upsertProfile(user: Partial<UserProfileEntity>): Promise<void>;
+  abstract updateProfile(
+    userId: number,
+    user: Partial<UserProfileEntity>,
+  ): Promise<void>;
   abstract deleteOne(id: number): Promise<void>;
 }

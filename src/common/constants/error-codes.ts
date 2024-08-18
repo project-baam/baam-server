@@ -1,6 +1,9 @@
 export enum ErrorCode {
   // 400
   InvalidParameter = 4000,
+  InvalidFileNameExtension = 4001,
+  InvalidFilenameCharacters = 4002,
+  MissingRequiredFields = 4003,
 
   // 401
   MissingAuthToken = 4010,

@@ -139,6 +139,32 @@ export class EnvironmentVariables {
   @IsString()
   @Expose()
   readonly KAKAO_REDIRECT_URI: string;
+
+  // DigitalOcean Spaces Object Storage
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly SPACES_REGION: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly SPACES_ENDPOINT: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly SPACES_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly SPACES_SECRET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly SPACES_BUCKET: string;
 }
 
 export const getEnvFilePath = (): string =>
