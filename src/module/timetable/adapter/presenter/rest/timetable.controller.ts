@@ -72,6 +72,8 @@ export class TimetableController {
   @ApiDescription({
     tags: ['시간표'],
     summary: '유저 시간표 조회',
+    description:
+      '해당 날짜의 시간표 조회(2 ~ 8월까지 1학기, 9 ~ 1월까지 2학기)',
     auth: AuthorizationToken.BearerUserToken,
     listResponse: {
       status: HttpStatus.OK,
