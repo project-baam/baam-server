@@ -344,6 +344,8 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     return defaultTimetables;
   }
 
+  // TODO: 현재 fromDate, toDate 가 같은 경우만 사용하지만, 
+  // 추후에 필요할 경우 최대 페이지 사이즈 고려하여 배치로 처리할 수 있도록 수정F
   async fetchMealData(
     officeCode: string,
     schoolCode: string,
