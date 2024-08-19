@@ -54,7 +54,7 @@ export class CalendarController {
     return new ResponseListDto(EventMapper.mapToDomain(events ?? []));
   }
 
-  @ApiBooleanResponse()
+  @ApiBooleanResponse(HttpStatus.CREATED)
   @ApiDescription({
     tags: ['Calendar'],
     summary: '일정 생성',
