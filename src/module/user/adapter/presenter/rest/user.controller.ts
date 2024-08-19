@@ -88,6 +88,10 @@ export class UserController {
   })
   @Delete('profile/image')
   async deleteUserProfileImage(@ActiveUser() user: UserEntity) {
+    if (!user.profile?.profileImageUrl) {
+      return user;
+    }
+
     return this.userService.deleteProfileImage({
       id: user.id,
       profileImageUrl: user.profile!.profileImageUrl!,
