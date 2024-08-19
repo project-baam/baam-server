@@ -378,17 +378,33 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     fromDate: Date,
     toDate: Date,
   ): Promise<SchoolEvent[]> {
-    const events = await this.requestNeisSchoolEventInfo({
-      Type: 'json',
-      ATPT_OFCDC_SC_CODE: officeCode,
-      SD_SCHUL_CODE: schoolCode,
-      AA_FROM_YMD: dayjs(fromDate).format('YYYYMMDD'),
-      AA_TO_YMD: dayjs(toDate).format('YYYYMMDD'),
-    });
+    let allEvents: SchoolSchedule[] = [];
+    let pageNumber = 1;
+    let hasMoreData: boolean = true;
+
+    while (hasMoreData) {
+      const events = await this.requestNeisSchoolEventInfo({
+        Type: 'json',
+        ATPT_OFCDC_SC_CODE: officeCode,
+        SD_SCHUL_CODE: schoolCode,
+        AA_FROM_YMD: dayjs(fromDate).format('YYYYMMDD'),
+        AA_TO_YMD: dayjs(toDate).format('YYYYMMDD'),
+        pIndex: pageNumber,
+        pSize: NEIS_MAX_PAGE_SIZE,
+      });
+
+      allEvents = allEvents.concat(events);
+
+      if (events.length < NEIS_MAX_PAGE_SIZE) {
+        hasMoreData = false;
+      } else {
+        pageNumber++;
+      }
+    }
 
     const gradePrefix = ['ONE', 'TW', 'THREE'] as const;
 
-    return events.map((event: SchoolSchedule) => ({
+    return allEvents.map((event: SchoolSchedule) => ({
       date: dayjs(event.AA_YMD).format('YYYY-MM-DD'),
       title: event.EVENT_NM,
       content: event.EVENT_CNTNT,

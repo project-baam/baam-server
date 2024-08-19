@@ -45,6 +45,7 @@ export class CalendarController {
   ): Promise<ResponseListDto<Event>> {
     const events = await this.calendarService.getMonthEvents(
       user.id,
+      user.profile.class.grade,
       user.profile.class.schoolId,
       pathParams.year,
       pathParams.month,
