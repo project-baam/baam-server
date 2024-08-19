@@ -13,6 +13,9 @@ import { SubjectRepository } from 'src/module/school-dataset/application/port/su
 import { MealRepository } from 'src/module/school-dataset/application/port/meal.repository.abstract';
 import { OrmMealRepository } from './repositories/meal.repository';
 import { MealEntity } from '../entities/meal.entity';
+import { SchoolEventEntity } from '../entities/school-event.entity';
+import { SchoolEventRepository } from 'src/module/school-dataset/application/port/school-event.repository.abstract';
+import { OrmSchoolEventRepository } from './repositories/school-event.repository';
 
 @Module({
   imports: [
@@ -21,6 +24,7 @@ import { MealEntity } from '../entities/meal.entity';
       ClassEntity,
       SubjectEntity,
       MealEntity,
+      SchoolEventEntity,
     ]),
   ],
   providers: [
@@ -40,12 +44,17 @@ import { MealEntity } from '../entities/meal.entity';
       provide: MealRepository,
       useClass: OrmMealRepository,
     },
+    {
+      provide: SchoolEventRepository,
+      useClass: OrmSchoolEventRepository,
+    },
   ],
   exports: [
     SchoolRepository,
     ClassRepository,
     SubjectRepository,
     MealRepository,
+    SchoolEventRepository,
   ],
 })
 export class OrmSchoolDatasetPersistenceModule {}

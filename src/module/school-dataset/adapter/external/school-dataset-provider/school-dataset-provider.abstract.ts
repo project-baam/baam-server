@@ -4,6 +4,7 @@ import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { Dayjs } from 'dayjs';
 import { Meal } from 'src/module/school-dataset/domain/meal';
+import { SchoolEvent } from 'src/module/school-dataset/domain/event';
 
 export abstract class SchoolDatasetProvider {
   abstract fetchSchoolData(): Promise<Partial<SchoolEntity>[]>;
@@ -25,4 +26,10 @@ export abstract class SchoolDatasetProvider {
     fromDate: Dayjs,
     toDate: Dayjs,
   ): Promise<Meal[]>;
+  abstract fetchSchoolEvent(
+    officeCode: string,
+    schoolCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<SchoolEvent[]>;
 }

@@ -4,7 +4,7 @@ import { Semester } from '../school-dataset/domain/value-objects/semester';
 @Injectable()
 export class DateUtilService {
   /**
-   * 2 ~ 7월까지 1학기, 8 ~ 1월까지 2학기로 구분
+   * 2 ~ 8월까지 1학기, 9 ~ 1월까지 2학기로 구분
    * @param date
    * @returns
    */

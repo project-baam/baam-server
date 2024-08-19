@@ -1,5 +1,3 @@
-import { TimetableService } from 'src/module/timetable/application/timetable.service';
-import { EnvironmentService } from 'src/config/environment/environment.service';
 // inbound port
 
 import { FindUniqueUserQuery } from './dto/user.query';
@@ -16,7 +14,9 @@ import { ObjectStorageService } from 'src/module/object-storage/application/obje
 import { StorageCategory } from 'src/module/object-storage/domain/enums/storage-category.enum';
 import { SupportedEnvironment } from 'src/config/environment/environment';
 import { MissingRequiredFieldsError } from 'src/common/types/error/application-exceptions';
-import { profile } from 'console';
+import { CalendarService } from 'src/module/calendar/application/calendar.service';
+import { TimetableService } from 'src/module/timetable/application/timetable.service';
+import { EnvironmentService } from 'src/config/environment/environment.service';
 
 export class UserService {
   constructor(
@@ -27,6 +27,7 @@ export class UserService {
     private readonly objectStorageService: ObjectStorageService,
     private readonly environmentService: EnvironmentService,
     private readonly timetableService: TimetableService,
+    private readonly calendarService: CalendarService,
   ) {}
 
   async findUserByProviderId(
@@ -91,10 +92,17 @@ export class UserService {
       ).id;
     }
 
+    // TODO: 이벤트 처리
     if (classId) {
       this.timetableService.setUserDefaultTimetableWithFallbackFetch(
         user.id,
         classId,
+      );
+
+      this.calendarService.setUserSchoolEventsWithFallbackFetch(
+        user.id,
+        schoolId,
+        grade,
       );
     }
 

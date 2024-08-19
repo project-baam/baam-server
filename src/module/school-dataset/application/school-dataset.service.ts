@@ -23,6 +23,9 @@ import { MealMapper } from './mappers/meal.mapper';
 import { MealEntity } from '../adapter/persistence/entities/meal.entity';
 import { SubjectRepository } from './port/subject.repository.abstract';
 import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository.abstract';
+import { SchoolEvent } from '../domain/event';
+import { SchoolEventRepository } from './port/school-event.repository.abstract';
+import { SchoolEventMapper } from './mappers/school-event.mapper';
 
 export class SchoolDatasetService {
   constructor(
@@ -43,6 +46,9 @@ export class SchoolDatasetService {
 
     @Inject(DefaultTimetableRepository)
     private readonly defaultTimetableRepository: DefaultTimetableRepository,
+
+    @Inject(SchoolEventRepository)
+    private readonly schoolEventRepository: SchoolEventRepository,
   ) {}
 
   // transactional
@@ -178,6 +184,46 @@ export class SchoolDatasetService {
       );
 
       return (mealData as MealEntity[]).map((e) => MealMapper.toDomain(e));
+    }
+  }
+
+  /**
+   * 학사일정 조회
+   * 없을 경우 Neis API 를 통해 가져옴
+   */
+  async getSchoolEventBySchoolIdAndDateWithFallbackFetch(
+    schoolId: number,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<SchoolEvent[]> {
+    const events = await this.schoolEventRepository.findBySchoolAndDate(
+      schoolId,
+      fromDate,
+      toDate,
+    );
+
+    // TODO: 일부만 없을 경우 고민 필요
+    if (events?.length) {
+      return events.map((e) => SchoolEventMapper.toDomain(e));
+    } else {
+      const school = await this.schoolRepository.findByIdOrFail(schoolId);
+      const events = await this.schoolDatasetProvider.fetchSchoolEvent(
+        school.officeCode,
+        school.code,
+        fromDate,
+        toDate,
+      );
+      await this.schoolEventRepository.upsertMany(
+        events.map((e) => SchoolEventMapper.toPersistence(e, schoolId)),
+      );
+
+      const updated = await this.schoolEventRepository.findBySchoolAndDate(
+        schoolId,
+        fromDate,
+        toDate,
+      );
+
+      return updated.map((e) => SchoolEventMapper.toDomain(e));
     }
   }
 }

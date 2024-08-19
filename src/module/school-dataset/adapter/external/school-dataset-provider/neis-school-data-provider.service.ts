@@ -31,6 +31,11 @@ import { SubjectRepository } from 'src/module/school-dataset/application/port/su
 import { MealInfo, MealInfoRequest } from './dto/meal-info.dto';
 import { MealEntity } from '../../persistence/entities/meal.entity';
 import { toMealType } from './mapper/meal.mapper';
+import { SchoolEvent } from 'src/module/school-dataset/domain/event';
+import {
+  SchoolSchedule,
+  SchoolScheduleRequest,
+} from './dto/school-schedule.dto';
 
 @Injectable()
 export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
@@ -142,6 +147,21 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     const data = await this.fetchData<MealInfo>(NeisCategory.MealInfo, {
       ...dto,
     });
+
+    return data;
+  }
+
+  private async requestNeisSchoolEventInfo(
+    dto: SchoolScheduleRequest,
+  ): Promise<SchoolSchedule[]> {
+    this.validate(SchoolScheduleRequest, dto);
+
+    const data = await this.fetchData<SchoolSchedule>(
+      NeisCategory.SchoolSchedule,
+      {
+        ...dto,
+      },
+    );
 
     return data;
   }
@@ -350,5 +370,32 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
         ),
       };
     });
+  }
+
+  async fetchSchoolEvent(
+    officeCode: string,
+    schoolCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<SchoolEvent[]> {
+    const events = await this.requestNeisSchoolEventInfo({
+      Type: 'json',
+      ATPT_OFCDC_SC_CODE: officeCode,
+      SD_SCHUL_CODE: schoolCode,
+      AA_FROM_YMD: dayjs(fromDate).format('YYYYMMDD'),
+      AA_TO_YMD: dayjs(toDate).format('YYYYMMDD'),
+    });
+
+    const gradePrefix = ['ONE', 'TW', 'THREE'] as const;
+
+    return events.map((event: SchoolSchedule) => ({
+      date: dayjs(event.AA_YMD).format('YYYY-MM-DD'),
+      title: event.EVENT_NM,
+      content: event.EVENT_CNTNT,
+      grade:
+        gradePrefix.findIndex(
+          (prefix) => event[`${prefix}_GRADE_EVENT_YN`] === 'Y',
+        ) + 1,
+    }));
   }
 }

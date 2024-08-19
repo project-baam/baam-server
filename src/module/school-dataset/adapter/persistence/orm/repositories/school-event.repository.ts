@@ -1,0 +1,34 @@
+import { SchoolEventRepository } from 'src/module/school-dataset/application/port/school-event.repository.abstract';
+import { SchoolEventEntity } from '../../entities/school-event.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { And, LessThan, MoreThan, Repository } from 'typeorm';
+
+export class OrmSchoolEventRepository implements SchoolEventRepository {
+  constructor(
+    @InjectRepository(SchoolEventEntity)
+    private readonly schoolEventRepository: Repository<SchoolEventEntity>,
+  ) {}
+
+  async upsertMany(events: Partial<SchoolEventEntity>[]): Promise<void> {
+    await this.schoolEventRepository.upsert(events, [
+      'schoolId',
+      'grade',
+      'title',
+      'content',
+      'date',
+    ]);
+  }
+
+  findBySchoolAndDate(
+    schoolId: number,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<SchoolEventEntity[]> {
+    return this.schoolEventRepository.find({
+      where: {
+        schoolId,
+        date: And(LessThan(toDate), MoreThan(fromDate)),
+      },
+    });
+  }
+}

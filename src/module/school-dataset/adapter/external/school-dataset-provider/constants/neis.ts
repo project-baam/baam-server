@@ -5,6 +5,7 @@ export enum NeisCategory {
   SchoolInfo = 'schoolInfo',
   ClassInfo = 'classInfo',
   MealInfo = 'mealServiceDietInfo',
+  SchoolSchedule = 'SchoolSchedule',
 }
 
 export const NeisUri: { [key in NeisCategory]: string } = {
@@ -12,6 +13,10 @@ export const NeisUri: { [key in NeisCategory]: string } = {
   [NeisCategory.SchoolInfo]: [NEIS_BASE_URL, NeisCategory.SchoolInfo].join('/'),
   [NeisCategory.ClassInfo]: [NEIS_BASE_URL, NeisCategory.ClassInfo].join('/'),
   [NeisCategory.MealInfo]: [NEIS_BASE_URL, NeisCategory.MealInfo].join('/'),
+  [NeisCategory.SchoolSchedule]: [
+    NEIS_BASE_URL,
+    NeisCategory.SchoolSchedule,
+  ].join('/'),
 };
 
 export const NEIS_MAX_PAGE_SIZE = 1000;
