@@ -18,4 +18,5 @@ export const CodeToStatus: {
   [ErrorCode.NeisError]: HttpStatus.INTERNAL_SERVER_ERROR,
   [ErrorCode.SocialAuthenticationFailed]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.IncompleteProfile]: HttpStatus.FORBIDDEN,
+  [ErrorCode.UnauthorizedSubjectAccess]: HttpStatus.FORBIDDEN,
 } as const;

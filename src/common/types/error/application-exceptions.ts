@@ -110,3 +110,12 @@ export class MissingRequiredFieldsError extends ApplicationException {
     );
   }
 }
+
+export class UnauthorizedSubjectAccessError extends ApplicationException {
+  constructor(subject: string) {
+    super(
+      ErrorCode.UnauthorizedSubjectAccess,
+      `[${subject}] 과목을 수강하고 있지 않음`,
+    );
+  }
+}

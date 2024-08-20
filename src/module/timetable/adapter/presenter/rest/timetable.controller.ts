@@ -114,6 +114,7 @@ export class TimetableController {
     @ActiveUser() user: UserEntity,
     @Body() params: EditOrAddTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
+    // TODO: 기존 요일/교시에 이미 있는 수업이, 시간표에 전혀 남아 있지 않을 때, 해당 수업에 대한 메모도 삭제해야함
     await this.timetableService.editOrAddTimetable(user.id, params);
     const updatedTimetables = await this.timetableService.findUserTimetable(
       user.id,
@@ -145,6 +146,8 @@ export class TimetableController {
       ...params,
       userId: user.id,
     });
+
+    // TODO: 시간표 삭제시, 해당 과목에 대한 메모도 삭제해야함(단, 해당 과목이 유저 시간표에 전혀 남아 있지 않을 때)
 
     const updatedTimetables = await this.timetableService.findUserTimetable(
       user.id,

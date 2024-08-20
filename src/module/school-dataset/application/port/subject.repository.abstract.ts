@@ -31,6 +31,7 @@ export abstract class SubjectRepository {
   ): Promise<PaginatedList<string>>;
 
   abstract findIdByName(name: string): Promise<number | null>;
+  abstract findIdByNameOrFail(name: string): Promise<number>;
 
   /**
    * 해당 과목명이 존재하는 교과목인지 확인

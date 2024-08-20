@@ -2,6 +2,7 @@ import { UserTimetableEntity } from '../../adapter/persistence/entities/user-tim
 import {
   DeleteUserTimetable,
   FindUserTimetable,
+  IsSubjectInUserTimetable,
   UpsertUserTimetable,
 } from '../../adapter/persistence/types/user-timetable';
 
@@ -15,4 +16,8 @@ export abstract class UserTimetableRepository {
   ): Promise<UserTimetableEntity[] | null>;
 
   abstract delete(where: DeleteUserTimetable): Promise<void>;
+
+  abstract isSubjectInUserTimetable(
+    where: IsSubjectInUserTimetable,
+  ): Promise<boolean>;
 }

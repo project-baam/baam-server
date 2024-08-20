@@ -14,6 +14,7 @@ export enum ErrorCode {
 
   // 403
   IncompleteProfile = 4030,
+  UnauthorizedSubjectAccess = 4031,
 
   // 404
   ContentNotFound = 4040,

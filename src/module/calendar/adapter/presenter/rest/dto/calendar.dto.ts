@@ -11,6 +11,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { EVENT_VALIDATION } from 'src/module/calendar/domain/constants/event-validation.constants';
 import { EventType } from 'src/module/calendar/domain/event';
 
 export class GetMonthEventsRequest {
@@ -37,7 +38,9 @@ export class CreateEventRequest {
   @ApiProperty({ description: '100자 이내' })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(100, { message: '제목은 100자를 초과할 수 없습니다.' })
+  @MaxLength(EVENT_VALIDATION.TITLE_MAX_LENGTH, {
+    message: `제목은 ${EVENT_VALIDATION.TITLE_MAX_LENGTH}자를 초과할 수 없습니다.`,
+  })
   title: string;
 
   @ApiProperty({ type: 'enum', enum: EventType })
@@ -46,7 +49,9 @@ export class CreateEventRequest {
 
   @ApiProperty({ required: false, description: '1000자 이내' })
   @IsOptional()
-  @MaxLength(1000, { message: '메모는 1000자를 초과할 수 없습니다.' })
+  @MaxLength(EVENT_VALIDATION.CONTENT_MAX_LENGTH, {
+    message: `메모는 ${EVENT_VALIDATION.CONTENT_MAX_LENGTH}00자를 초과할 수 없습니다.`,
+  })
   memo?: string;
 }
 
@@ -68,7 +73,9 @@ export class UpdateEventRequest {
   @ApiProperty({ required: false })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(100, { message: '제목은 100자를 초과할 수 없습니다.' })
+  @MaxLength(EVENT_VALIDATION.TITLE_MAX_LENGTH, {
+    message: `제목은 ${EVENT_VALIDATION.TITLE_MAX_LENGTH}자를 초과할 수 없습니다.`,
+  })
   @IsOptional()
   title?: string;
 
@@ -79,7 +86,9 @@ export class UpdateEventRequest {
   // 우선 학교 일정을 직접 추가할 수 있긴 함(유저가 추가한 학교일정인지, 나이스인지 구분 필요?)
 
   @ApiProperty({ required: false })
-  @MaxLength(1000, { message: '메모는 1000자를 초과할 수 없습니다.' })
+  @MaxLength(EVENT_VALIDATION.CONTENT_MAX_LENGTH, {
+    message: `메모는 ${EVENT_VALIDATION.CONTENT_MAX_LENGTH}00자를 초과할 수 없습니다.`,
+  })
   @IsOptional()
   memo?: string;
 }

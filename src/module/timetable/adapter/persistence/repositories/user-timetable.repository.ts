@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import {
   DeleteUserTimetable,
   FindUserTimetable,
+  IsSubjectInUserTimetable,
   UpsertUserTimetable,
 } from '../types/user-timetable';
 
@@ -13,6 +14,16 @@ export class OrmUserTimetableRepository implements UserTimetableRepository {
     @InjectRepository(UserTimetableEntity)
     private readonly userTimetableRepository: Repository<UserTimetableEntity>,
   ) {}
+
+  async isSubjectInUserTimetable(
+    where: IsSubjectInUserTimetable,
+  ): Promise<boolean> {
+    return this.userTimetableRepository
+      .count({
+        where,
+      })
+      .then((count) => count > 0);
+  }
 
   async upsert(
     itemOrItems: UpsertUserTimetable | UpsertUserTimetable[],

@@ -14,3 +14,8 @@ export type DeleteUserTimetable = Pick<
   UserTimetableEntity,
   'userId' | 'year' | 'semester' | 'day' | 'period'
 >;
+
+export type IsSubjectInUserTimetable = Pick<
+  UserTimetableEntity,
+  'userId' | 'year' | 'semester' | 'subjectId'
+>;
