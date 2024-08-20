@@ -344,7 +344,7 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     return defaultTimetables;
   }
 
-  // TODO: 현재 fromDate, toDate 가 같은 경우만 사용하지만, 
+  // TODO: 현재 fromDate, toDate 가 같은 경우만 사용하지만,
   // 추후에 필요할 경우 최대 페이지 사이즈 고려하여 배치로 처리할 수 있도록 수정F
   async fetchMealData(
     officeCode: string,
@@ -405,15 +405,61 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     }
 
     const gradePrefix = ['ONE', 'TW', 'THREE'] as const;
+    const events: SchoolEvent[] = [];
+    const specialEventSet = new Set([
+      '개교기념일',
+      '중간고사',
+      '기말고사',
+      '방학식',
+      '입학식',
+      '개학식',
+      '대학수학능력시험',
+      '졸업식',
+    ]);
+    const specialEventRegex = new RegExp(
+      Array.from(specialEventSet)
+        .map((event) => `(?=.*${event})`)
+        .join(''),
+      'i',
+    );
+    const isSpecialEvent = (event: SchoolSchedule) => {
+      return (
+        event.SBTR_DD_SC_NM !== '휴업일' ||
+        specialEventRegex.test(event.EVENT_NM)
+      );
+    };
 
-    return allEvents.map((event: SchoolSchedule) => ({
-      date: dayjs(event.AA_YMD).format('YYYY-MM-DD'),
-      title: event.EVENT_NM,
-      content: event.EVENT_CNTNT,
-      grade:
-        gradePrefix.findIndex(
-          (prefix) => event[`${prefix}_GRADE_EVENT_YN`] === 'Y',
-        ) + 1,
-    }));
+    for (const event of allEvents) {
+      if (isSpecialEvent(event)) {
+        const grades = gradePrefix.reduce<number[]>((acc, prefix, index) => {
+          if (event[`${prefix}_GRADE_EVENT_YN`] === 'Y') {
+            acc.push(index + 1);
+          }
+          return acc;
+        }, []);
+
+        grades.map((e) => {
+          const newEvent = {
+            date: dayjs(event.AA_YMD).format('YYYY-MM-DD'),
+            title: event.EVENT_NM,
+            content: event.EVENT_CNTNT,
+            grade: e,
+          };
+
+          if (
+            !events.some(
+              (e) =>
+                e.date === newEvent.date &&
+                e.title === newEvent.title &&
+                e.grade === newEvent.grade,
+            )
+          ) {
+            events.push(newEvent);
+          }
+        });
+      }
+    }
+
+    return events;
   }
 }

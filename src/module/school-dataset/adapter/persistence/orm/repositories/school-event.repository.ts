@@ -1,7 +1,7 @@
 import { SchoolEventRepository } from 'src/module/school-dataset/application/port/school-event.repository.abstract';
 import { SchoolEventEntity } from '../../entities/school-event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { And, LessThan, MoreThan, Repository } from 'typeorm';
+import { And, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
 export class OrmSchoolEventRepository implements SchoolEventRepository {
   constructor(
@@ -27,7 +27,7 @@ export class OrmSchoolEventRepository implements SchoolEventRepository {
     return this.schoolEventRepository.find({
       where: {
         schoolId,
-        date: And(LessThan(toDate), MoreThan(fromDate)),
+        date: And(LessThanOrEqual(toDate), MoreThanOrEqual(fromDate)),
       },
     });
   }
