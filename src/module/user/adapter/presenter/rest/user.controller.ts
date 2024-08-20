@@ -19,11 +19,7 @@ import { UserEntity } from '../../persistence/orm/entities/user.entity';
 import { UserMapper } from './mappers/user.mapper';
 import { updateProfileProperty, UpdateProfileRequest } from './dto/user.dto';
 import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-  FilesInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiFiles } from 'src/docs/decorator/api-files-request';
 import { profileImageMulterOptions } from 'src/module/user/domain/config/profile-image-multer-options';
 import {

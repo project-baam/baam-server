@@ -15,6 +15,7 @@ export class UserProfileEntity extends BaseEntity {
   @PrimaryColumn('int', { name: 'user_id' })
   userId: number;
 
+  // 한글 + 영문 최대 10자
   @Column('varchar')
   fullName: string;
 

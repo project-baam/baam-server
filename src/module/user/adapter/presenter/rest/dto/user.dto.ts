@@ -10,6 +10,7 @@ import {
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
+import { IsOptionalKoreanEnglishMax10 } from '../decorators/korean-english-max-10-optional.validator.decorator';
 
 export class GetUserResponse {
   @ApiProperty()
@@ -48,8 +49,7 @@ export class UpdateProfileRequest {
 
   @ApiProperty()
   @Expose()
-  @IsNotEmpty()
-  @IsOptional()
+  @IsOptionalKoreanEnglishMax10()
   fullName: string;
 
   @ApiProperty()

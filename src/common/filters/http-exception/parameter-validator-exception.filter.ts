@@ -19,11 +19,25 @@ export class ParameterValidationExceptionFilter
     const exceptionObj = exception.getResponse() as Record<string, any>;
     const isProduction = this.environmentService.isProduction();
 
+    let errorMessages: string[] = [];
+
+    if (Array.isArray(exceptionObj.message)) {
+      errorMessages = exceptionObj.message.map((error: any) => {
+        if (error.constraints) {
+          // constraints 객체의 모든 메시지를 배열로 변환
+          return Object.values(error.constraints).join('. ');
+        }
+        return error.toString();
+      });
+    } else if (typeof exceptionObj.message === 'string') {
+      errorMessages = [exceptionObj.message];
+    }
+
+    const finalErrorMessage = errorMessages.join('. ');
+
     response.status(exception.getStatus()).json({
       code: ErrorCode.InvalidParameter,
-      message: isProduction
-        ? exceptionObj.error
-        : exceptionObj.message.toString(),
+      message: isProduction ? 'Invalid parameter' : finalErrorMessage,
     });
   }
 }
