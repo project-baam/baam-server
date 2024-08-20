@@ -8,6 +8,7 @@ export const CodeToStatus: {
   [ErrorCode.InvalidFileNameExtension]: HttpStatus.BAD_REQUEST,
   [ErrorCode.InvalidFilenameCharacters]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MissingRequiredFields]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.InvalidProfileImageField]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MissingAuthToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidAccessToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidRefreshToken]: HttpStatus.UNAUTHORIZED,

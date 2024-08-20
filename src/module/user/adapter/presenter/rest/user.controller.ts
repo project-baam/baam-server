@@ -2,9 +2,10 @@ import {
   Body,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Patch,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 
@@ -18,8 +19,12 @@ import { UserEntity } from '../../persistence/orm/entities/user.entity';
 import { UserMapper } from './mappers/user.mapper';
 import { updateProfileProperty, UpdateProfileRequest } from './dto/user.dto';
 import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiFile } from 'src/docs/decorator/api-file-request';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import { ApiFiles } from 'src/docs/decorator/api-files-request';
 import { profileImageMulterOptions } from 'src/module/user/domain/config/profile-image-multer-options';
 import {
   ContentNotFoundError,
@@ -28,6 +33,11 @@ import {
   MissingRequiredFieldsError,
 } from 'src/common/types/error/application-exceptions';
 import { ErrorCode } from 'src/common/constants/error-codes';
+import { ApiResponse } from '@nestjs/swagger';
+import {
+  MAX_PROFILE_IMAGES,
+  PROFILE_IMAGE_FIELDS,
+} from './constants/profile-image.constants';
 
 @RestApi('user')
 export class UserController {
@@ -66,35 +76,76 @@ export class UserController {
       ContentNotFoundError,
     ],
   })
-  @UseInterceptors(FileInterceptor('file', profileImageMulterOptions))
-  @ApiFile('file', updateProfileProperty)
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: PROFILE_IMAGE_FIELDS.PROFILE, maxCount: 1 },
+        { name: PROFILE_IMAGE_FIELDS.BACKGROUND, maxCount: 1 },
+      ],
+      profileImageMulterOptions,
+    ),
+  )
+  @ApiFiles(
+    [
+      { name: PROFILE_IMAGE_FIELDS.PROFILE, required: false },
+      { name: PROFILE_IMAGE_FIELDS.BACKGROUND, required: false },
+    ],
+    updateProfileProperty,
+  )
   @Patch()
   async updateProfile(
     @ActiveUser() user: UserEntity,
     @Body() params: UpdateProfileRequest,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      [PROFILE_IMAGE_FIELDS.PROFILE]?: Express.Multer.File[];
+      [PROFILE_IMAGE_FIELDS.BACKGROUND]?: Express.Multer.File[];
+    },
   ) {
-    return this.userService.updateProfile(user, params, file);
+    return this.userService.updateProfile(user, params, files);
   }
 
   @ApiDescription({
     tags: ['User'],
     summary: '유저 프로필 이미지 삭제',
     auth: AuthorizationToken.BearerUserToken,
-    dataResponse: {
-      status: HttpStatus.OK,
-      schema: User,
-    },
   })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: '프로필 배경 이미지가 성공적으로 삭제됨',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('profile/image')
   async deleteUserProfileImage(@ActiveUser() user: UserEntity) {
     if (!user.profile?.profileImageUrl) {
       return user;
     }
 
-    return this.userService.deleteProfileImage({
+    await this.userService.deleteProfileImage({
       id: user.id,
       profileImageUrl: user.profile!.profileImageUrl!,
+    });
+  }
+
+  @ApiDescription({
+    tags: ['User'],
+    summary: '유저 프로필 이미지 삭제',
+    auth: AuthorizationToken.BearerUserToken,
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('profile/background-image')
+  @ApiResponse({
+    status: 204,
+    description: '프로필 배경 이미지가 성공적으로 삭제됨',
+  })
+  async deleteProfileBackgroundImage(@ActiveUser() user: UserEntity) {
+    if (!user.profile?.backgroundImageUrl) {
+      return user;
+    }
+
+    await this.userService.deleteProfileBackgroundImage({
+      id: user.id,
+      backgroundImageUrl: user.profile!.backgroundImageUrl!,
     });
   }
 

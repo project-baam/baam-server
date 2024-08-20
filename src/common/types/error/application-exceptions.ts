@@ -1,6 +1,7 @@
 import { ErrorCode } from 'src/common/constants/error-codes';
 import { ApplicationException } from './application-exceptions.base';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { PROFILE_IMAGE_FIELDS } from 'src/module/user/adapter/presenter/rest/constants/profile-image.constants';
 
 export class ContentNotFoundError extends ApplicationException {
   constructor(resource: string = '$resource', id: string | number = '$id') {
@@ -116,6 +117,15 @@ export class UnauthorizedSubjectAccessError extends ApplicationException {
     super(
       ErrorCode.UnauthorizedSubjectAccess,
       `[${subject}] 과목을 수강하고 있지 않음`,
+    );
+  }
+}
+
+export class InvalidProfileImageFieldError extends ApplicationException {
+  constructor(field: string) {
+    super(
+      ErrorCode.InvalidProfileImageField,
+      `Invalid profile image field: ${field}. Expected ${PROFILE_IMAGE_FIELDS.PROFILE} or ${PROFILE_IMAGE_FIELDS.BACKGROUND}.`,
     );
   }
 }

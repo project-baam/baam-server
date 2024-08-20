@@ -17,6 +17,7 @@ import { MissingRequiredFieldsError } from 'src/common/types/error/application-e
 import { CalendarService } from 'src/module/calendar/application/calendar.service';
 import { TimetableService } from 'src/module/timetable/application/timetable.service';
 import { EnvironmentService } from 'src/config/environment/environment.service';
+import { PROFILE_IMAGE_FIELDS } from '../adapter/presenter/rest/constants/profile-image.constants';
 
 export class UserService {
   constructor(
@@ -48,11 +49,12 @@ export class UserService {
   async upsertProfileImage(
     userId: number,
     file: Express.Multer.File,
+    category: StorageCategory,
   ): Promise<string> {
     const uploadParams = {
       uniqueKey: userId,
       file,
-      category: StorageCategory.USER_PROFILES,
+      category,
       environment: this.environmentService.get<SupportedEnvironment>('ENV')!,
     };
     const newImgUrl = await this.objectStorageService.uploadFile(uploadParams);
@@ -71,7 +73,10 @@ export class UserService {
   async updateProfile(
     user: UserEntity,
     params: UpdateProfileRequest,
-    file: Express.Multer.File,
+    files: {
+      [PROFILE_IMAGE_FIELDS.PROFILE]?: Express.Multer.File[];
+      [PROFILE_IMAGE_FIELDS.BACKGROUND]?: Express.Multer.File[];
+    },
   ): Promise<User> {
     const { schoolId, grade, className, fullName, isProfilePublic } = params;
     await this.schoolRepository.findByIdOrFail(schoolId);
@@ -94,21 +99,38 @@ export class UserService {
 
     // TODO: 이벤트 처리
     if (classId) {
-      this.timetableService.setUserDefaultTimetableWithFallbackFetch(
-        user.id,
-        classId,
-      );
+      await Promise.all([
+        this.timetableService.setUserDefaultTimetableWithFallbackFetch(
+          user.id,
+          classId,
+        ),
+        this.calendarService.setUserSchoolEventsWithFallbackFetch(
+          user.id,
+          schoolId,
+          grade,
+        ),
+      ]);
+    }
 
-      this.calendarService.setUserSchoolEventsWithFallbackFetch(
+    const profileImageFile = files[PROFILE_IMAGE_FIELDS.PROFILE]?.[0];
+    const backgroundImageFile = files[PROFILE_IMAGE_FIELDS.BACKGROUND]?.[0];
+
+    let profileImageUrl: string | undefined;
+    let backgroundImageUrl: string | undefined;
+    if (profileImageFile) {
+      profileImageUrl = await this.upsertProfileImage(
         user.id,
-        schoolId,
-        grade,
+        profileImageFile,
+        StorageCategory.USER_PROFILES,
       );
     }
 
-    let profileImageUrl: string | undefined;
-    if (file) {
-      profileImageUrl = await this.upsertProfileImage(user.id, file);
+    if (backgroundImageFile) {
+      backgroundImageUrl = await this.upsertProfileImage(
+        user.id,
+        backgroundImageFile,
+        StorageCategory.USER_BACKGROUNDS,
+      );
     }
 
     await this.userRepository.upsertProfile({
@@ -123,6 +145,8 @@ export class UserService {
           ? isProfilePublic
           : user.profile?.isProfilePublic,
       profileImageUrl: profileImageUrl ?? user.profile?.profileImageUrl,
+      backgroundImageUrl:
+        backgroundImageUrl ?? user.profile?.backgroundImageUrl,
     });
 
     const updatedUser = await this.userRepository.findOneByIdOrFail(user.id);
@@ -150,16 +174,24 @@ export class UserService {
 
   async deleteProfileImage(
     params: Pick<User, 'id' | 'profileImageUrl'>,
-  ): Promise<User> {
+  ): Promise<void> {
     await this.objectStorageService.deleteFile({
       objectUrl: params.profileImageUrl,
     });
     await this.userRepository.updateProfile(params.id, {
       profileImageUrl: null,
     });
+  }
 
-    return UserMapper.toDomain(
-      await this.userRepository.findOneByIdOrFail(params.id),
-    );
+  async deleteProfileBackgroundImage(
+    params: Pick<User, 'id' | 'backgroundImageUrl'>,
+  ): Promise<void> {
+    await this.objectStorageService.deleteFile({
+      objectUrl: params.backgroundImageUrl,
+    });
+
+    await this.userRepository.updateProfile(params.id, {
+      backgroundImageUrl: null,
+    });
   }
 }

@@ -44,5 +44,9 @@ export class User {
 
   @ApiProperty()
   @Expose()
+  backgroundImageUrl: string;
+
+  @ApiProperty()
+  @Expose()
   isProfilePublic: boolean;
 }

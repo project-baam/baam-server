@@ -17,6 +17,7 @@ export class UserMapper {
         className: entity.profile?.class.name,
         fullName: entity.profile?.fullName,
         profileImageUrl: entity.profile?.profileImageUrl,
+        backgroundImageUrl: entity.profile?.backgroundImageUrl,
         isProfilePublic: entity.profile?.isProfilePublic,
       },
       {

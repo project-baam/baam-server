@@ -28,6 +28,9 @@ export class UserProfileEntity extends BaseEntity {
   @Column('varchar', { nullable: true })
   profileImageUrl?: string | null;
 
+  @Column('varchar', { nullable: true })
+  backgroundImageUrl?: string | null;
+
   @OneToOne(() => UserEntity, (user) => user.profile, {
     onDelete: 'CASCADE',
   })
