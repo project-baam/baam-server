@@ -19,6 +19,8 @@ import { LogProvider } from './common/provider/log.provider';
 import { setupSwagger } from './docs/setup-swagger';
 
 async function bootstrap() {
+  process.env.TZ = 'Asia/Seoul';
+
   const app = await NestFactory.create<NestExpressApplication>(MainModule, {
     cors: true,
   });

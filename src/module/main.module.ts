@@ -13,6 +13,7 @@ import { OrmConfigService } from 'src/config/database/orm/orm.config.service';
 import { InMemoryModule } from 'src/config/database/in-memory/in-memory.module';
 import { ObjectStorageModule } from './object-storage/application/object-storage.module';
 import { CalendarModule } from './calendar/application/calendar.module';
+import { SubjectMemoModule } from './subject-memo/application/subject-memo.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CalendarModule } from './calendar/application/calendar.module';
     TimetableModule,
     ObjectStorageModule,
     CalendarModule,
+    SubjectMemoModule,
   ],
 })
 export class MainModule {}

@@ -1,5 +1,3 @@
-import { EventType } from 'src/module/calendar/domain/event';
-import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 import {
   Column,
   Entity,
@@ -8,10 +6,13 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { EventType } from 'src/module/calendar/domain/event';
+import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
+import { BaseEntity } from 'src/config/database/orm/base.entity';
 
 @Unique(['userId', 'type', 'datetime', 'title'])
 @Entity('event')
-export class EventEntity {
+export class EventEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,7 +22,7 @@ export class EventEntity {
   @Column('varchar')
   title: string;
 
-  @Column()
+  @Column('timestamp')
   datetime: Date;
 
   @Column({

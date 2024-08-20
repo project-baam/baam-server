@@ -29,7 +29,7 @@ export class SchoolEventEntity extends BaseEntity {
   @Column('varchar', { nullable: true })
   content: string | null;
 
-  @Column('timestamptz')
+  @Column('timestamp')
   date: Date;
 
   @ManyToOne(() => SchoolEntity, {

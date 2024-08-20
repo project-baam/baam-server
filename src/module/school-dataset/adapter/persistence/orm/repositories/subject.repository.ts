@@ -6,6 +6,7 @@ import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubjectCategoryResponse } from '../../../presenter/rest/dto/subject-categories.dto';
 import { plainToInstance } from 'class-transformer';
+import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 
 export class OrmSubjectRepository implements SubjectRepository {
   constructor(
@@ -75,6 +76,22 @@ export class OrmSubjectRepository implements SubjectRepository {
         })
       )?.id ?? null
     );
+  }
+
+  async findIdByNameOrFail(name: string): Promise<number> {
+    const id =
+      (
+        await this.subjectRepository.findOne({
+          select: { id: true },
+          where: { name },
+        })
+      )?.id ?? null;
+
+    if (!id) {
+      throw new ContentNotFoundError('subject', name);
+    }
+
+    return id;
   }
 
   async findExistingIds(names: string[]): Promise<number[]> {
