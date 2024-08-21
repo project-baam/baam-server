@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -9,8 +10,9 @@ import {
   Unique,
 } from 'typeorm';
 
-@Unique(['userId', 'friendId'])
 @Entity('friendship')
+@Unique(['userId', 'friendId'])
+@Check(`"user_id" < "friend_id"`)
 export class FriendshipEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
@@ -19,10 +21,13 @@ export class FriendshipEntity extends BaseEntity {
   userId: number;
 
   @Column('int')
-  friendId: number; // 친구의 user_id
+  friendId: number;
 
   @Column('boolean', { default: false })
-  isFavorite: boolean;
+  isUserFavorite: boolean;
+
+  @Column('boolean', { default: false })
+  isFriendFavorite: boolean;
 
   @ManyToOne(() => UserProfileEntity)
   @JoinColumn({ name: 'user_id' })
