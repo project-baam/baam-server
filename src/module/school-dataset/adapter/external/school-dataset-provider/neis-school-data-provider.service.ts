@@ -423,10 +423,15 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
       'i',
     );
     const isSpecialEvent = (event: SchoolSchedule) => {
-      return (
-        event.SBTR_DD_SC_NM !== '휴업일' ||
-        specialEventRegex.test(event.EVENT_NM)
-      );
+      if (event.SBTR_DD_SC_NM === '공휴일') {
+        return true;
+      }
+      if (event.SBTR_DD_SC_NM !== '휴얼입') {
+        return false;
+      }
+      if (event.EVENT_NM === '해당없음') {
+        return specialEventRegex.test(event.EVENT_CNTNT);
+      }
     };
 
     for (const event of allEvents) {
