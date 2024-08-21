@@ -131,7 +131,7 @@ export class UserController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('profile/background-image')
   @ApiResponse({
-    status: 204,
+    status: HttpStatus.NO_CONTENT,
     description: '프로필 배경 이미지가 성공적으로 삭제됨',
   })
   async deleteProfileBackgroundImage(@ActiveUser() user: UserEntity) {

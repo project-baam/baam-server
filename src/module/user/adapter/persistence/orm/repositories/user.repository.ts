@@ -22,7 +22,15 @@ export class OrmUserRepository implements UserRepository {
     userId: number,
     user: Partial<UserProfileEntity>,
   ): Promise<void> {
-    await this.profileRepository.update(userId, user);
+    const profile = await this.profileRepository.findOne({ where: { userId } });
+    if (!profile) {
+      throw new ContentNotFoundError('profile', userId);
+    }
+
+    Object.assign(profile, user);
+
+    // update 말고 save 사용해야 @BeforeUpdate가 트리거됨
+    await this.profileRepository.save(profile);
   }
 
   async updateOne(user: Partial<UserEntity> & { id: number }): Promise<void> {
