@@ -60,24 +60,12 @@ export class NeisError extends ApplicationException {
   }
 }
 
-class SocialAuthenticationError extends ApplicationException {
-  constructor(provider: string, details?: string) {
+export class SocialAuthenticationError extends ApplicationException {
+  constructor(provider: SignInProvider, details?: string) {
     const message = `Authentication failed with ${provider}. ${details || ''}`;
     super(ErrorCode.SocialAuthenticationFailed, message);
   }
 }
-
-export class KakaoAuthError extends SocialAuthenticationError {
-  constructor(details?: string) {
-    super(SignInProvider.KAKAO, details);
-  }
-}
-
-// export class AppleAuthError extends SocialAuthenticationError {
-//   constructor(details?: string) {
-//     super(SignInProvider.APPLE, details);
-//   }
-// }
 
 export class IncompleteProfileError extends ApplicationException {
   constructor() {

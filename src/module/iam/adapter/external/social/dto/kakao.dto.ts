@@ -1,9 +1,3 @@
-export interface LoginOptions {
-  clientId: string;
-  clientSecret?: string;
-  callbackUrl: string;
-}
-
 export interface KakaoTokenResponse {
   token_type: string; //	토큰 타입, bearer로 고정
   access_token: string; // 사용자 액세스 토큰 값

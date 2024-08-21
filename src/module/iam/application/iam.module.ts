@@ -12,6 +12,7 @@ import { RefreshTokenIdsStorage } from '../adapter/persistence/in-memory/refresh
 import { KakaoAuth } from '../adapter/external/social/kakao-auth';
 import { HttpModule } from '@nestjs/axios';
 import { OrmUserPersistenceModule } from 'src/module/user/adapter/persistence/orm/orm-user-persistence.module';
+import { AppleAuth } from '../adapter/external/social/apple-auth';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { OrmUserPersistenceModule } from 'src/module/user/adapter/persistence/or
     AccessTokenGuard,
     RefreshTokenIdsStorage,
     KakaoAuth,
+    AppleAuth,
   ],
   controllers: [AuthenticationController],
 })

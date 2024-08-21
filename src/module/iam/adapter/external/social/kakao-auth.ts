@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import { KakaoTokenInfoResponse, KakaoTokenResponse } from './dto/kakao.dto';
-import { KakaoAuthError } from 'src/common/types/error/application-exceptions';
+import { SocialAuthenticationError } from 'src/common/types/error/application-exceptions';
 import { AuthenticationStrategy } from 'src/module/iam/application/port/\bauthentication-strategy.abstract';
 import { EnvironmentService } from 'src/config/environment/environment.service';
 
@@ -52,7 +52,10 @@ export class KakaoAuth implements AuthenticationStrategy {
 
       return { id: String(kakaoUserId) };
     } catch (err: any) {
-      throw new KakaoAuthError(JSON.stringify(err.response.data));
+      throw new SocialAuthenticationError(
+        SignInProvider.KAKAO,
+        JSON.stringify(err.response.data),
+      );
     }
   }
 

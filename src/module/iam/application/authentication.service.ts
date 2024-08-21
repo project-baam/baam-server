@@ -19,6 +19,7 @@ import { SignInProvider } from '../domain/enums/sign-in-provider.enum';
 import { KakaoAuth } from '../adapter/external/social/kakao-auth';
 import { AuthenticationStrategy } from './port/\bauthentication-strategy.abstract';
 import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
+import { AppleAuth } from '../adapter/external/social/apple-auth';
 
 @Injectable()
 export class AuthenticationService {
@@ -26,16 +27,16 @@ export class AuthenticationService {
 
   constructor(
     private kakaoAuth: KakaoAuth,
-    // private appleAuth: AppleAuth,
+    private appleAuth: AppleAuth,
     private readonly userService: UserService,
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly environmentService: EnvironmentService,
     private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
   ) {
-    this.authStrategies = new Map([
+    this.authStrategies = new Map<SignInProvider, AuthenticationStrategy>([
       [SignInProvider.KAKAO, kakaoAuth],
-      // [SignInProvider.Apple, appleAuth],
+      [SignInProvider.APPLE, appleAuth],
     ]);
   }
 

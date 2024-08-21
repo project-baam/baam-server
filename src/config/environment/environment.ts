@@ -140,6 +140,28 @@ export class EnvironmentVariables {
   @Expose()
   readonly KAKAO_REDIRECT_URI: string;
 
+  // Apple 로그인
+  // @IsNotEmpty()
+  // @IsString()
+  // @Expose()
+  // readonly APPLE_TEAM_ID: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly APPLE_APP_ID: string;
+
+  // TODO:
+  // @IsNotEmpty()
+  // @IsString()
+  // @Expose()
+  // readonly APPLE_PRIVATE_KEY: string;
+
+  // @IsNotEmpty()
+  // @IsString()
+  // @Expose()
+  // readonly APPLE_KEY_ID: string;
+
   // DigitalOcean Spaces Object Storage
   @IsNotEmpty()
   @IsString()
