@@ -1,15 +1,12 @@
-import { JwtService } from '@nestjs/jwt';
 import { SocialAuthenticationError } from 'src/common/types/error/application-exceptions';
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { AuthenticationStrategy } from 'src/module/iam/application/port/\bauthentication-strategy.abstract';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import axios from 'axios';
+import * as jwt from 'jsonwebtoken';
 
 export class AppleAuth implements AuthenticationStrategy {
-  constructor(
-    private readonly environmentService: EnvironmentService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly environmentService: EnvironmentService) {}
 
   private async fetchApplePublicKeys(): Promise<any> {
     const response = await axios.get('https://appleid.apple.com/auth/keys');
@@ -19,9 +16,8 @@ export class AppleAuth implements AuthenticationStrategy {
   async authenticate(idToken: string): Promise<{ id: string }> {
     const publicKeys = await this.fetchApplePublicKeys();
 
-    const decodedToken: any = this.jwtService.decode(idToken, {
-      complete: true,
-    });
+    const decodedToken: any = jwt.decode(idToken, { complete: true });
+
     if (!decodedToken) {
       throw new SocialAuthenticationError(
         SignInProvider.APPLE,
@@ -40,8 +36,8 @@ export class AppleAuth implements AuthenticationStrategy {
     }
 
     try {
-      const verified = this.jwtService.verify(idToken, {
-        publicKey: publicKey.n,
+      // TODO: apple payload type
+      const verified: any = jwt.verify(idToken, publicKey.n, {
         algorithms: ['RS256'],
       });
 
