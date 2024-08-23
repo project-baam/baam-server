@@ -17,7 +17,7 @@ export class GetUserResponse {
   @Expose()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserStatus, type: 'enum' })
   @Expose()
   status: UserStatus;
 
@@ -34,7 +34,7 @@ export class UpdateProfileRequest {
   @Type(() => Number)
   schoolId: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserGrade, type: 'enum' })
   @Expose()
   @IsEnum(UserGrade)
   @Type(() => Number)

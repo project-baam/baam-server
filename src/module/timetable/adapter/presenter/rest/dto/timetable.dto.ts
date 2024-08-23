@@ -32,7 +32,7 @@ export class DefaultTimetableRequest {
   @IsNotEmpty()
   schoolId: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserGrade, type: 'enum' })
   @IsEnum(UserGrade)
   @Type(() => Number)
   grade: UserGrade;

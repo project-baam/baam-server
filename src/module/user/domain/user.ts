@@ -9,7 +9,7 @@ export class User {
   @Expose()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserStatus, type: 'enum' })
   @Expose()
   status: UserStatus;
 
@@ -26,7 +26,7 @@ export class User {
   @Expose()
   schoolName: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserGrade, type: 'enum' })
   @Expose()
   grade: UserGrade;
 
