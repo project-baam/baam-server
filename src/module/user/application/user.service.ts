@@ -97,21 +97,6 @@ export class UserService {
       ).id;
     }
 
-    // TODO: 이벤트 처리
-    if (classId) {
-      await Promise.all([
-        this.timetableService.setUserDefaultTimetableWithFallbackFetch(
-          user.id,
-          classId,
-        ),
-        this.calendarService.setUserSchoolEventsWithFallbackFetch(
-          user.id,
-          schoolId,
-          grade,
-        ),
-      ]);
-    }
-
     const profileImageFile = files[PROFILE_IMAGE_FIELDS.PROFILE]?.[0];
     const backgroundImageFile = files[PROFILE_IMAGE_FIELDS.BACKGROUND]?.[0];
 
@@ -161,6 +146,21 @@ export class UserService {
         id: user.id,
         status: UserStatus.ACTIVE,
       });
+    }
+
+    // TODO: 이벤트 처리
+    if (classId) {
+      await Promise.all([
+        this.timetableService.setUserDefaultTimetableWithFallbackFetch(
+          user.id,
+          classId,
+        ),
+        this.calendarService.setUserSchoolEventsWithFallbackFetch(
+          user.id,
+          schoolId,
+          grade,
+        ),
+      ]);
     }
 
     return UserMapper.toDomain(

@@ -54,14 +54,16 @@ export class CalendarService {
 
     if (schoolEventsByYear.length) {
       await this.eventRepository.upsertMany(
-        schoolEventsByYear.map((e) => {
-          return {
-            userId,
-            datetime: e.date,
-            title: e.title,
-            type: EventType.SCHOOL,
-          };
-        }),
+        schoolEventsByYear
+          .filter((e) => e.grade === userGrade)
+          .map((e) => {
+            return {
+              userId,
+              datetime: e.date,
+              title: e.title,
+              type: EventType.SCHOOL,
+            };
+          }),
       );
     } else {
       const events =
