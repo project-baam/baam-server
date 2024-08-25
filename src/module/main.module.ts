@@ -14,6 +14,9 @@ import { InMemoryModule } from 'src/config/database/in-memory/in-memory.module';
 import { ObjectStorageModule } from './object-storage/application/object-storage.module';
 import { CalendarModule } from './calendar/application/calendar.module';
 import { SubjectMemoModule } from './subject-memo/application/subject-memo.module';
+import { FriendModule } from './friend/application/friend.module';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -21,6 +24,15 @@ import { SubjectMemoModule } from './subject-memo/application/subject-memo.modul
       imports: [OrmConfigModule],
       inject: [OrmConfigService],
       useClass: OrmConfigService,
+      dataSourceFactory: async (options) => {
+        if (!options) {
+          throw new Error('Invalid options passed');
+        }
+
+        return addTransactionalDataSource({
+          dataSource: new DataSource(options),
+        });
+      },
     }),
     EnvironmentModule,
     UtilModule,
@@ -33,6 +45,7 @@ import { SubjectMemoModule } from './subject-memo/application/subject-memo.modul
     ObjectStorageModule,
     CalendarModule,
     SubjectMemoModule,
+    FriendModule,
   ],
 })
 export class MainModule {}

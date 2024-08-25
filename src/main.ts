@@ -17,8 +17,11 @@ import * as Sentry from '@sentry/node';
 
 import { LogProvider } from './common/provider/log.provider';
 import { setupSwagger } from './docs/setup-swagger';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 
 async function bootstrap() {
+  initializeTransactionalContext();
+
   process.env.TZ = 'Asia/Seoul';
 
   const app = await NestFactory.create<NestExpressApplication>(MainModule, {
