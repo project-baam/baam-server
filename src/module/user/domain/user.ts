@@ -48,5 +48,9 @@ export class User {
 
   @ApiProperty()
   @Expose()
-  isProfilePublic: boolean;
+  isClassPublic: boolean;
+
+  @ApiProperty()
+  @Expose()
+  isTimetablePublic: boolean;
 }

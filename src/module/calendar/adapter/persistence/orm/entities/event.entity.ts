@@ -34,7 +34,10 @@ export class EventEntity extends BaseEntity {
   @Column('varchar', { nullable: true })
   memo?: string;
 
-  @ManyToOne(() => UserProfileEntity)
+  @ManyToOne(() => UserProfileEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: UserProfileEntity;
 }

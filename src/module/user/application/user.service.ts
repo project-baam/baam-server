@@ -78,7 +78,14 @@ export class UserService {
       [PROFILE_IMAGE_FIELDS.BACKGROUND]?: Express.Multer.File[];
     },
   ): Promise<User> {
-    const { schoolId, grade, className, fullName, isProfilePublic } = params;
+    const {
+      schoolId,
+      grade,
+      className,
+      fullName,
+      isTimetablePublic,
+      isClassPublic,
+    } = params;
     await this.schoolRepository.findByIdOrFail(schoolId);
     const hasPartialData = schoolId || className || grade;
     if (hasPartialData && (!schoolId || !className || !grade)) {
@@ -125,10 +132,14 @@ export class UserService {
         classId !== null && classId !== undefined
           ? classId
           : user.profile?.classId,
-      isProfilePublic:
-        isProfilePublic !== undefined
-          ? isProfilePublic
-          : user.profile?.isProfilePublic,
+      isClassPublic:
+        isClassPublic !== undefined
+          ? isClassPublic
+          : user.profile?.isClassPublic,
+      isTimetablePublic:
+        isTimetablePublic !== undefined
+          ? isTimetablePublic
+          : user.profile?.isTimetablePublic,
       profileImageUrl: profileImageUrl ?? user.profile?.profileImageUrl,
       backgroundImageUrl:
         backgroundImageUrl ?? user.profile?.backgroundImageUrl,

@@ -23,8 +23,11 @@ export class UserProfileEntity extends BaseEntity {
   @Column('int')
   classId: number;
 
-  @Column('boolean', { default: true }) // TODO: 확인 필요
-  isProfilePublic: boolean;
+  @Column('boolean', { default: true })
+  isClassPublic: boolean;
+
+  @Column('boolean', { default: true })
+  isTimetablePublic: boolean;
 
   @Column('varchar', { nullable: true })
   profileImageUrl?: string | null;

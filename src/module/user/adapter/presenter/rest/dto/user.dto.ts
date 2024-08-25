@@ -56,7 +56,13 @@ export class UpdateProfileRequest {
   @Expose()
   @IsBooleanString()
   @IsOptional()
-  isProfilePublic: boolean;
+  isClassPublic: boolean;
+
+  @ApiProperty()
+  @Expose()
+  @IsBooleanString()
+  @IsOptional()
+  isTimetablePublic: boolean;
 }
 // UpdateProfileRequest 랑 동일
 export const updateProfileProperty = {
@@ -67,5 +73,6 @@ export const updateProfileProperty = {
   },
   className: { type: 'string' },
   fullName: { type: 'string' },
-  isProfilePublic: { type: 'boolean' },
+  isClassPublic: { type: 'boolean' },
+  isTimetablePublic: { type: 'boolean' },
 };
