@@ -27,9 +27,21 @@ const VALID_KOREAN_INITIALS = [
 ];
 
 function isValidInitial(initial: string): boolean {
+  // URL 디코딩 수행
+  const decodedInitial = decodeURIComponent(initial);
+  // 제어 문자 제거
+  const cleanedInitial = decodedInitial.replace(/[\x00-\x1F\x7F]/g, '');
+
+  // 정제된 문자열이 비어있다면 유효하지 않음
+  if (cleanedInitial.length === 0) {
+    return false;
+  }
+
   return (
-    VALID_KOREAN_INITIALS.includes(initial) ||
-    (initial.length === 1 && initial >= 'A' && initial <= 'Z')
+    VALID_KOREAN_INITIALS.includes(decodedInitial) ||
+    (decodedInitial.length === 1 &&
+      decodedInitial >= 'A' &&
+      decodedInitial <= 'Z')
   );
 }
 
