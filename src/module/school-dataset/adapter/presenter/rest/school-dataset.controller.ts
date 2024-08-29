@@ -1,4 +1,4 @@
-import { Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import { Get, HttpStatus, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 
 import { RestApi } from 'src/common/decorator/rest-api.decorator';
 import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
@@ -84,10 +84,10 @@ export class SchoolDatasetController {
   })
   @Get('classes/:schoolId')
   async getClasses(
-    @Param('schoolId') schoolId: number,
+    @Param('schoolId', ParseIntPipe) schoolId: number,
   ): Promise<ResponseListDto<ClassResponse>> {
     const classes =
-      await this.schoolDatasetService.findClassesBySchoolId(schoolId);
+      await this.schoolDatasetService.findClassesBySchoolId(+schoolId);
 
     return new ResponseListDto(classes);
   }

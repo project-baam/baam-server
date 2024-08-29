@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -112,7 +113,7 @@ export class SubjectMemoController {
   @Patch(':id')
   async updateSubjectMemo(
     @ActiveUser() user: UserEntity,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateSubjectMemoRequest,
   ): Promise<boolean> {
     await this.subjectMemoService.updateOne(user.id, +id, body);
@@ -130,7 +131,7 @@ export class SubjectMemoController {
   @Delete(':id')
   async deleteSubjectMemo(
     @ActiveUser() user: UserEntity,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<boolean> {
     await this.subjectMemoService.deleteOne(user.id, +id);
 

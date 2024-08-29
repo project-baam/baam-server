@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -80,7 +81,7 @@ export class CalendarController {
   @Patch(':id')
   async updateEvent(
     @ActiveUser() user: UserEntity,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() params: UpdateEventBodyParams,
   ): Promise<boolean> {
     await this.calendarService.updateEvent(user.id, { ...params, id: +id });
@@ -98,7 +99,7 @@ export class CalendarController {
   @Delete(':id')
   async deleteEvent(
     @ActiveUser() user: UserEntity,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
   ): Promise<boolean> {
     await this.calendarService.deleteEvent(user.id, +id);
 
