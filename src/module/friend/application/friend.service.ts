@@ -33,6 +33,7 @@ import {
   ReceivedFriendRequestsMapper,
   SentFriendRequestsMapper,
 } from './mappers/friend-request.mapper';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 
 @Injectable()
 export class FriendService {
@@ -42,6 +43,19 @@ export class FriendService {
     private timetableRepository: UserTimetableRepository,
     private dateUtilService: DateUtilService,
   ) {}
+
+  private async findSchoolmateOrFail(
+    userSchoolId: number,
+    friendId: number,
+  ): Promise<UserEntity> {
+    const friend = await this.userRepository.findOneByIdOrFail(friendId);
+
+    if (userSchoolId !== friend.profile.class.school.id) {
+      throw new ContentNotFoundError('schoolmates', friendId);
+    }
+
+    return friend;
+  }
 
   async deleteSentFriendRequest(
     userId: number,
@@ -100,10 +114,11 @@ export class FriendService {
   }
 
   async getFriendDetail(
+    schoolId: number,
     userId: number,
     friendUserId: number,
   ): Promise<FriendDetail> {
-    const friend = await this.userRepository.findOneByIdOrFail(friendUserId);
+    const friend = await this.findSchoolmateOrFail(schoolId, friendUserId);
     const isFriend = await this.friendRepository.isFriend(userId, friendUserId);
     // 친구의 프로필 공개 여부 확인
     const { isClassPublic, isTimetablePublic } = friend.profile;
@@ -164,8 +179,12 @@ export class FriendService {
     };
   }
 
-  async addFriendRequest(userId: number, friendId: number): Promise<void> {
-    await this.userRepository.findOneByIdOrFail(friendId);
+  async addFriendRequest(
+    schoolId: number,
+    userId: number,
+    friendId: number,
+  ): Promise<void> {
+    await this.findSchoolmateOrFail(schoolId, friendId);
 
     const isAlreadyFriend = await this.friendRepository.isFriend(
       userId,

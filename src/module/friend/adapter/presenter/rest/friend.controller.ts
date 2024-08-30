@@ -134,7 +134,11 @@ export class FriendController {
     @ActiveUser() user: UserEntity,
     @Param('friendUserId', ParseIntPipe) friendUserId: number,
   ): Promise<FriendDetail> {
-    return this.friendService.getFriendDetail(user.id, friendUserId);
+    return this.friendService.getFriendDetail(
+      user.profile.class.schoolId,
+      user.id,
+      friendUserId,
+    );
   }
 
   @ApiBooleanResponse()
@@ -163,7 +167,11 @@ export class FriendController {
     if (user.id === friendUserId) {
       throw new SelfFriendRequestError(user.id);
     }
-    await this.friendService.addFriendRequest(user.id, friendUserId);
+    await this.friendService.addFriendRequest(
+      user.profile.class.schoolId,
+      user.id,
+      friendUserId,
+    );
 
     return true;
   }
