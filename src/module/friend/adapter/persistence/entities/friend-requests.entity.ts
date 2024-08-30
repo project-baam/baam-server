@@ -7,10 +7,8 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 
-@Unique(['senderId', 'receiverId'])
 @Entity('friend_requests')
 export class FriendRequestsEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
