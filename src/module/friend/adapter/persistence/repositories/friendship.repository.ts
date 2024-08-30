@@ -427,16 +427,7 @@ GROUP BY
           LIMIT $7
           OFFSET $8;
           `,
-        [
-          userId,
-          schoolId,
-          name,
-          initials,
-          grades ? grades.map((grade) => UserGrade[grade]) : null,
-          isFavorite,
-          limit,
-          offset,
-        ],
+        [userId, schoolId, name, initials, grades, isFavorite, limit, offset],
       ),
 
       this.userProfileRepository.query(
@@ -487,14 +478,7 @@ GROUP BY
           GROUP BY
             initial
           `,
-        [
-          userId,
-          schoolId,
-          name,
-          initials,
-          grades ? grades.map((grade) => UserGrade[grade]) : null,
-          isFavorite,
-        ],
+        [userId, schoolId, name, initials, grades, isFavorite],
       ),
     ]);
 

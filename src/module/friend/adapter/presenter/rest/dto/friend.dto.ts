@@ -4,9 +4,10 @@ import {
   IsArray,
   IsBoolean,
   IsBooleanString,
-  IsEnum,
   IsOptional,
   IsString,
+  Max,
+  Min,
 } from 'class-validator';
 import { PaginationDto } from 'src/common/dto/request.dto';
 import { Friend, Schoolmate } from 'src/module/friend/domain/friend';
@@ -84,11 +85,15 @@ export class GetSchoolmatesRequest extends PaginationDto {
     isArray: true,
   })
   @IsOptional()
-  @Transform(
-    ({ value }) =>
-      typeof value === typeof UserGrade ? value.split(',') : value, // TODO: 이거 맞나?
-  )
-  @IsEnum(UserGrade, { each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map(Number);
+    }
+    return Array.isArray(value) ? value.map(Number) : [Number(value)];
+  })
+  @IsArray()
+  @Min(1, { each: true })
+  @Max(3, { each: true })
   grades?: UserGrade[];
 
   @ApiProperty({ required: false, description: '이름' })
