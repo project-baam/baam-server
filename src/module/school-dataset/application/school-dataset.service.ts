@@ -26,6 +26,7 @@ import { DefaultTimetableRepository } from 'src/module/timetable/application/rep
 import { SchoolEvent } from '../domain/event';
 import { SchoolEventRepository } from './port/school-event.repository.abstract';
 import { SchoolEventMapper } from './mappers/school-event.mapper';
+import { Transactional } from 'typeorm-transactional';
 
 export class SchoolDatasetService {
   constructor(
@@ -51,7 +52,7 @@ export class SchoolDatasetService {
     private readonly schoolEventRepository: SchoolEventRepository,
   ) {}
 
-  // transactional
+  @Transactional()
   async initializeSchoolDataset(): Promise<void> {
     const schools = await this.schoolDatasetProvider.fetchSchoolData();
     await this.schoolRepository.upsertMany(schools);

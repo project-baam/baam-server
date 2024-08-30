@@ -34,6 +34,7 @@ import {
   SentFriendRequestsMapper,
 } from './mappers/friend-request.mapper';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class FriendService {
@@ -245,6 +246,7 @@ export class FriendService {
   /**
    * 수락 or 거절은 받은 요청만 가능
    */
+  @Transactional()
   async acceptOrRejectFriendRequest(
     userId: number,
     requestId: number,

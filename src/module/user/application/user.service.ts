@@ -18,6 +18,7 @@ import { CalendarService } from 'src/module/calendar/application/calendar.servic
 import { TimetableService } from 'src/module/timetable/application/timetable.service';
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { PROFILE_IMAGE_FIELDS } from '../adapter/presenter/rest/constants/profile-image.constants';
+import { Transactional } from 'typeorm-transactional';
 
 export class UserService {
   constructor(
@@ -69,8 +70,8 @@ export class UserService {
     return newImgUrl;
   }
 
-  // TODO: Add transaction
   // TODO: 학교 정보 변경시, 기존 시간표, 캘린더 이벤트 삭제
+  @Transactional()
   async updateProfile(
     user: UserEntity,
     params: UpdateProfileRequest,
