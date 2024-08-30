@@ -1,39 +1,38 @@
-import { BaseEntity } from 'src/config/database/orm/base.entity';
-import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 import {
-  Check,
-  Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  Column,
   PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
   Unique,
+  Check,
 } from 'typeorm';
+import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 
-@Entity('friendship')
-@Unique(['userId', 'friendId'])
-@Check(`"user_id" < "friend_id"`)
-export class FriendshipEntity extends BaseEntity {
+@Entity('friendships')
+@Unique(['user1Id', 'user2Id'])
+@Check(`"user1_id" < "user2_id"`)
+export class FriendshipEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('int')
-  userId: number;
+  @Column('int', { name: 'user1_id' })
+  user1Id: number;
 
-  @Column('int')
-  friendId: number;
-
-  @Column('boolean', { default: false })
-  isUserFavorite: boolean;
+  @Column('int', { name: 'user2_id' })
+  user2Id: number;
 
   @Column('boolean', { default: false })
-  isFriendFavorite: boolean;
+  isUser1Favorite: boolean;
+
+  @Column('boolean', { default: false })
+  isUser2Favorite: boolean;
 
   @ManyToOne(() => UserProfileEntity)
-  @JoinColumn({ name: 'user_id' })
-  user: UserProfileEntity;
+  @JoinColumn({ name: 'user1_id' })
+  user1: UserProfileEntity;
 
   @ManyToOne(() => UserProfileEntity)
-  @JoinColumn({ name: 'friend_id' })
-  friend: UserProfileEntity;
+  @JoinColumn({ name: 'user2_id' })
+  user2: UserProfileEntity;
 }

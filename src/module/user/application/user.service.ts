@@ -70,6 +70,7 @@ export class UserService {
   }
 
   // TODO: Add transaction
+  // TODO: 학교 정보 변경시, 기존 시간표, 캘린더 이벤트 삭제
   async updateProfile(
     user: UserEntity,
     params: UpdateProfileRequest,

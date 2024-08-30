@@ -37,7 +37,7 @@ export class OrmUserTimetableRepository implements UserTimetableRepository {
     ]);
   }
 
-  find(where: FindUserTimetable): Promise<UserTimetableEntity[] | null> {
+  find(where: FindUserTimetable): Promise<UserTimetableEntity[]> {
     return this.userTimetableRepository.find({
       where,
       relations: ['subject'],

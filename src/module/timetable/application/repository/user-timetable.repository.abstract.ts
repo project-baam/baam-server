@@ -11,9 +11,7 @@ export abstract class UserTimetableRepository {
     itemOrItems: UpsertUserTimetable | UpsertUserTimetable[],
   ): Promise<void>;
 
-  abstract find(
-    where: FindUserTimetable,
-  ): Promise<UserTimetableEntity[] | null>;
+  abstract find(where: FindUserTimetable): Promise<UserTimetableEntity[]>;
 
   abstract delete(where: DeleteUserTimetable): Promise<void>;
 
