@@ -44,6 +44,7 @@ export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
   @ApiDescription({
+    tags: ['친구'],
     summary: '친구 목록',
     auth: AuthorizationToken.BearerUserToken,
     description:
@@ -68,6 +69,7 @@ export class FriendController {
   }
 
   @ApiDescription({
+    tags: ['친구'],
     summary: '즐겨찾기 친구 목록(홈화면에서 사용)',
     description: '즐겨찾기 친구 목록',
     auth: AuthorizationToken.BearerUserToken,
@@ -85,6 +87,7 @@ export class FriendController {
   }
 
   @ApiDescription({
+    tags: ['친구'],
     summary: '같은 학교 유저 목록',
     auth: AuthorizationToken.BearerUserToken,
     description:
@@ -108,6 +111,7 @@ export class FriendController {
   }
 
   @ApiDescription({
+    tags: ['친구'],
     summary: '친구 상세 정보',
     description:
       '\n\
@@ -135,6 +139,7 @@ export class FriendController {
 
   @ApiBooleanResponse()
   @ApiDescription({
+    tags: ['친구 요청'],
     summary: '친구 추가 요청',
     description:
       '\n\
@@ -164,6 +169,7 @@ export class FriendController {
   }
 
   @ApiDescription({
+    tags: ['친구 요청'],
     summary: '유저"가" 친구 추가 요청한 **대기** 목록',
     description:
       '친구가 수락/거절하면 리스트에서 제외됨\n\
@@ -188,6 +194,7 @@ export class FriendController {
   }
 
   @ApiDescription({
+    tags: ['친구 요청'],
     summary: '유저"에게" 친구 추가 요청한 **대기** 목록',
     description:
       '유저가 수락/거절 하면 리스트에서 제외됨\n\
@@ -213,6 +220,7 @@ export class FriendController {
 
   @ApiBooleanResponse()
   @ApiDescription({
+    tags: ['친구 요청'],
     summary: '친구 추가 대기 수락/거절',
     description: '친구 추가 대기 수락/거절',
     auth: AuthorizationToken.BearerUserToken,
@@ -235,6 +243,7 @@ export class FriendController {
 
   @ApiBooleanResponse()
   @ApiDescription({
+    tags: ['친구 요청'],
     summary: '보낸 친구 요청 삭제',
     auth: AuthorizationToken.BearerUserToken,
     exceptions: [ContentNotFoundError],
@@ -251,6 +260,7 @@ export class FriendController {
 
   @ApiBooleanResponse()
   @ApiDescription({
+    tags: ['친구'],
     summary: '친구 삭제(서로 삭제됨)',
     auth: AuthorizationToken.BearerUserToken,
     exceptions: [ContentNotFoundError],
@@ -267,6 +277,7 @@ export class FriendController {
 
   @ApiBooleanResponse()
   @ApiDescription({
+    tags: ['친구'],
     summary: '즐겨찾기 토글',
     description:
       '친구를 즐겨찾기에 추가하거나 제거함, 현재 상태의 반대로 변경됨.',
