@@ -22,6 +22,9 @@ export enum ErrorCode {
 
   // 409
   DuplicateValue = 4090,
+  AlreadyFriends = 4091,
+  SelfFriendRequest = 4092,
+  DuplicateFriendRequest = 4093,
 
   // 500
   InternalServerError = 5000,

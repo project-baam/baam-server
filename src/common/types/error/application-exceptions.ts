@@ -117,3 +117,30 @@ export class InvalidProfileImageFieldError extends ApplicationException {
     );
   }
 }
+
+export class AlreadyFriendsError extends ApplicationException {
+  constructor(
+    userId: number | string = '$userId',
+    friendId: number | string = '$friendId',
+  ) {
+    const message = `유저 ${userId} 와 ${friendId} 는 이미 친구 사이이다.`;
+    super(ErrorCode.AlreadyFriends, message);
+  }
+}
+
+export class SelfFriendRequestError extends ApplicationException {
+  constructor(userId: number | string = `$userId`) {
+    const message = `자기자신에게 친구 요청 불가. User ID: ${userId}`;
+    super(ErrorCode.SelfFriendRequest, message);
+  }
+}
+
+export class DuplicateFriendRequestError extends ApplicationException {
+  constructor(
+    senderId: number | string = '$senderId',
+    receiverId: number | string = '$receiverId',
+  ) {
+    const message = `대기중인 친구 요청이 이미 존재, 받는이: #${receiverId} 보낸이:  #${senderId}`;
+    super(ErrorCode.DuplicateFriendRequest, message);
+  }
+}
