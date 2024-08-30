@@ -73,7 +73,9 @@ export class TimetableController {
     tags: ['시간표'],
     summary: '유저 시간표 조회',
     description:
-      '해당 날짜의 시간표 조회(2 ~ 8월까지 1학기, 9 ~ 1월까지 2학기)',
+      '해당 날짜의 시간표 조회\n\
+      - * 1학기: 2월 1일 ~ 6월 30일\n\
+      - * 2학기: 7월 1일 ~ 1월 31일\n',
     auth: AuthorizationToken.BearerUserToken,
     listResponse: {
       status: HttpStatus.OK,

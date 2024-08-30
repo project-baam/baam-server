@@ -40,10 +40,18 @@ export class FriendDetail {
   @ApiProperty({ description: '시간표 전체 공개 여부' })
   isTimetablePublic: boolean;
 
-  @ApiProperty({ description: '일주일 시간표', nullable: true })
+  @ApiProperty({
+    description: '일주일 시간표',
+    nullable: true,
+    type: [Timetable],
+  })
   allTimetable: Timetable[] | null;
 
-  @ApiProperty({ description: '오늘 시간표', nullable: true })
+  @ApiProperty({
+    description: '오늘 시간표',
+    nullable: true,
+    type: [Timetable],
+  })
   todayTimetable: Timetable[] | null;
 
   @ApiProperty({ description: '프로필 이미지' })

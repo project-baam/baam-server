@@ -15,4 +15,8 @@ export class Timetable {
   @Expose()
   @ApiProperty({ description: '과목명' })
   subject: string;
+
+  @Expose()
+  @ApiProperty({ description: '과목명(짧은 버전)' })
+  subjectShort: string;
 }

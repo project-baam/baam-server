@@ -1,3 +1,4 @@
+import { shortenSubject } from 'src/module/util/subject.service';
 import { UserTimetableEntity } from '../../adapter/persistence/entities/user-timetable.entity';
 import { Timetable } from '../../domain/timetable';
 import { DefaultTimetableEntity } from './../../adapter/persistence/entities/default-timetable.entity';
@@ -13,6 +14,7 @@ export class TimetableMapper {
       {
         ...entity,
         subject: entity.subject.name,
+        subjectShort: shortenSubject(entity.subject.name),
       },
       {
         excludeExtraneousValues: true,
