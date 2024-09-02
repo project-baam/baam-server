@@ -35,6 +35,7 @@ import {
 } from './mappers/friend-request.mapper';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import { Transactional } from 'typeorm-transactional';
+import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
 
 @Injectable()
 export class FriendService {
@@ -51,7 +52,10 @@ export class FriendService {
   ): Promise<UserEntity> {
     const friend = await this.userRepository.findOneByIdOrFail(friendId);
 
-    if (userSchoolId !== friend.profile.class.school.id) {
+    if (
+      friend.status !== UserStatus.ACTIVE ||
+      userSchoolId !== friend.profile.class.school.id
+    ) {
       throw new ContentNotFoundError('schoolmates', friendId);
     }
 
