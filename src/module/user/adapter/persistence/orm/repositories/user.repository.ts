@@ -91,7 +91,7 @@ export class OrmUserRepository implements UserRepository {
   }
 
   async upsertProfile(profile: UserProfileEntity): Promise<void> {
-    await this.profileRepository.upsert(profile, ['userId']);
+    await this.profileRepository.save(this.profileRepository.create(profile));
   }
 
   async deleteOne(id: number): Promise<void> {
