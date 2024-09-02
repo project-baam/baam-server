@@ -1,6 +1,7 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { Timetable } from 'src/module/timetable/domain/timetable';
+import { FriendshipStatus } from './enums/friendship-status.enum';
 
 export class Friend {
   @ApiProperty()
@@ -65,6 +66,17 @@ export class FriendDetail {
 
   @ApiProperty({ description: '학년' })
   grade: UserGrade;
+
+  @ApiProperty({
+    description:
+      '친구 상태: Friends(친구), RequestSent(친구 요청 중), None(친구도 아니고 요청도 안 보낸 상태)',
+    type: 'enum',
+    enum: FriendshipStatus,
+  })
+  status: FriendshipStatus;
+
+  @ApiProperty()
+  fullName: string;
 }
 
 export class FavoriteFriendInHome {

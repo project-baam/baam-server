@@ -36,6 +36,7 @@ import {
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import { Transactional } from 'typeorm-transactional';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
+import { FriendshipStatus } from '../domain/enums/friendship-status.enum';
 
 @Injectable()
 export class FriendService {
@@ -123,8 +124,25 @@ export class FriendService {
     userId: number,
     friendUserId: number,
   ): Promise<FriendDetail> {
+    let status: FriendshipStatus;
     const friend = await this.findSchoolmateOrFail(schoolId, friendUserId);
     const isFriend = await this.friendRepository.isFriend(userId, friendUserId);
+    if (isFriend) {
+      status = FriendshipStatus.FRIENDS;
+    } else {
+      const friendRequest =
+        await this.friendRepository.findFriendRequestBySenderAndReceiver({
+          senderId: userId,
+          receiverId: friendUserId,
+          status: FriendRequestStatus.PENDING,
+        });
+      if (friendRequest.length) {
+        status = FriendshipStatus.REQUEST_SENT;
+      } else {
+        status = FriendshipStatus.NONE;
+      }
+    }
+
     // 친구의 프로필 공개 여부 확인
     const { isClassPublic, isTimetablePublic } = friend.profile;
     let allTimetable: Timetable[] | null;
@@ -164,6 +182,8 @@ export class FriendService {
       profileBackgroundImage: friend.profile.backgroundImageUrl ?? null,
       schoolName: friend.profile.class.school.name,
       grade: friend.profile.class.grade,
+      status,
+      fullName: friend.profile.fullName,
     };
   }
 
