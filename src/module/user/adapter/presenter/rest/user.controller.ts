@@ -148,7 +148,7 @@ export class UserController {
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
-    description: '프로필 배경 이미지가 성공적으로 삭제됨',
+    description: '프로필 이미지가 성공적으로 삭제됨',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('profile/image')
@@ -194,7 +194,7 @@ export class UserController {
   })
   @Delete()
   async deleteUser(@ActiveUser() user: UserEntity) {
-    await this.userService.delete(user.id);
+    await this.userService.delete(user);
 
     return true;
   }

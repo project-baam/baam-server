@@ -20,6 +20,7 @@ import { EnvironmentService } from 'src/config/environment/environment.service';
 import { PROFILE_IMAGE_FIELDS } from '../adapter/presenter/rest/constants/profile-image.constants';
 import { Transactional } from 'typeorm-transactional';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
+import { ReportProvider } from 'src/common/provider/report.provider';
 
 export class UserService {
   constructor(
@@ -229,8 +230,35 @@ export class UserService {
     );
   }
 
-  async delete(userId: number): Promise<void> {
-    await this.userRepository.deleteOne(userId);
+  async delete(user: UserEntity): Promise<void> {
+    try {
+      if (user.profile?.profileImageUrl) {
+        await this.deleteProfileImage({
+          id: user.id,
+          profileImageUrl: user.profile!.profileImageUrl!,
+        });
+      }
+
+      if (user.profile?.backgroundImageUrl) {
+        await this.deleteProfileBackgroundImage({
+          id: user.id,
+          backgroundImageUrl: user.profile!.backgroundImageUrl!,
+        });
+      }
+    } catch (error: any) {
+      ReportProvider.warn(error, {
+        describe: '탈퇴 회원 이미지 삭제 실패',
+        userInfo: user,
+      });
+    }
+
+    try {
+      await this.userRepository.insertLogDeletedUser(user);
+    } catch (error: any) {
+      ReportProvider.warn(error, { describe: '탈퇴 로그 저장 실패' });
+    }
+
+    await this.userRepository.deleteOne(user.id);
   }
 
   async deleteProfileImage(

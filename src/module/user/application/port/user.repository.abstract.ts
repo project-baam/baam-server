@@ -16,4 +16,5 @@ export abstract class UserRepository {
     user: Partial<UserProfileEntity>,
   ): Promise<void>;
   abstract deleteOne(id: number): Promise<void>;
+  abstract insertLogDeletedUser(user: Partial<UserEntity>): Promise<void>;
 }

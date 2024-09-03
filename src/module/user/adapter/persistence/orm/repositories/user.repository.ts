@@ -7,6 +7,7 @@ import { UserRepository } from 'src/module/user/application/port/user.repository
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import { UserProfileEntity } from '../entities/user-profile.entity';
+import { LogDeletedUserEntity } from '../entities/log-deleted-user.entity';
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
@@ -16,6 +17,9 @@ export class OrmUserRepository implements UserRepository {
 
     @InjectRepository(UserProfileEntity)
     private readonly profileRepository: Repository<UserProfileEntity>,
+
+    @InjectRepository(LogDeletedUserEntity)
+    private readonly logDeletedUserRepository: Repository<LogDeletedUserEntity>,
   ) {}
 
   async updateProfile(
@@ -95,6 +99,18 @@ export class OrmUserRepository implements UserRepository {
   }
 
   async deleteOne(id: number): Promise<void> {
-    await this.profileRepository.delete(id);
+    await this.userRepository.delete(id);
+  }
+
+  async insertLogDeletedUser(user: Partial<UserEntity>): Promise<void> {
+    await this.logDeletedUserRepository.insert({
+      userId: user.id,
+      provider: user.provider,
+      providerUserId: user.providerUserId,
+      deletedAt: new Date(),
+      status: user.status,
+      fullName: user.profile?.fullName,
+      classId: user.profile?.classId,
+    });
   }
 }
