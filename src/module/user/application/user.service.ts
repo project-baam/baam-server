@@ -138,76 +138,29 @@ export class UserService {
       isTimetablePublic,
       isClassPublic,
     } = params;
-    await this.schoolRepository.findByIdOrFail(schoolId);
-    const hasPartialData = schoolId || className || grade;
-    if (hasPartialData && (!schoolId || !className || !grade)) {
-      throw new MissingRequiredFieldsError(['schoolId', 'className', 'grade']);
-    }
 
-    let classId: number | undefined;
+    this.validateRequiredFields(schoolId, className, grade);
 
-    if (schoolId && className && grade) {
-      classId = (
-        await this.classRepository.findByNameAndGradeOrFail(
-          schoolId,
-          className,
-          grade,
-        )
-      ).id;
-    }
+    const classId = await this.getClassId(schoolId, className, grade);
 
-    const profileImageFile = files?.[PROFILE_IMAGE_FIELDS?.PROFILE]?.[0];
-    const backgroundImageFile = files?.[PROFILE_IMAGE_FIELDS?.BACKGROUND]?.[0];
-
-    let profileImageUrl: string | undefined;
-    let backgroundImageUrl: string | undefined;
-    if (profileImageFile) {
-      profileImageUrl = await this.upsertProfileImage(
-        user.id,
-        profileImageFile,
-        StorageCategory.USER_PROFILES,
-      );
-    }
-
-    if (backgroundImageFile) {
-      backgroundImageUrl = await this.upsertProfileImage(
-        user.id,
-        backgroundImageFile,
-        StorageCategory.USER_BACKGROUNDS,
-      );
-    }
+    const imageUploadPromises = this.startImageUploads(user.id, files);
 
     await this.userRepository.upsertProfile({
       userId: user.id,
       fullName: fullName ?? user.profile?.fullName,
-      classId:
-        classId !== null && classId !== undefined
-          ? classId
-          : user.profile?.classId,
-      isClassPublic:
-        isClassPublic !== undefined
-          ? isClassPublic
-          : user.profile?.isClassPublic,
-      isTimetablePublic:
-        isTimetablePublic !== undefined
-          ? isTimetablePublic
-          : user.profile?.isTimetablePublic,
-      profileImageUrl: profileImageUrl ?? user.profile?.profileImageUrl,
-      backgroundImageUrl:
-        backgroundImageUrl ?? user.profile?.backgroundImageUrl,
+      classId: classId ?? user.profile?.classId,
+      isClassPublic: isClassPublic ?? user.profile?.isClassPublic,
+      isTimetablePublic: isTimetablePublic ?? user.profile?.isTimetablePublic,
     });
 
-    const updatedUser = await this.userRepository.findOneByIdOrFail(user.id);
+    await this.updateUserStatusIfNeeded(user.id);
 
-    // 필수 정보가 모두 입력되었을 때만 유저 상태 변경
-    if (
-      updatedUser.profile?.classId !== null &&
-      updatedUser.profile?.classId != undefined &&
-      updatedUser.profile?.fullName
-    ) {
-      await this.userRepository.updateOne({
-        id: user.id,
-        status: UserStatus.ACTIVE,
+    const [profileImageUrl, backgroundImageUrl] =
+      await Promise.all(imageUploadPromises);
+    if (profileImageUrl || backgroundImageUrl) {
+      await this.userRepository.updateProfile(user.id, {
+        profileImageUrl,
+        backgroundImageUrl,
       });
     }
 
@@ -217,17 +170,90 @@ export class UserService {
         schoolId,
         classId,
         grade,
-      ).catch((error) => {
-        ReportProvider.warn(error, {
-          describe: '기본 시간표, 캘린더 이벤트 설정 실패',
-          userInfo: user,
-        });
-      });
+      ).catch((error) => this.handleSetDefaultError(error, user));
     }
 
     return UserMapper.toDomain(
       await this.userRepository.findOneByIdOrFail(user.id),
     );
+  }
+
+  private validateRequiredFields(
+    schoolId?: number,
+    className?: string,
+    grade?: UserGrade,
+  ): void {
+    const hasPartialData = schoolId || className || grade;
+    if (hasPartialData && (!schoolId || !className || !grade)) {
+      throw new MissingRequiredFieldsError(['schoolId', 'className', 'grade']);
+    }
+  }
+
+  private async getClassId(
+    schoolId?: number,
+    className?: string,
+    grade?: UserGrade,
+  ): Promise<number | undefined> {
+    if (schoolId && className && grade) {
+      await this.schoolRepository.findByIdOrFail(schoolId);
+      const classEntity = await this.classRepository.findByNameAndGradeOrFail(
+        schoolId,
+        className,
+        grade,
+      );
+      return classEntity.id;
+    }
+    return undefined;
+  }
+
+  private startImageUploads(
+    userId: number,
+    files: {
+      [PROFILE_IMAGE_FIELDS.PROFILE]?: Express.Multer.File[];
+      [PROFILE_IMAGE_FIELDS.BACKGROUND]?: Express.Multer.File[];
+    },
+  ): [Promise<string | undefined>, Promise<string | undefined>] {
+    const profileImageFile = files?.[PROFILE_IMAGE_FIELDS.PROFILE]?.[0];
+    const backgroundImageFile = files?.[PROFILE_IMAGE_FIELDS.BACKGROUND]?.[0];
+
+    const profileImagePromise = profileImageFile
+      ? this.upsertProfileImage(
+          userId,
+          profileImageFile,
+          StorageCategory.USER_PROFILES,
+        )
+      : Promise.resolve(undefined);
+
+    const backgroundImagePromise = backgroundImageFile
+      ? this.upsertProfileImage(
+          userId,
+          backgroundImageFile,
+          StorageCategory.USER_BACKGROUNDS,
+        )
+      : Promise.resolve(undefined);
+
+    return [profileImagePromise, backgroundImagePromise];
+  }
+
+  private async updateUserStatusIfNeeded(userId: number): Promise<void> {
+    const user = await this.userRepository.findOneByIdOrFail(userId);
+    if (
+      user.profile?.classId !== null &&
+      user.profile?.classId !== undefined &&
+      user.profile?.fullName
+    ) {
+      await this.userRepository.updateOne({
+        id: userId,
+        status: UserStatus.ACTIVE,
+      });
+    }
+  }
+
+  private handleSetDefaultError(error: Error, user: UserEntity): void {
+    ReportProvider.warn(error, {
+      describe: '기본 시간표, 캘린더 이벤트 설정 실패',
+      userInfo: user,
+    });
   }
 
   private async setDefaultTimetableAndCalendarEvents(
