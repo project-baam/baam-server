@@ -259,7 +259,7 @@ export class FriendController {
   @Delete('friend-requests/:requestId')
   async deleteSentFriendRequest(
     @ActiveUser() user: UserEntity,
-    @Param('requestId') requestId: number,
+    @Param('requestId', ParseIntPipe) requestId: number,
   ): Promise<boolean> {
     await this.friendService.deleteSentFriendRequest(user.id, requestId);
 
