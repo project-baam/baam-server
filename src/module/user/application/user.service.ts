@@ -21,6 +21,7 @@ import { PROFILE_IMAGE_FIELDS } from '../adapter/presenter/rest/constants/profil
 import { Transactional } from 'typeorm-transactional';
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import { ReportProvider } from 'src/common/provider/report.provider';
+import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
 export class UserService {
   constructor(
@@ -210,24 +211,42 @@ export class UserService {
       });
     }
 
-    // TODO: 이벤트 처리
     if (classId) {
-      await Promise.all([
-        this.timetableService.setUserDefaultTimetableWithFallbackFetch(
-          user.id,
-          classId,
-        ),
-        this.calendarService.setUserSchoolEventsWithFallbackFetch(
-          user.id,
-          schoolId,
-          grade,
-        ),
-      ]);
+      this.setDefaultTimetableAndCalendarEvents(
+        user.id,
+        schoolId,
+        classId,
+        grade,
+      ).catch((error) => {
+        ReportProvider.warn(error, {
+          describe: '기본 시간표, 캘린더 이벤트 설정 실패',
+          userInfo: user,
+        });
+      });
     }
 
     return UserMapper.toDomain(
       await this.userRepository.findOneByIdOrFail(user.id),
     );
+  }
+
+  private async setDefaultTimetableAndCalendarEvents(
+    userId: number,
+    schoolId: number,
+    classId: number,
+    grade: UserGrade,
+  ) {
+    await Promise.all([
+      this.timetableService.setUserDefaultTimetableWithFallbackFetch(
+        userId,
+        classId,
+      ),
+      this.calendarService.setUserSchoolEventsWithFallbackFetch(
+        userId,
+        schoolId,
+        grade,
+      ),
+    ]);
   }
 
   async delete(user: UserEntity): Promise<void> {
