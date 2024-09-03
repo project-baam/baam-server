@@ -28,11 +28,17 @@ export class FriendshipEntity {
   @Column('boolean', { default: false })
   isUser2Favorite: boolean;
 
-  @ManyToOne(() => UserProfileEntity)
+  @ManyToOne(() => UserProfileEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'user1_id' })
   user1: UserProfileEntity;
 
-  @ManyToOne(() => UserProfileEntity)
+  @ManyToOne(() => UserProfileEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'user2_id' })
   user2: UserProfileEntity;
 }

@@ -4,7 +4,6 @@ import { FriendRepository } from '../../application/port/friend.repository.abstr
 import { OrmFriendRepository } from './repositories/friendship.repository';
 import { FriendshipEntity } from './entities/friendship.entity';
 import { FriendRequestsEntity } from './entities/friend-requests.entity';
-import { LogFriendshipEntity } from './entities/log-friendship.entity';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 
 @Module({
@@ -12,7 +11,6 @@ import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entit
     TypeOrmModule.forFeature([
       FriendshipEntity,
       FriendRequestsEntity,
-      LogFriendshipEntity,
       UserProfileEntity,
     ]),
   ],
