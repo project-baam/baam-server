@@ -165,7 +165,7 @@ export class UserController {
 
   @ApiDescription({
     tags: ['User'],
-    summary: '유저 프로필 이미지 삭제',
+    summary: '유저 프로필 배경 이미지 삭제',
     auth: AuthorizationToken.BearerUserToken,
   })
   @HttpCode(HttpStatus.NO_CONTENT)

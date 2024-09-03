@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ObjectStorageService } from '../../application/object-storage.service.abstract';
-import { S3 } from '@aws-sdk/client-s3';
+import { PutObjectCommandInput, S3 } from '@aws-sdk/client-s3';
 import {
   DeleteFileParams,
   UploadFileParams,
 } from '../../application/dto/object-storage.dto';
 import { EnvironmentService } from '../../../../config/environment/environment.service';
+import * as path from 'path';
 
 @Injectable()
 export class SpacesObjectStorage implements ObjectStorageService {
@@ -17,7 +18,6 @@ export class SpacesObjectStorage implements ObjectStorageService {
       forcePathStyle: false,
       endpoint: this.environmentService.get<string>('SPACES_ENDPOINT')!,
       region: this.environmentService.get<string>('SPACES_REGION')!,
-      // region: 'us-east-1',
       credentials: {
         accessKeyId: this.environmentService.get<string>('SPACES_KEY')!,
         secretAccessKey: this.environmentService.get<string>('SPACES_SECRET')!,
@@ -35,8 +35,9 @@ export class SpacesObjectStorage implements ObjectStorageService {
         '',
       );
     } else {
-      const { category, environment, uniqueKey } = urlOrParams;
-      return `${environment}/${category}/${uniqueKey}`;
+      const { category, environment, uniqueKey, file } = urlOrParams;
+      const fileExtension = path.extname(file.originalname);
+      return `${environment}/${category}/${uniqueKey}${fileExtension}`;
     }
   }
 
@@ -45,42 +46,17 @@ export class SpacesObjectStorage implements ObjectStorageService {
     const Key = this.getKey(params);
     const Bucket = this.bucket;
 
-    const createResult = await this.s3Client.createMultipartUpload({
-      Bucket,
-      Key,
-      ACL: 'public-read',
-      Metadata: {
-        'Content-Type': `${mimetype}`,
-      },
-    });
-
-    const uploadResult = await this.s3Client.uploadPart({
+    const uploadParams: PutObjectCommandInput = {
       Bucket,
       Key,
       Body: buffer,
-      PartNumber: 1,
-      UploadId: createResult.UploadId,
-    });
+      ACL: 'public-read',
+      ContentType: mimetype,
+    };
 
-    const result = await this.s3Client.completeMultipartUpload({
-      Bucket,
-      Key,
-      UploadId: createResult.UploadId,
-      MultipartUpload: {
-        Parts: [
-          {
-            PartNumber: 1,
-            ETag: uploadResult.ETag,
-          },
-        ],
-      },
-    });
+    await this.s3Client.putObject(uploadParams);
 
-    return [
-      this.environmentService.get<string>('SPACES_ENDPOINT'),
-      Bucket,
-      Key,
-    ].join('/');
+    return `${this.environmentService.get<string>('SPACES_ENDPOINT')}/${Bucket}/${Key}`;
   }
 
   async deleteFile(params: DeleteFileParams): Promise<void> {
