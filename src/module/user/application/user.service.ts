@@ -130,52 +130,94 @@ export class UserService {
       [PROFILE_IMAGE_FIELDS.BACKGROUND]?: Express.Multer.File[];
     },
   ): Promise<User> {
-    const {
-      schoolId,
-      grade,
-      className,
-      fullName,
-      isTimetablePublic,
-      isClassPublic,
-    } = params;
+    const startTime = Date.now();
+    let stepTime = startTime;
 
-    this.validateRequiredFields(schoolId, className, grade);
+    const logStep = (stepName: string) => {
+      const now = Date.now();
+      console.log(`${stepName} took ${now - stepTime}ms`);
+      stepTime = now;
+    };
 
-    const classId = await this.getClassId(schoolId, className, grade);
+    this.validateRequiredFields(
+      params.schoolId,
+      params.className,
+      params.grade,
+    );
+    logStep('Validate fields');
+
+    const classId = await this.getClassId(
+      params.schoolId,
+      params.className,
+      params.grade,
+    );
+    logStep('Get class ID');
 
     const imageUploadPromises = this.startImageUploads(user.id, files);
+    logStep('Start image uploads');
 
     await this.userRepository.upsertProfile({
       userId: user.id,
-      fullName: fullName ?? user.profile?.fullName,
+      fullName: params.fullName ?? user.profile?.fullName,
       classId: classId ?? user.profile?.classId,
-      isClassPublic: isClassPublic ?? user.profile?.isClassPublic,
-      isTimetablePublic: isTimetablePublic ?? user.profile?.isTimetablePublic,
+      isClassPublic: params.isClassPublic ?? user.profile?.isClassPublic,
+      isTimetablePublic:
+        params.isTimetablePublic ?? user.profile?.isTimetablePublic,
     });
+    logStep('Upsert profile');
 
     await this.updateUserStatusIfNeeded(user.id);
+    logStep('Update user status');
 
     const [profileImageUrl, backgroundImageUrl] =
       await Promise.all(imageUploadPromises);
+    logStep('Wait for image uploads');
+
     if (profileImageUrl || backgroundImageUrl) {
       await this.userRepository.updateProfile(user.id, {
         profileImageUrl,
         backgroundImageUrl,
       });
+      logStep('Update profile images');
     }
 
+    const updatedUser = await this.userRepository.findOneByIdOrFail(user.id);
+    logStep('Find updated user');
+
+    // setDefaultTimetableAndCalendarEvents를 백그라운드에서 실행
     if (classId) {
-      this.setDefaultTimetableAndCalendarEvents(
+      this.setDefaultTimetableAndCalendarEventsInBackground(
         user.id,
-        schoolId,
+        params.schoolId!,
         classId,
-        grade,
-      ).catch((error) => this.handleSetDefaultError(error, user));
+        params.grade!,
+      );
     }
 
-    return UserMapper.toDomain(
-      await this.userRepository.findOneByIdOrFail(user.id),
-    );
+    console.log(`Total time: ${Date.now() - startTime}ms`);
+
+    return UserMapper.toDomain(updatedUser);
+  }
+
+  private setDefaultTimetableAndCalendarEventsInBackground(
+    userId: number,
+    schoolId: number,
+    classId: number,
+    grade: UserGrade,
+  ): void {
+    setImmediate(async () => {
+      try {
+        await this.setDefaultTimetableAndCalendarEvents(
+          userId,
+          schoolId,
+          classId,
+          grade,
+        );
+        console.log(`Background task completed for user ${userId}`);
+      } catch (error: any) {
+        this.handleSetDefaultError(error, { id: userId } as UserEntity);
+      }
+    });
   }
 
   private validateRequiredFields(
