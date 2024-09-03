@@ -26,11 +26,17 @@ export class FriendRequestsEntity extends BaseEntity {
   })
   status: FriendRequestStatus;
 
-  @ManyToOne(() => UserProfileEntity)
+  @ManyToOne(() => UserProfileEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'sender_id' })
   sender: UserProfileEntity;
 
-  @ManyToOne(() => UserProfileEntity)
+  @ManyToOne(() => UserProfileEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'receiver_id' })
   receiver: UserProfileEntity;
 }
