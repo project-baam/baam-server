@@ -6,6 +6,7 @@ import {
   JoinColumn,
   Unique,
   Check,
+  Index,
 } from 'typeorm';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 
@@ -17,9 +18,11 @@ export class FriendshipEntity {
   id: number;
 
   @Column('int', { name: 'user1_id' })
+  @Index()
   user1Id: number;
 
   @Column('int', { name: 'user2_id' })
+  @Index()
   user2Id: number;
 
   @Column('boolean', { default: false })

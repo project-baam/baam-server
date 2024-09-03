@@ -4,6 +4,7 @@ import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entit
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -15,9 +16,11 @@ export class FriendRequestsEntity extends BaseEntity {
   id: number;
 
   @Column('int')
+  @Index()
   senderId: number;
 
   @Column('varchar')
+  @Index()
   receiverId: number; // 친구의 user_id
 
   @Column('enum', {

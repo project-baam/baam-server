@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -41,6 +42,7 @@ export class UserTimetableEntity extends BaseEntity {
 
   // 과목
   @Column('int')
+  @Index()
   subjectId: number;
 
   @ManyToOne(() => UserEntity, {

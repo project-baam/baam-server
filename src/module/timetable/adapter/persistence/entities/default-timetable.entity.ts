@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -34,10 +35,12 @@ export class DefaultTimetableEntity extends BaseEntity {
 
   // 학교 + 학급
   @Column('int')
+  @Index()
   classId: number;
 
   // 과목
   @Column('int')
+  @Index()
   subjectId: number;
 
   // 요일

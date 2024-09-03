@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -17,6 +18,7 @@ export class EventEntity extends BaseEntity {
   id: number;
 
   @Column('int')
+  @Index()
   userId: number;
 
   @Column('varchar')

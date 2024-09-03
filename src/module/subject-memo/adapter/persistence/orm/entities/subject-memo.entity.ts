@@ -3,6 +3,7 @@ import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/ent
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -22,6 +23,7 @@ export class SubjectMemoEntity extends BaseEntity {
   userId: number;
 
   @Column('int')
+  @Index()
   subjectId: number;
 
   @Column('int')

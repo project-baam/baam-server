@@ -35,6 +35,7 @@ export class UserProfileEntity extends BaseEntity {
 
   // 학교 + 학년 + 학급
   @Column('int')
+  @Index() // 초성 검색을 위한 인덱스
   classId: number;
 
   @Column('boolean', { default: true })
