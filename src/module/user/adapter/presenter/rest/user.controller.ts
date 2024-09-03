@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Patch,
+  Post,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -34,10 +35,49 @@ import {
   MAX_PROFILE_IMAGES,
   PROFILE_IMAGE_FIELDS,
 } from './constants/profile-image.constants';
+import { Auth } from 'src/module/iam/adapter/presenter/rest/decorators/auth.decorator';
+import { AuthType } from 'src/module/iam/domain/enums/auth-type.enum';
+import { InsertTestUserDto } from './dto/insert-test-user';
 
 @RestApi('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiBooleanResponse()
+  @ApiDescription({
+    tags: ['테스트용(추후 삭제 예정)'],
+    summary: '특정 학교 테스트 유저 추가',
+    description: `${[
+      '고등어',
+      '도미',
+      '연어',
+      '참치',
+      '다랑어',
+      '금붕어',
+      '가자미',
+      '도다리',
+      '갈치',
+      '광어',
+      '꽁치',
+      '꼴뚜기',
+      '해삼',
+      '전어',
+      '전갱이',
+      '조기',
+      '쥐포',
+      '쥐치',
+      '쪽파',
+      '참다랑어',
+    ]}`,
+    exceptions: [ContentNotFoundError],
+  })
+  @Auth(AuthType.None)
+  @Post('insert-test-user')
+  async insertTestUser(@Body() params: InsertTestUserDto) {
+    await this.userService.insertTestUser(params.schoolId);
+
+    return true;
+  }
 
   @ApiDescription({
     tags: ['User'],
