@@ -19,6 +19,7 @@ import { TimetableService } from 'src/module/timetable/application/timetable.ser
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { PROFILE_IMAGE_FIELDS } from '../adapter/presenter/rest/constants/profile-image.constants';
 import { Transactional } from 'typeorm-transactional';
+import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 
 export class UserService {
   constructor(
@@ -31,6 +32,53 @@ export class UserService {
     private readonly timetableService: TimetableService,
     private readonly calendarService: CalendarService,
   ) {}
+
+  async insertTestUser(schoolId: number) {
+    const userNames = [
+      '고등어',
+      '도미',
+      '연어',
+      '참치',
+      '다랑어',
+      '금붕어',
+      '가자미',
+      '도다리',
+      '갈치',
+      '광어',
+      '꽁치',
+      '꼴뚜기',
+      '해삼',
+      '전어',
+      '전갱이',
+      '조기',
+      '쥐포',
+      '쥐치',
+      '쪽파',
+      '참다랑어',
+    ];
+
+    const classId = (await this.classRepository.findBySchoolId(schoolId))[0].id;
+
+    for (const name of userNames) {
+      const providerUserId = Math.floor(Math.random() * 1000000).toString();
+      await this.userRepository.insertOne({
+        provider: SignInProvider.KAKAO,
+        providerUserId,
+        status: UserStatus.ACTIVE,
+      });
+
+      const user = await this.userRepository.findOneByProvider(
+        SignInProvider.KAKAO,
+        providerUserId,
+      );
+
+      await this.userRepository.upsertProfile({
+        userId: user!.id,
+        fullName: name,
+        classId,
+      });
+    }
+  }
 
   async findUserByProviderId(
     findUniqueUserDto: FindUniqueUserQuery,
