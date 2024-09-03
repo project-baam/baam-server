@@ -28,6 +28,8 @@ async function bootstrap() {
     cors: true,
   });
 
+  app.set('trust proxy', true);
+
   const environmentService: EnvironmentService =
     app.get<EnvironmentService>(EnvironmentService);
 

@@ -155,8 +155,8 @@ export class UserService {
       ).id;
     }
 
-    const profileImageFile = files[PROFILE_IMAGE_FIELDS.PROFILE]?.[0];
-    const backgroundImageFile = files[PROFILE_IMAGE_FIELDS.BACKGROUND]?.[0];
+    const profileImageFile = files?.[PROFILE_IMAGE_FIELDS?.PROFILE]?.[0];
+    const backgroundImageFile = files?.[PROFILE_IMAGE_FIELDS?.BACKGROUND]?.[0];
 
     let profileImageUrl: string | undefined;
     let backgroundImageUrl: string | undefined;
