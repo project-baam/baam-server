@@ -1,3 +1,4 @@
+import { LogLoginEntity } from '../../adapter/persistence/orm/entities/log-login.entity';
 import { UserProfileEntity } from '../../adapter/persistence/orm/entities/user-profile.entity';
 import { UserEntity } from '../../adapter/persistence/orm/entities/user.entity';
 
@@ -17,4 +18,7 @@ export abstract class UserRepository {
   ): Promise<void>;
   abstract deleteOne(id: number): Promise<void>;
   abstract insertLogDeletedUser(user: Partial<UserEntity>): Promise<void>;
+  abstract insertLogLogin(
+    dto: Pick<LogLoginEntity, 'userId' | 'ipAddress' | 'deviceInfo'>,
+  ): Promise<void>;
 }

@@ -8,6 +8,7 @@ import { ContentNotFoundError } from 'src/common/types/error/application-excepti
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import { UserProfileEntity } from '../entities/user-profile.entity';
 import { LogDeletedUserEntity } from '../entities/log-deleted-user.entity';
+import { LogLoginEntity } from '../entities/log-login.entity';
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
@@ -20,7 +21,16 @@ export class OrmUserRepository implements UserRepository {
 
     @InjectRepository(LogDeletedUserEntity)
     private readonly logDeletedUserRepository: Repository<LogDeletedUserEntity>,
+
+    @InjectRepository(LogLoginEntity)
+    private readonly logLoginRepository: Repository<LogLoginEntity>,
   ) {}
+
+  async insertLogLogin(
+    dto: Pick<LogLoginEntity, 'userId' | 'ipAddress' | 'deviceInfo'>,
+  ): Promise<void> {
+    await this.logLoginRepository.insert(dto);
+  }
 
   async updateProfile(
     userId: number,

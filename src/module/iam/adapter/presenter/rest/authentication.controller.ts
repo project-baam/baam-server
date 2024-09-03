@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 
 import { AuthenticationService } from '../../../application/authentication.service';
@@ -19,6 +20,8 @@ import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
 import { RestApi } from 'src/common/decorator/rest-api.decorator';
 import { JWT, SignInRequest, SignInResponse } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { getClientIp } from 'src/module/util/ip-util.service';
+import { Request } from 'express';
 
 @Auth(AuthType.None) // public route
 @RestApi('authentication')
@@ -36,8 +39,15 @@ export class AuthenticationController {
   })
   @HttpCode(HttpStatus.OK)
   @Post()
-  async signIn(@Body() signInDto: SignInRequest): Promise<SignInResponse> {
-    return await this.authService.signInOrSignUp(signInDto);
+  async signIn(
+    @Body() signInDto: SignInRequest,
+    @Req() req: Request,
+  ): Promise<SignInResponse> {
+    return await this.authService.signInOrSignUp(
+      signInDto,
+      getClientIp(req),
+      req.headers['user-agent'],
+    );
   }
 
   @ApiDescription({

@@ -4,11 +4,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserEntity } from './user.entity';
 
 @Entity('log_login')
 export class LogLoginEntity extends BaseEntity {

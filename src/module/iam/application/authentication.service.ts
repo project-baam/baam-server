@@ -20,6 +20,9 @@ import { KakaoAuth } from '../adapter/external/social/kakao-auth';
 import { AuthenticationStrategy } from './port/\bauthentication-strategy.abstract';
 import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
 import { AppleAuth } from '../adapter/external/social/apple-auth';
+import { parseUserAgent } from 'src/module/util/user-agent-parser.service';
+import { ReportProvider } from 'src/common/provider/report.provider';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 
 @Injectable()
 export class AuthenticationService {
@@ -40,7 +43,11 @@ export class AuthenticationService {
     ]);
   }
 
-  async signInOrSignUp(signInDto: SignInRequest): Promise<SignInResponse> {
+  async signInOrSignUp(
+    signInDto: SignInRequest,
+    ipAddress: string,
+    userAgent?: string,
+  ): Promise<SignInResponse> {
     const strategy = this.authStrategies.get(signInDto.provider);
     const { id } = await strategy!.authenticate(signInDto.code);
 
@@ -63,7 +70,38 @@ export class AuthenticationService {
       provider: user.provider,
     });
 
+    // 로그인 로그 저장을 비동기적으로 처리
+    this.saveLoginLog(
+      user,
+      userAgent ?? 'userAgent not found',
+      ipAddress,
+    ).catch((e) => {
+      ReportProvider.warn(e, {
+        describe: '로그인 로그 저장 실패',
+        user,
+        userAgent,
+        ipAddress,
+      });
+    });
+
     return new SignInResponse(user, jwts);
+  }
+
+  private async saveLoginLog(
+    user: UserEntity,
+    userAgent: string,
+    ipAddress: string,
+  ) {
+    try {
+      await this.userRepository.insertLogLogin({
+        userId: user.id,
+        deviceInfo: parseUserAgent(userAgent),
+        ipAddress,
+      });
+    } catch (e) {
+      // 에러를 다시 throw하여 상위의 catch 블록에서 처리할 수 있게 함
+      throw e;
+    }
   }
 
   private async generateTokens(payload: AccessTokenPayload): Promise<JWT> {
