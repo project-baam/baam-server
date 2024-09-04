@@ -1,41 +1,32 @@
 import { PaginatedList } from 'src/common/dto/response.dto';
-import { SubjectMemoEntity } from '../../adapter/persistence/orm/entities/subject-memo.entity';
 import { GetSubjectMemoRequest } from '../../adapter/presenter/rest/dto/subject-memo.dto';
+import { EventEntity } from 'src/module/calendar/adapter/persistence/orm/entities/event.entity';
 
 export abstract class SubjectMemoRepository {
   abstract insertOne(
     entity:
       | Pick<
-          SubjectMemoEntity,
-          | 'userId'
-          | 'subjectId'
-          | 'year'
-          | 'semester'
-          | 'datetime'
-          | 'title'
-          | 'content'
+          EventEntity,
+          'userId' | 'subjectId' | 'datetime' | 'title' | 'memo'
         >
-      | Pick<
-          SubjectMemoEntity,
-          'userId' | 'subjectId' | 'year' | 'semester' | 'datetime' | 'title'
-        >,
+      | Pick<EventEntity, 'userId' | 'subjectId' | 'datetime' | 'title'>,
   ): Promise<void>;
 
   abstract findOneByIdAndUserIdOrFail(
     id: number,
     userId: number,
-  ): Promise<SubjectMemoEntity>;
+  ): Promise<EventEntity>;
 
   abstract updateOne(
-    entity: Pick<SubjectMemoEntity, 'id'> & Partial<SubjectMemoEntity>,
+    entity: Pick<EventEntity, 'id'> & Partial<EventEntity>,
   ): Promise<void>;
 
-  abstract deleteOne(entity: Pick<SubjectMemoEntity, 'id'>): Promise<void>;
+  abstract deleteOne(entity: Pick<EventEntity, 'id'>): Promise<void>;
 
   abstract getMemosPaginated(
     userId: number,
     parmas: GetSubjectMemoRequest,
-  ): Promise<PaginatedList<SubjectMemoEntity>>;
+  ): Promise<PaginatedList<EventEntity>>;
 
   abstract getMemosByPeriod(
     userId: number,
@@ -43,5 +34,5 @@ export abstract class SubjectMemoRepository {
       startDate: Date;
       endDate: Date;
     },
-  ): Promise<SubjectMemoEntity[]>;
+  ): Promise<EventEntity[]>;
 }

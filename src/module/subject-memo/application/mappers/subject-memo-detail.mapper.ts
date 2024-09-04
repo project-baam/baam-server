@@ -1,10 +1,10 @@
 import { plainToInstance } from 'class-transformer';
 
-import { SubjectMemoEntity } from 'src/module/subject-memo/adapter/persistence/orm/entities/subject-memo.entity';
 import { SubjectMemoDetail } from '../../domain/subjet-memo-detail';
+import { EventEntity } from 'src/module/calendar/adapter/persistence/orm/entities/event.entity';
 
 export class SubjectMemoDetailMapper {
-  static toDomain(entity: SubjectMemoEntity): SubjectMemoDetail {
+  static toDomain(entity: EventEntity): SubjectMemoDetail {
     return plainToInstance(
       SubjectMemoDetail,
       {
@@ -17,7 +17,7 @@ export class SubjectMemoDetailMapper {
     );
   }
 
-  static mapToDomain(entities: SubjectMemoEntity[]): SubjectMemoDetail[] {
+  static mapToDomain(entities: EventEntity[]): SubjectMemoDetail[] {
     return entities.map((entity) => this.toDomain(entity));
   }
 }

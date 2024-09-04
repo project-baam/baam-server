@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SubjectMemoEntity } from './entities/subject-memo.entity';
 import { SubjectMemoRepository } from 'src/module/subject-memo/application/port/subject-memo.repository.abstract';
 import { OrmSubjectMemoRepository } from './repositories/subject-memo.repository';
+import { EventEntity } from 'src/module/calendar/adapter/persistence/orm/entities/event.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SubjectMemoEntity])],
+  imports: [TypeOrmModule.forFeature([EventEntity])],
   providers: [
     {
       provide: SubjectMemoRepository,

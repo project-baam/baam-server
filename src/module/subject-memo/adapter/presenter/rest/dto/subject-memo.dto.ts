@@ -12,8 +12,8 @@ import { SUBJECT_MEMO_VALIDATION } from 'src/module/subject-memo/domain/constant
 export class CreateSubjectMemoRequest {
   @ApiProperty({
     description:
-      '현재 시간표이 과목명만 허용\n\
-    GET /subject-memo 응답의 subjectName 값',
+      '현재 시간표에 있는 과목명만 허용\n\
+    GET /timetable/subjects 응답값 중 하나',
   })
   @IsString()
   @IsNotEmpty()
@@ -40,13 +40,16 @@ export class CreateSubjectMemoRequest {
     message: `내용은 ${SUBJECT_MEMO_VALIDATION.CONTENT_MAX_LENGTH}자를 초과할 수 없습니다.`,
   })
   @IsOptional()
-  content?: string;
+  memo?: string;
 }
 
 export class GetSubjectMemoRequest extends PaginationDto {}
 
 export class UpdateSubjectMemoRequest {
-  @ApiProperty({ required: false, description: '100자 이내' })
+  @ApiProperty({
+    required: false,
+    description: `${SUBJECT_MEMO_VALIDATION.TITLE_MAX_LENGTH}자 이내`,
+  })
   @IsString()
   @IsOptional()
   @MaxLength(SUBJECT_MEMO_VALIDATION.TITLE_MAX_LENGTH, {
@@ -55,14 +58,17 @@ export class UpdateSubjectMemoRequest {
   @IsOptional()
   title?: string;
 
-  @ApiProperty({ required: false, description: '1000자 이내' })
+  @ApiProperty({
+    required: false,
+    description: `${SUBJECT_MEMO_VALIDATION.CONTENT_MAX_LENGTH}자 이내`,
+  })
   @IsString()
   @IsOptional()
   @MaxLength(SUBJECT_MEMO_VALIDATION.CONTENT_MAX_LENGTH, {
     message: `내용은 ${SUBJECT_MEMO_VALIDATION.CONTENT_MAX_LENGTH}자를 초과할 수 없습니다.`,
   })
   @IsOptional()
-  content?: string;
+  memo?: string;
 
   @ApiProperty({ required: false, description: 'YYYY-MM-DD HH:mm:ss' })
   @IsDateString()

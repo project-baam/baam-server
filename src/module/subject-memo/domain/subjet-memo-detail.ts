@@ -16,7 +16,7 @@ export class SubjectMemoDetail {
 
   @ApiProperty()
   @Expose()
-  readonly content: string | null;
+  readonly memo: string | null;
 
   /**
    * YYYY-MM-DD HH:mm:ss

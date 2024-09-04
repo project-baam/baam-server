@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 import { SubjectMemo } from '../../domain/subject-memo';
-import { SubjectMemoEntity } from 'src/module/subject-memo/adapter/persistence/orm/entities/subject-memo.entity';
+import { EventEntity } from 'src/module/calendar/adapter/persistence/orm/entities/event.entity';
 
 export class SubjectMemoMapper {
-  static mapToDomain(entities: SubjectMemoEntity[]): SubjectMemo[] {
+  static mapToDomain(entities: EventEntity[]): SubjectMemo[] {
     // entity.subject.name 으로 groupby 해야함
     const groupedMap = new Map<string, SubjectMemo>();
 
@@ -20,7 +20,7 @@ export class SubjectMemoMapper {
         id: entity.id,
         subjectName,
         title: entity.title,
-        content: entity.content ?? null,
+        memo: entity.memo ?? null,
         datetime: dayjs(entity.datetime).format(),
       });
     }

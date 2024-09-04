@@ -77,9 +77,8 @@ export class SubjectMemoService {
     await this.subjectMemoRepository.insertOne({
       ...params,
       userId,
-      year,
-      semester,
       subjectId,
+      datetime: params.datetime,
     });
   }
 

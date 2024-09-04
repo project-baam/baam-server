@@ -1,5 +1,4 @@
 import { SubjectMemoRepository } from 'src/module/subject-memo/application/port/subject-memo.repository.abstract';
-import { SubjectMemoEntity } from '../entities/subject-memo.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   And,
@@ -13,26 +12,29 @@ import { GetSubjectMemoRequest } from '../../../presenter/rest/dto/subject-memo.
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import dayjs from 'dayjs';
+import { EventEntity } from 'src/module/calendar/adapter/persistence/orm/entities/event.entity';
+import { EventType } from 'src/module/calendar/domain/event';
 
 export class OrmSubjectMemoRepository implements SubjectMemoRepository {
   constructor(
-    @InjectRepository(SubjectMemoEntity)
-    private readonly subjectMemoRepository: Repository<SubjectMemoEntity>,
+    @InjectRepository(EventEntity)
+    private readonly eventRepository: Repository<EventEntity>,
     private readonly dateUtilService: DateUtilService,
   ) {}
 
   async findOneByIdAndUserIdOrFail(
     id: number,
     userId: number,
-  ): Promise<SubjectMemoEntity> {
-    const memo = await this.subjectMemoRepository.findOneBy({
+  ): Promise<EventEntity> {
+    const memo = await this.eventRepository.findOneBy({
       id,
       userId,
+      type: EventType.CLASS,
     });
 
     if (!memo) {
       throw new ContentNotFoundError(
-        'subject-memo:userId:id',
+        'subject-memo(=classtype event):userId:id',
         [userId, id].join(':'),
       );
     }
@@ -41,13 +43,13 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
   }
 
   async updateOne(
-    entity: Pick<SubjectMemoEntity, 'id'> & Partial<SubjectMemoEntity>,
+    entity: Pick<EventEntity, 'id'> & Partial<EventEntity>,
   ): Promise<void> {
-    await this.subjectMemoRepository.update(entity.id, entity);
+    await this.eventRepository.update(entity.id, entity);
   }
 
-  async deleteOne(entity: Pick<SubjectMemoEntity, 'id'>): Promise<void> {
-    await this.subjectMemoRepository.delete(entity.id);
+  async deleteOne(entity: Pick<EventEntity, 'id'>): Promise<void> {
+    await this.eventRepository.delete(entity.id);
   }
 
   getMemosByPeriod(
@@ -56,10 +58,12 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
       startDate: Date;
       endDate: Date;
     },
-  ): Promise<SubjectMemoEntity[]> {
-    const where: FindOptionsWhere<SubjectMemoEntity> = {
+  ): Promise<EventEntity[]> {
+    const where: FindOptionsWhere<EventEntity> = {
       userId,
+      type: EventType.CLASS,
     };
+
     if (period) {
       where.datetime = And(
         MoreThanOrEqual(period.startDate),
@@ -67,7 +71,7 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
       );
     }
 
-    return this.subjectMemoRepository.find({
+    return this.eventRepository.find({
       relations: {
         subject: true,
       },
@@ -81,13 +85,14 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
     });
   }
 
-  async getMemos(userId: number): Promise<SubjectMemoEntity[]> {
-    return this.subjectMemoRepository.find({
+  async getMemos(userId: number): Promise<EventEntity[]> {
+    return this.eventRepository.find({
       relations: {
         subject: true,
       },
       where: {
         userId,
+        type: EventType.CLASS,
       },
       order: {
         subject: {
@@ -101,17 +106,18 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
   async getMemosPaginated(
     userId: number,
     parmas: GetSubjectMemoRequest,
-  ): Promise<PaginatedList<SubjectMemoEntity>> {
+  ): Promise<PaginatedList<EventEntity>> {
     const [thisSemesterStart, thisSemesterEnd] =
       this.dateUtilService.getThisSemesterRange();
 
-    const [list, total] = await this.subjectMemoRepository.findAndCount({
+    const [list, total] = await this.eventRepository.findAndCount({
       where: {
         userId,
         datetime: And(
           LessThanOrEqual(dayjs(thisSemesterEnd).endOf('date').toDate()),
           MoreThanOrEqual(dayjs(thisSemesterStart).startOf('date').toDate()),
         ),
+        type: EventType.CLASS,
       },
       relations: {
         subject: true,
@@ -135,20 +141,14 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
   async insertOne(
     entity:
       | Pick<
-          SubjectMemoEntity,
-          | 'userId'
-          | 'subjectId'
-          | 'year'
-          | 'semester'
-          | 'datetime'
-          | 'title'
-          | 'content'
+          EventEntity,
+          'userId' | 'subjectId' | 'datetime' | 'title' | 'memo'
         >
-      | Pick<
-          SubjectMemoEntity,
-          'userId' | 'subjectId' | 'year' | 'semester' | 'datetime' | 'title'
-        >,
+      | Pick<EventEntity, 'userId' | 'subjectId' | 'datetime' | 'title'>,
   ): Promise<void> {
-    await this.subjectMemoRepository.insert(entity);
+    await this.eventRepository.insert({
+      ...entity,
+      type: EventType.CLASS,
+    });
   }
 }
