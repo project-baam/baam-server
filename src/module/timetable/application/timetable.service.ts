@@ -29,6 +29,21 @@ export class TimetableService {
     private readonly schoolDatasetService: SchoolDatasetService,
   ) {}
 
+  async findSubjectsInUserTimetable(userId: number): Promise<string[]> {
+    const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
+      new Date(),
+    );
+
+    const subjects =
+      await this.userTimetableRepository.findSubjectsInUserTimetable({
+        userId,
+        year,
+        semester,
+      });
+
+    return subjects.map((e) => e.name);
+  }
+
   async findDefaultClassTimetable(
     params: DefaultTimetableRequest,
   ): Promise<DefaultTimetableEntity[] | null> {

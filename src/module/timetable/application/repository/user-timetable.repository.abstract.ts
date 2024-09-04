@@ -1,3 +1,4 @@
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { UserTimetableEntity } from '../../adapter/persistence/entities/user-timetable.entity';
 import {
   DeleteUserTimetable,
@@ -18,4 +19,8 @@ export abstract class UserTimetableRepository {
   abstract isSubjectInUserTimetable(
     where: IsSubjectInUserTimetable,
   ): Promise<boolean>;
+
+  abstract findSubjectsInUserTimetable(
+    where: FindUserTimetable,
+  ): Promise<SubjectEntity[]>;
 }

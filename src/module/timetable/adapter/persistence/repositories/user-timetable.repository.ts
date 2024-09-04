@@ -8,12 +8,26 @@ import {
   IsSubjectInUserTimetable,
   UpsertUserTimetable,
 } from '../types/user-timetable';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 
 export class OrmUserTimetableRepository implements UserTimetableRepository {
   constructor(
     @InjectRepository(UserTimetableEntity)
     private readonly userTimetableRepository: Repository<UserTimetableEntity>,
   ) {}
+
+  async findSubjectsInUserTimetable(
+    where: FindUserTimetable,
+  ): Promise<SubjectEntity[]> {
+    return this.userTimetableRepository
+      .find({
+        where,
+        relations: ['subject'],
+      })
+      .then((userTimetables) =>
+        userTimetables.map((userTimetable) => userTimetable.subject),
+      );
+  }
 
   async isSubjectInUserTimetable(
     where: IsSubjectInUserTimetable,

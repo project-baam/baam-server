@@ -23,7 +23,7 @@ import {
 } from './dto/timetable.dto';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
-import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiOkResponse } from '@nestjs/swagger';
 import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/active-user.decorator';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
@@ -97,6 +97,27 @@ export class TimetableController {
     );
 
     return new ResponseListDto(TimetableMapper.mapToDomain(timetables ?? []));
+  }
+
+  @ApiDescription({
+    tags: ['시간표'],
+    summary: '유저 시간표 내 과목 목록 조회',
+    description:
+      '해당 날짜 시간표 내 과목 조회\n\
+      - * 1학기: 2월 1일 ~ 6월 30일\n\
+      - * 2학기: 7월 1일 ~ 1월 31일\n',
+    auth: AuthorizationToken.BearerUserToken,
+  })
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: { type: 'string' },
+      example: ['국어', '수학'],
+    },
+  })
+  @Get('subjects')
+  async findUserSubjects(userId: number): Promise<string[]> {
+    return this.timetableService.findSubjectsInUserTimetable(userId);
   }
 
   @ApiDescription({
