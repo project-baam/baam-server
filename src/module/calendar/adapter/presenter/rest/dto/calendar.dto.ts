@@ -47,12 +47,26 @@ export class CreateEventRequest {
   @IsEnum(EventType)
   type: EventType;
 
-  @ApiProperty({ required: false, description: '1000자 이내' })
+  @ApiProperty({
+    required: false,
+    description: `${EVENT_VALIDATION.CONTENT_MAX_LENGTH} 이내 `,
+  })
   @IsOptional()
   @MaxLength(EVENT_VALIDATION.CONTENT_MAX_LENGTH, {
     message: `메모는 ${EVENT_VALIDATION.CONTENT_MAX_LENGTH}00자를 초과할 수 없습니다.`,
   })
   memo?: string;
+
+  @ApiProperty({
+    description:
+      'class Type의 일정만 필요함\n\n\
+      현재 시간표이 과목명만 허용\n\
+    GET /timetable/subjects 응답값 중 하나',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  subjectName?: string;
 }
 
 export class UpdateEventRequest {
@@ -91,6 +105,17 @@ export class UpdateEventRequest {
   })
   @IsOptional()
   memo?: string;
+
+  @ApiProperty({
+    description:
+      'class Type의 일정만 필요함\n\n\
+      현재 시간표이 과목명만 허용\n\
+    GET /timetable/subjects 응답값 중 하나',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  subjectName?: string;
 }
 
 export class UpdateEventBodyParams extends OmitType(UpdateEventRequest, [

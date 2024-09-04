@@ -73,7 +73,9 @@ export class TimetableService {
 
   /**
    * 회원가입시 기본 시간표를 설정(필요한 경우 Neis API 를 통해 가져옴)
-   * 회원가입 시점 = 2월 ~ 7월 이면 1학기, 8월 ~ 1월 이면 2학기
+   * 회원가입 시점
+   * 1학기: 2월 1일 ~ 6월 30일
+   * 2학기: 7월 1일 ~ 1월 31일
    */
   async setUserDefaultTimetableWithFallbackFetch(
     userId: number,

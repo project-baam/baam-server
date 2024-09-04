@@ -29,4 +29,8 @@ export class Event {
   @ApiProperty({ required: false })
   @Expose()
   readonly memo?: string;
+
+  @ApiProperty({ required: false })
+  @Expose()
+  readonly subjectName: string;
 }

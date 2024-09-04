@@ -1,3 +1,4 @@
+import { DateUtilService } from 'src/module/util/date-util.service';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
@@ -46,6 +47,7 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     private readonly httpService: HttpService,
     private readonly schoolRepository: SchoolRepository,
     private readonly subjectRepository: SubjectRepository,
+    private readonly dateUtilService: DateUtilService,
   ) {
     super();
     this.apiKey = this.environmentService.get<string>('NEIS_API_KEY')!;
@@ -255,8 +257,7 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     // 학기에 따라 시작일과 종료일이 다름
     // 1학기: 3월 1일 ~ 3월 31일
     // 2학기: 9월 1일 ~ 9월 30일
-    const startDate = new Date(year, semester === Semester.First ? 2 : 8, 1);
-    const endDate = new Date(year, semester === Semester.First ? 2 : 1, 30);
+    const [startDate, endDate] = this.dateUtilService.getThisSemesterRange();
 
     while (hasMoreData) {
       const timetables = await this.requestNeisTimetables({

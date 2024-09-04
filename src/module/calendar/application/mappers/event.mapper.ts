@@ -10,6 +10,7 @@ export class EventMapper {
       {
         ...event,
         datetime: dayjs(event.datetime).format('YYYY-MM-DD HH:mm:ss'),
+        subjectName: event?.subject?.name,
       },
       { excludeExtraneousValues: true },
     );

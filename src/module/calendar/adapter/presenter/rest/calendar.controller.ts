@@ -19,11 +19,17 @@ import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/use
 import { CalendarService } from 'src/module/calendar/application/calendar.service';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 import { EventMapper } from 'src/module/calendar/application/mappers/event.mapper';
-import { Event } from 'src/module/calendar/domain/event';
+import { Event, EventType } from 'src/module/calendar/domain/event';
 import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
-import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
+import {
+  ContentNotFoundError,
+  MissingRequiredFieldsError,
+  UnauthorizedSubjectAccessError,
+  UnexpectedFieldsError,
+} from 'src/common/types/error/application-exceptions';
+import { ErrorCode } from 'src/common/constants/error-codes';
 
 @RestApi('calendar')
 export class CalendarController {
@@ -59,13 +65,28 @@ export class CalendarController {
   @ApiDescription({
     tags: ['Calendar'],
     summary: '일정 생성',
+    description: `${EventType.CLASS} 타입의 일정은 subjectName 필수\n\n\
+    - ${EventType.CLASS} 인데 subjectName 이 없는 경우 ${ErrorCode.MissingRequiredFields} 발생
+    - 없는 과목 이름 입력시 ${ErrorCode.ContentNotFound} 발생
+    - 현재 시간표에 없는 과목 입력시 ${ErrorCode.UnauthorizedSubjectAccess} 발생
+    - ${EventType.CLASS} 이외의 타입에서 subjectName 입력시 ${ErrorCode.UnexpectedFields} 발생`,
     auth: AuthorizationToken.BearerUserToken,
+    exceptions: [
+      MissingRequiredFieldsError,
+      ContentNotFoundError,
+      UnauthorizedSubjectAccessError,
+      UnexpectedFieldsError,
+    ],
   })
   @Post('event')
   async createEvent(
     @ActiveUser() user: UserEntity,
     @Body() params: CreateEventRequest,
   ): Promise<boolean> {
+    if (params.type === EventType.CLASS && !params.subjectName) {
+      throw new MissingRequiredFieldsError(['subjectName']);
+    }
+
     await this.calendarService.createEvent(user.id, params);
 
     return true;
@@ -75,6 +96,11 @@ export class CalendarController {
   @ApiDescription({
     tags: ['Calendar'],
     summary: '일정 변경',
+    description: `${EventType.CLASS} 타입의 일정은 subjectName 필수\n\n\
+    - ${EventType.CLASS} 인데 subjectName 이 없는 경우 ${ErrorCode.MissingRequiredFields} 발생
+    - 없는 과목 이름 입력시 ${ErrorCode.ContentNotFound} 발생
+    - 현재 시간표에 없는 과목 입력시 ${ErrorCode.UnauthorizedSubjectAccess} 발생
+    - ${EventType.CLASS} 이외의 타입에서 subjectName 입력시 ${ErrorCode.UnexpectedFields} 발생`,
     auth: AuthorizationToken.BearerUserToken,
     exceptions: [ContentNotFoundError],
   })

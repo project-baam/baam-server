@@ -1,3 +1,7 @@
+import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
+import { DateUtilService } from 'src/module/util/date-util.service';
+import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
+import { TimetableService } from 'src/module/timetable/application/timetable.service';
 import dayjs from 'dayjs';
 import { SchoolDatasetService } from './../../school-dataset/application/school-dataset.service';
 import { Injectable } from '@nestjs/common';
@@ -10,6 +14,11 @@ import {
 } from '../adapter/presenter/rest/dto/calendar.dto';
 import { EventType } from '../domain/event';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
+import {
+  MissingRequiredFieldsError,
+  UnauthorizedSubjectAccessError,
+  UnexpectedFieldsError,
+} from 'src/common/types/error/application-exceptions';
 
 @Injectable()
 export class CalendarService {
@@ -17,6 +26,10 @@ export class CalendarService {
     private readonly schoolEventRepository: SchoolEventRepository,
     private readonly eventRepository: EventRepository,
     private readonly schoolDatasetService: SchoolDatasetService,
+    private readonly timetableService: TimetableService,
+    private readonly subjectRepository: SubjectRepository,
+    private readonly dateUtilService: DateUtilService,
+    private readonly userTimetableRepository: UserTimetableRepository,
   ) {}
 
   /**
@@ -53,7 +66,7 @@ export class CalendarService {
       );
 
     if (schoolEventsByYear.length) {
-      await this.eventRepository.upsertMany(
+      await this.eventRepository.insertMany(
         schoolEventsByYear
           .filter((e) => e.grade === userGrade)
           .map((e) => {
@@ -82,7 +95,7 @@ export class CalendarService {
         };
       });
 
-      await this.eventRepository.upsertMany(data);
+      await this.eventRepository.insertMany(data);
     }
   }
 
@@ -99,33 +112,41 @@ export class CalendarService {
       month,
     );
 
-    const hasSchoolEvents = events.some(
-      (event) => event.type === EventType.SCHOOL,
-    );
-
-    // TODO: 나이스에서 받아온 일정은 없지만, 유저가 임의로 학교 일정을 넣은 경우 ->
-    // 이 유저에게는 나이스 학교 일정 세팅 불가(학교 일정 불러오기 등 별도 API 고려)
-    if (!hasSchoolEvents) {
-      await this.setUserSchoolEventsWithFallbackFetch(
-        userId,
-        schoolId,
-        userGrade,
-        year,
-      );
-
-      const updatedEvents = await this.eventRepository.getManyByMonth(
-        userId,
-        year,
-        month,
-      );
-      return updatedEvents;
-    }
-
     return events;
   }
 
   async createEvent(userId: number, params: CreateEventRequest) {
-    await this.eventRepository.upsertMany([
+    if (params.type === EventType.CLASS) {
+      const subjectId = await this.subjectRepository.findIdByNameOrFail(
+        params.subjectName!,
+      );
+
+      const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
+        new Date(),
+      );
+
+      const isSubjectInUserTimetable =
+        await this.userTimetableRepository.isSubjectInUserTimetable({
+          userId,
+          year,
+          semester,
+          subjectId,
+        });
+
+      if (!isSubjectInUserTimetable) {
+        throw new UnauthorizedSubjectAccessError(params.subjectName!);
+      }
+    } else {
+      // 다른 타입일 경우 subjectName 있으면 invalid
+      if (params.subjectName) {
+        throw new UnexpectedFieldsError(
+          ['subjectName'],
+          `CLASS 타입이 아닐 경우 subjectName 필드 불필요`,
+        );
+      }
+    }
+
+    await this.eventRepository.insertMany([
       {
         userId,
         ...params,
@@ -135,12 +156,66 @@ export class CalendarService {
   }
 
   async updateEvent(userId: number, params: UpdateEventRequest) {
-    await this.eventRepository.findOneByIdOrFail(userId, params.id);
-    await this.eventRepository.updateOne({
-      ...params,
+    const event = await this.eventRepository.findOneByIdOrFail(
       userId,
-      datetime: params?.datetime ? new Date(params?.datetime) : undefined,
-    });
+      params.id,
+    );
+    // CLASS 타입으로 변경 시, subjectName 필수 + 해당 과목이 유저 시간표에 있는지 확인
+    if (params.type === EventType.CLASS) {
+      if (!params.subjectName) {
+        throw new MissingRequiredFieldsError(
+          ['subjectName'],
+          `다른 타입에서 CLASS 타입으로 변경 시, subjectName 필수`,
+        );
+      }
+      const subjectId = await this.subjectRepository.findIdByNameOrFail(
+        params.subjectName!,
+      );
+
+      const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
+        new Date(),
+      );
+
+      const isSubjectInUserTimetable =
+        await this.userTimetableRepository.isSubjectInUserTimetable({
+          userId,
+          year,
+          semester,
+          subjectId,
+        });
+
+      if (!isSubjectInUserTimetable) {
+        throw new UnauthorizedSubjectAccessError(params.subjectName!);
+      }
+
+      delete params.subjectName;
+
+      await this.eventRepository.updateOne({
+        ...params,
+        userId,
+        datetime: params?.datetime ? new Date(params?.datetime) : undefined,
+        subjectId,
+      });
+    }
+
+    // 다른 타입으로 변경시 subjectName 있으면 invalid
+    if (params.type !== EventType.CLASS) {
+      if (params.subjectName) {
+        throw new UnexpectedFieldsError(
+          ['subjectName'],
+          `CLASS 타입이 아닐 경우 subjectName 필드 불필요`,
+        );
+      }
+
+      delete params.subjectName;
+
+      await this.eventRepository.updateOne({
+        ...params,
+        userId,
+        datetime: params?.datetime ? new Date(params?.datetime) : undefined,
+        subjectId: null, // 다른 타입에서 class 타입으로 변경시 subjectId 초기화
+      });
+    }
   }
 
   async deleteEvent(userId: number, id: number) {

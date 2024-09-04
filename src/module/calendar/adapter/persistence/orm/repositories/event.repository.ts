@@ -45,6 +45,9 @@ export class OrmEventRepository implements EventRepository {
     }
 
     return this.eventRepository.find({
+      relations: {
+        subject: true,
+      },
       where,
       order: {
         datetime: 'ASC',
@@ -52,17 +55,12 @@ export class OrmEventRepository implements EventRepository {
     });
   }
 
-  async upsertMany(
+  async insertMany(
     events:
       | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime'>[]
       | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime' | 'memo'>[],
   ): Promise<void> {
-    await this.eventRepository.upsert(events, [
-      'userId',
-      'type',
-      'title',
-      'datetime',
-    ]);
+    await this.eventRepository.insert(events);
   }
 
   async updateOne(

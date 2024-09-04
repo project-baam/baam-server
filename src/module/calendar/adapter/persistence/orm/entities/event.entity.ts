@@ -5,13 +5,12 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { EventType } from 'src/module/calendar/domain/event';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 
-@Unique(['userId', 'type', 'datetime', 'title'])
 @Entity('event')
 export class EventEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -34,7 +33,14 @@ export class EventEntity extends BaseEntity {
   type: EventType;
 
   @Column('varchar', { nullable: true })
-  memo?: string;
+  memo?: string | null;
+
+  @Column('int', {
+    nullable: true,
+    comment: 'type이 EventType.CLASS 일 경우만 참조',
+  })
+  @Index()
+  subjectId: number | null;
 
   @ManyToOne(() => UserProfileEntity, {
     onDelete: 'CASCADE',
@@ -42,4 +48,11 @@ export class EventEntity extends BaseEntity {
   })
   @JoinColumn({ name: 'user_id' })
   user: UserProfileEntity;
+
+  @ManyToOne(() => SubjectEntity, {
+    onDelete: 'NO ACTION', // TODO:
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'subject_id' })
+  subject: SubjectEntity;
 }
