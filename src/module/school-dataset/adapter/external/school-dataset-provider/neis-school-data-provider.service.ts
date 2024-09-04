@@ -227,7 +227,7 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
           (x) => x.GRADE === e.GRADE && x.CLASS_NM === e.CLASS_NM,
         ) !== i;
 
-      if (!isDuplicate) {
+      if (!isDuplicate && e.CLASS_NM[0] !== '0') {
         return {
           schoolId: school.id,
           grade: parseInt(e.GRADE),
