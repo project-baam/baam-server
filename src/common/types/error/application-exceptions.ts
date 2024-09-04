@@ -92,10 +92,24 @@ export class InvalidFileNameCharatersError extends ApplicationException {
 }
 
 export class MissingRequiredFieldsError extends ApplicationException {
-  constructor(properties?: string[]) {
+  constructor(properties: string[] = [], message: string = '필수 필드 누락') {
     super(
       ErrorCode.MissingRequiredFields,
-      `Missing required fields:[ ${properties?.join(', ')}] must all be provided together.`,
+      message ??
+        `Missing required fields:[ ${properties?.join(', ')}] must all be provided together.`,
+    );
+  }
+}
+
+export class UnexpectedFieldsError extends ApplicationException {
+  constructor(
+    unexpectedFields: string[] = [],
+    message: string = '없어야하는 필드가 포함되어 있음',
+  ) {
+    super(
+      ErrorCode.MissingRequiredFields,
+      message ??
+        'The following fields are not allowed: ' + unexpectedFields?.join(', '),
     );
   }
 }
