@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
-import { Period } from './value-objects/period';
-import { Weekday } from './value-objects/weekday';
+import { Period } from './enums/period';
+import { Weekday } from './enums/weekday';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class Timetable {

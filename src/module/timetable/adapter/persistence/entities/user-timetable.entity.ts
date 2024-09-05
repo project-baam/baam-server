@@ -12,8 +12,8 @@ import {
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
-import { Weekday } from 'src/module/timetable/domain/value-objects/weekday';
-import { Period } from 'src/module/timetable/domain/value-objects/period';
+import { Weekday } from 'src/module/timetable/domain/enums/weekday';
+import { Period } from 'src/module/timetable/domain/enums/period';
 
 @Unique(['userId', 'year', 'semester', 'day', 'period']) // 동일 교시에 중복되는 수업이 없어야 함
 @Entity('user_timetable')

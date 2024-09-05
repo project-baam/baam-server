@@ -11,8 +11,8 @@ import {
 import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entities/class.entity';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
-import { Period } from 'src/module/timetable/domain/value-objects/period';
-import { Weekday } from 'src/module/timetable/domain/value-objects/weekday';
+import { Period } from 'src/module/timetable/domain/enums/period';
+import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 
 /**

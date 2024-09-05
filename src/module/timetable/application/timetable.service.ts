@@ -11,8 +11,8 @@ import {
   EditOrAddTimetableRequest,
 } from '../adapter/presenter/rest/dto/timetable.dto';
 import { UserTimetableEntity } from '../adapter/persistence/entities/user-timetable.entity';
-import { Weekday } from '../domain/value-objects/weekday';
-import { Period } from '../domain/value-objects/period';
+import { Weekday } from '../domain/enums/weekday';
+import { Period } from '../domain/enums/period';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { SchoolDatasetService } from 'src/module/school-dataset/application/school-dataset.service';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';

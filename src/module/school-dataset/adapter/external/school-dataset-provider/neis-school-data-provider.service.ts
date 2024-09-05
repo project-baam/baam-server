@@ -27,7 +27,7 @@ import { SchoolRepository } from 'src/module/school-dataset/application/port/sch
 import { HighSchoolType } from 'src/module/school-dataset/domain/value-objects/school-type';
 import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
-import { Weekday } from 'src/module/timetable/domain/value-objects/weekday';
+import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { MealInfo, MealInfoRequest } from './dto/meal-info.dto';
 import { MealEntity } from '../../persistence/entities/meal.entity';

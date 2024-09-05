@@ -13,8 +13,8 @@ import {
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
-import { Period } from 'src/module/timetable/domain/value-objects/period';
-import { Weekday } from 'src/module/timetable/domain/value-objects/weekday';
+import { Period } from 'src/module/timetable/domain/enums/period';
+import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 
 export class DefaultTimetableRequest {
   @ApiProperty()
