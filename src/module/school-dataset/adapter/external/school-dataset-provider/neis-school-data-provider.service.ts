@@ -255,9 +255,12 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
     let hasMoreData: boolean = true;
 
     // 학기에 따라 시작일과 종료일이 다름
-    // 1학기: 3월 1일 ~ 3월 31일
-    // 2학기: 9월 1일 ~ 9월 30일
-    const [startDate, endDate] = this.dateUtilService.getThisSemesterRange();
+    const [startDate] = this.dateUtilService.getThisSemesterRange();
+    const from = dayjs(startDate).set('date', 16).format('YYYYMMDD');
+    const to = dayjs(startDate)
+      .add(1, 'month')
+      .set('date', 16)
+      .format('YYYYMMDD');
 
     while (hasMoreData) {
       const timetables = await this.requestNeisTimetables({
@@ -270,8 +273,8 @@ export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {
         CLRM_NM: className,
         pIndex: pageNumber,
         pSize: NEIS_MAX_PAGE_SIZE,
-        TI_FROM_YMD: startDate.toISOString().slice(0, 10).replace(/-/g, ''),
-        TI_TO_YMD: endDate.toISOString().slice(0, 10).replace(/-/g, ''),
+        TI_FROM_YMD: from,
+        TI_TO_YMD: to,
       });
 
       allTimetables = allTimetables.concat(timetables);

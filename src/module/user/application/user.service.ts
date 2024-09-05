@@ -36,6 +36,7 @@ export class UserService {
   ) {}
 
   async insertTestUser(schoolId: number) {
+    await this.schoolRepository.findByIdOrFail(schoolId);
     const userNames = [
       '고등어',
       '도미',

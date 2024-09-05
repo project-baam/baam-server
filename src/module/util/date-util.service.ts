@@ -4,8 +4,8 @@ import { Semester } from '../school-dataset/domain/value-objects/semester';
 @Injectable()
 export class DateUtilService {
   /**
-   * 1학기: 2월 1일 ~ 6월 30일
-   * 2학기: 7월 1일 ~ 1월 31일
+   * 1학기: 2월 1일 ~ 7월 31일
+   * 2학기: 8월 1일 ~ 1월 31일
    * @param date
    * @returns
    */
@@ -13,13 +13,13 @@ export class DateUtilService {
     const month = date.getMonth();
     return [
       date.getFullYear(),
-      month >= 1 && month <= 5 ? Semester.First : Semester.Second,
+      month >= 1 && month <= 6 ? Semester.First : Semester.Second,
     ];
   }
 
   /**
    * 현재 학기의 시작일과 종료일을 반환합니다.
-   * @returns SemesterRange
+   * @returns 1학기: 2월 1일 ~ 7월 31일, 2학기: 8월 1일 ~ 1월 31일
    */
   getThisSemesterRange(): [
     start: Date,
@@ -34,9 +34,9 @@ export class DateUtilService {
 
     if (semester === Semester.First) {
       start = new Date(year, 1, 1); // 2월 1일
-      end = new Date(year, 5, 30); // 6월 30일
+      end = new Date(year, 6, 31); // 7월 31일
     } else {
-      start = new Date(year, 6, 1); // 7월 1일
+      start = new Date(year, 7, 1); // 8월 1일
       end = new Date(year + 1, 0, 31); // 다음 해 1월 31일
     }
 
