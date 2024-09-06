@@ -20,6 +20,7 @@ export class UserMapper {
         backgroundImageUrl: entity.profile?.backgroundImageUrl,
         isTimetablePublic: entity.profile?.isTimetablePublic,
         isClassPublic: entity.profile?.isClassPublic,
+        notificationsEnabled: entity.profile?.notificationsEnabled,
       },
       {
         exposeDefaultValues: true,

@@ -50,6 +50,9 @@ export class UserProfileEntity extends BaseEntity {
   @Column('varchar', { nullable: true })
   backgroundImageUrl?: string | null;
 
+  @Column('boolean', { default: true })
+  notificationsEnabled: boolean;
+
   @OneToOne(() => UserEntity, (user) => user.profile, {
     onDelete: 'CASCADE',
   })

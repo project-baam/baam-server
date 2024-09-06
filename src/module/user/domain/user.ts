@@ -53,4 +53,8 @@ export class User {
   @ApiProperty()
   @Expose()
   isTimetablePublic: boolean;
+
+  @ApiProperty()
+  @Expose()
+  notificationsEnabled: boolean;
 }
