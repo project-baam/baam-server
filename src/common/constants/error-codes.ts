@@ -6,6 +6,7 @@ export enum ErrorCode {
   MissingRequiredFields = 4003,
   InvalidProfileImageField = 4004,
   UnexpectedFields = 4005,
+  InvalidExpoPushToken = 4006,
 
   // 401
   MissingAuthToken = 4010,

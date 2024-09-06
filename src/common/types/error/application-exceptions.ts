@@ -167,3 +167,8 @@ export class SchoolTimeNotSetError extends ApplicationException {
     );
   }
 }
+export class InvalidExpoPushTokenError extends ApplicationException {
+  constructor() {
+    super(ErrorCode.InvalidExpoPushToken, 'Invalid Expo push token');
+  }
+}

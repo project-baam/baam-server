@@ -10,6 +10,7 @@ export const CodeToStatus: {
   [ErrorCode.MissingRequiredFields]: HttpStatus.BAD_REQUEST,
   [ErrorCode.InvalidProfileImageField]: HttpStatus.BAD_REQUEST,
   [ErrorCode.UnexpectedFields]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.InvalidExpoPushToken]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MissingAuthToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidAccessToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidRefreshToken]: HttpStatus.UNAUTHORIZED,
