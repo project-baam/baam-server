@@ -26,6 +26,7 @@ export enum ErrorCode {
   AlreadyFriends = 4091,
   SelfFriendRequest = 4092,
   DuplicateFriendRequest = 4093,
+  SchoolTimeNotSet = 4094,
 
   // 500
   InternalServerError = 5000,

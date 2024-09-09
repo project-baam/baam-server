@@ -158,3 +158,12 @@ export class DuplicateFriendRequestError extends ApplicationException {
     super(ErrorCode.DuplicateFriendRequest, message);
   }
 }
+
+export class SchoolTimeNotSetError extends ApplicationException {
+  constructor() {
+    super(
+      ErrorCode.SchoolTimeNotSet,
+      '1교시 시작 시간, 점심 시간 시작/종료 시간 입력해야 시간표 기능 이용 가능',
+    );
+  }
+}

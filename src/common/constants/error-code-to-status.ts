@@ -19,6 +19,7 @@ export const CodeToStatus: {
   [ErrorCode.SelfFriendRequest]: HttpStatus.CONFLICT,
   [ErrorCode.AlreadyFriends]: HttpStatus.CONFLICT,
   [ErrorCode.DuplicateFriendRequest]: HttpStatus.CONFLICT,
+  [ErrorCode.SchoolTimeNotSet]: HttpStatus.CONFLICT,
   [ErrorCode.InternalServerError]: HttpStatus.INTERNAL_SERVER_ERROR,
   [ErrorCode.NeisError]: HttpStatus.INTERNAL_SERVER_ERROR,
   [ErrorCode.SocialAuthenticationFailed]: HttpStatus.UNAUTHORIZED,
