@@ -17,6 +17,7 @@ import { Period } from '../domain/enums/period';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { SchoolDatasetService } from 'src/module/school-dataset/application/school-dataset.service';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
+import { SchoolTimeSettingsUpsertRequest } from '../adapter/presenter/rest/dto/school-time-settings.dto';
 
 @Injectable()
 export class TimetableService {
@@ -162,7 +163,17 @@ export class TimetableService {
     await this.userTimetableRepository.delete(params);
   }
 
-  async checkTimeSettings(userId: number) {
+  async checkTimeSettings(userId: number): Promise<void> {
     await this.schoolTimeSettingsRepository.findByUserIdOrFail(userId);
+  }
+
+  async upsertSchoolTimeSettings(
+    userId: number,
+    dto: SchoolTimeSettingsUpsertRequest,
+  ) {
+    await this.schoolTimeSettingsRepository.save({
+      userId,
+      ...dto,
+    });
   }
 }

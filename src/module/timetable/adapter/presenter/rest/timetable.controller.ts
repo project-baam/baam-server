@@ -28,6 +28,8 @@ import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/act
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 import { SchoolTimeNotSetError } from 'src/common/types/error/application-exceptions';
+import { SchoolTimeSettingsUpsertRequest } from './dto/school-time-settings.dto';
+import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
 
 @RestApi('timetable')
 export class TimetableController {
@@ -89,7 +91,7 @@ export class TimetableController {
     @ActiveUser() user: UserEntity,
     @Query() params: UserTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
-    this.timetableService.checkTimeSettings(user.id);
+    await this.timetableService.checkTimeSettings(user.id);
     const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
       new Date(params.date),
     );
@@ -141,7 +143,7 @@ export class TimetableController {
     @ActiveUser() user: UserEntity,
     @Body() params: EditOrAddTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
-    this.timetableService.checkTimeSettings(user.id);
+    await this.timetableService.checkTimeSettings(user.id);
 
     // TODO: 기존 요일/교시에 이미 있는 수업이, 시간표에 전혀 남아 있지 않을 때, 해당 수업에 대한 메모도 삭제해야함
     await this.timetableService.editOrAddTimetable(user.id, params);
@@ -172,7 +174,7 @@ export class TimetableController {
     @ActiveUser() user: UserEntity,
     @Query() params: DeleteTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
-    this.timetableService.checkTimeSettings(user.id);
+    await this.timetableService.checkTimeSettings(user.id);
 
     await this.timetableService.deleteTimetable({
       ...params,
@@ -190,5 +192,21 @@ export class TimetableController {
     return new ResponseListDto(
       TimetableMapper.mapToDomain(updatedTimetables ?? []),
     );
+  }
+
+  @ApiBooleanResponse(HttpStatus.CREATED)
+  @ApiDescription({
+    tags: ['시간표'],
+    summary: '시간표 시간 설정 or 변경(1교시 시작, 점심시간 시작, 점심시간 끝)',
+    auth: AuthorizationToken.BearerUserToken,
+  })
+  @Post('school-time-settings')
+  async upsertSchoolTimeSettings(
+    @ActiveUser() user: UserEntity,
+    @Body() params: SchoolTimeSettingsUpsertRequest,
+  ): Promise<boolean> {
+    await this.timetableService.upsertSchoolTimeSettings(user.id, params);
+
+    return true;
   }
 }
