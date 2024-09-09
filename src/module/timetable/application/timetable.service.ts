@@ -1,3 +1,4 @@
+import { SchoolTimeSettingsRepository } from 'src/module/timetable/application/repository/school-time-settings.repository.abstract';
 import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
@@ -27,6 +28,7 @@ export class TimetableService {
     private readonly classRepository: ClassRepository,
     private readonly schoolRepository: SchoolRepository,
     private readonly schoolDatasetService: SchoolDatasetService,
+    private readonly schoolTimeSettingsRepository: SchoolTimeSettingsRepository,
   ) {}
 
   async findSubjectsInUserTimetable(userId: number): Promise<string[]> {
@@ -158,5 +160,9 @@ export class TimetableService {
     period: Period;
   }) {
     await this.userTimetableRepository.delete(params);
+  }
+
+  async checkTimeSettings(userId: number) {
+    await this.schoolTimeSettingsRepository.findByUserIdOrFail(userId);
   }
 }

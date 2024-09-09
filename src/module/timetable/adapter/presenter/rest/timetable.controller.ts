@@ -27,6 +27,7 @@ import { ApiExcludeEndpoint, ApiOkResponse } from '@nestjs/swagger';
 import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/active-user.decorator';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
+import { SchoolTimeNotSetError } from 'src/common/types/error/application-exceptions';
 
 @RestApi('timetable')
 export class TimetableController {
@@ -81,12 +82,14 @@ export class TimetableController {
       status: HttpStatus.OK,
       schema: Timetable,
     },
+    exceptions: [SchoolTimeNotSetError],
   })
   @Get()
   async getUserTimetable(
     @ActiveUser() user: UserEntity,
     @Query() params: UserTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
+    this.timetableService.checkTimeSettings(user.id);
     const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
       new Date(params.date),
     );
@@ -131,12 +134,15 @@ export class TimetableController {
       status: HttpStatus.OK,
       schema: Timetable,
     },
+    exceptions: [SchoolTimeNotSetError],
   })
   @Put()
   async editOrAddTimetable(
     @ActiveUser() user: UserEntity,
     @Body() params: EditOrAddTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
+    this.timetableService.checkTimeSettings(user.id);
+
     // TODO: 기존 요일/교시에 이미 있는 수업이, 시간표에 전혀 남아 있지 않을 때, 해당 수업에 대한 메모도 삭제해야함
     await this.timetableService.editOrAddTimetable(user.id, params);
     const updatedTimetables = await this.timetableService.findUserTimetable(
@@ -159,12 +165,15 @@ export class TimetableController {
       status: HttpStatus.OK,
       schema: Timetable,
     },
+    exceptions: [SchoolTimeNotSetError],
   })
   @Delete()
   async deleteTimetable(
     @ActiveUser() user: UserEntity,
     @Query() params: DeleteTimetableRequest,
   ): Promise<ResponseListDto<Timetable>> {
+    this.timetableService.checkTimeSettings(user.id);
+
     await this.timetableService.deleteTimetable({
       ...params,
       userId: user.id,
