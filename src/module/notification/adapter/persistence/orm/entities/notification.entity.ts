@@ -1,5 +1,6 @@
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
+import { NotificationData } from 'src/module/notification/domain/notification';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 import {
   Column,
@@ -23,11 +24,14 @@ export class NotificationEntity extends BaseEntity {
   @Column('varchar')
   title: string;
 
-  @Column('json')
-  body: object; // TODO: body type 정의
+  @Column('varchar', { nullable: true })
+  message?: string | null;
 
-  @Column('timestamp', { comment: '푸시알림 발송 시간' })
-  scheduledAt: Date;
+  @Column('json')
+  body: NotificationData; // 각 알림의 액션에 필요한 데이터(category 에 따라 다름)
+
+  @Column('timestamp')
+  sentAt: Date;
 
   @Column('boolean', { default: false })
   isRead: boolean;

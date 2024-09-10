@@ -14,7 +14,7 @@ import {
   Unique,
 } from 'typeorm';
 
-@Unique(['userId', 'token'])
+@Unique(['userId', 'deviceToken'])
 @Entity('notification_devices')
 export class NotificationDevicesEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
