@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { NotificationDevicesEntity } from './notification-devices.entity';
+import { NotificationData } from 'src/module/notification/domain/notification';
 
 /**
  *  발송 예정 알림
@@ -26,22 +27,26 @@ export class ScheduledNotificationEntity extends BaseEntity {
   userDeviceId: number;
 
   @Column('enum', { enum: NotificationCategory })
-  category: NotificationCategory; // expo 의 data 안에 속성으로 들어감(앱에서 사용하기 위해 추가)
+  category: NotificationCategory; // 푸시알림 의 data 안에 속성으로도 들어가지만(앱에서 사용하기 위해 추가)
 
-  @Column('varchar')
-  pushTitle: string; // expo 의 title
+  @Column('varchar', { comment: '푸시알림(expo) title' })
+  pushTitle: string;
 
-  @Column('varchar')
-  pushMessage?: string; // expo 의 body
+  @Column('varchar', { comment: '푸시알림(expo) 의 body' })
+  pushMessage?: string;
 
-  @Column('varchar', { nullable: true })
-  pushData?: object; // category 에 따라 다른 데이터, category 도 포함
+  @Column('varchar', {
+    nullable: true,
+    comment:
+      '푸시알림(expo) 의 data, category 에 따라 다름, category 속성도 포함',
+  })
+  pushData?: NotificationData & { category: NotificationCategory };
 
-  @Column('varchar')
-  notificationTitle: string; // notification entity 의 title
+  @Column('varchar', { comment: 'notification entity 의 title' })
+  notificationTitle: string;
 
-  @Column('json')
-  notificationBody: object; // notification entity 의 body
+  @Column('json', { comment: 'notification entity 의 body' })
+  notificationBody: NotificationData;
 
   @Column('varchar', { nullable: true })
   notificationMessage?: string | null;
@@ -54,5 +59,5 @@ export class ScheduledNotificationEntity extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'user_device_id' })
-  userDevices: NotificationDevicesEntity;
+  userDevice: NotificationDevicesEntity;
 }

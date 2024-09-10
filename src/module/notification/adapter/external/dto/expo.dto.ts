@@ -14,7 +14,6 @@ export class MessageRequestFormat {
     example: {
       category: '나의 수업함',
       memoId: 3,
-      sentAt: new Date().toISOString(),
     },
   })
   @IsObject()
