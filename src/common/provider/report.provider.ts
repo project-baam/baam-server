@@ -1,7 +1,6 @@
 import { Logger } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
 import axios from 'axios';
-import { SeverityLevel } from '@sentry/nestjs';
+import { SeverityLevel } from './constants/severity-level';
 
 export class ReportProvider {
   static error(
@@ -9,7 +8,7 @@ export class ReportProvider {
     extra?: Record<string, unknown>,
     moduleName?: string,
   ): void {
-    this.errorReport('error', error, extra, moduleName);
+    this.errorReport(SeverityLevel.Error, error, extra, moduleName);
   }
 
   static info(
@@ -17,14 +16,8 @@ export class ReportProvider {
     extra?: Record<string, unknown>,
     moduleName?: string,
   ): void {
-    Sentry.captureEvent({
-      message,
-      extra: { ...extra, moduleName },
-      level: 'info',
-    });
-
     this.sendToDiscord({
-      severity: 'info',
+      severity: SeverityLevel.Warning,
       title: message,
       extra,
       moduleName,
@@ -36,7 +29,7 @@ export class ReportProvider {
     extra?: Record<string, unknown>,
     moduleName?: string,
   ): void {
-    this.errorReport('warning', error, extra, moduleName);
+    this.errorReport(SeverityLevel.Warning, error, extra, moduleName);
   }
 
   private static errorReport(
@@ -45,20 +38,6 @@ export class ReportProvider {
     extra?: Record<string, unknown>,
     moduleName?: string,
   ): void {
-    Sentry.withScope((scope) => {
-      if (extra) {
-        for (const [key, value] of Object.entries(extra)) {
-          scope.setExtra(key, value);
-        }
-      }
-
-      if (moduleName) {
-        scope.setExtra('moduleName', moduleName);
-      }
-      scope.setLevel(severity);
-      Sentry.captureException(error);
-    });
-
     // Send error to Discord
     this.sendToDiscord({
       severity,
@@ -79,10 +58,10 @@ export class ReportProvider {
     const { severity, title, error, extra, moduleName } = params;
     let color: number;
     switch (severity) {
-      case 'error':
+      case SeverityLevel.Error:
         color = 15400960;
         break;
-      case 'warning':
+      case SeverityLevel.Warning:
         color = 16744770;
         break;
 
