@@ -121,8 +121,8 @@ export class TimetableController {
     },
   })
   @Get('subjects')
-  async findUserSubjects(userId: number): Promise<string[]> {
-    return this.timetableService.findSubjectsInUserTimetable(userId);
+  async findUserSubjects(@ActiveUser() user: UserEntity): Promise<string[]> {
+    return this.timetableService.findSubjectsInUserTimetable(user.id);
   }
 
   @ApiDescription({
