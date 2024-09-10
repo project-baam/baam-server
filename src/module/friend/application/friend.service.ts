@@ -1,3 +1,4 @@
+import { TimetableService } from './../../timetable/application/timetable.service';
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
@@ -45,6 +46,7 @@ export class FriendService {
     private userRepository: UserRepository,
     private timetableRepository: UserTimetableRepository,
     private dateUtilService: DateUtilService,
+    private timetableService: TimetableService,
   ) {}
 
   private async findSchoolmateOrFail(
@@ -82,6 +84,7 @@ export class FriendService {
     {
       friend: T;
       timetable: UserTimetableEntity[];
+      activeClassNow: string | null;
     }[]
   > {
     const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
@@ -93,6 +96,7 @@ export class FriendService {
     ): Promise<{
       friend: T;
       timetable: UserTimetableEntity[];
+      activeClassNow: string | null;
     }> => {
       const timetable = await this.timetableRepository.find({
         userId: friend.userId,
@@ -100,7 +104,11 @@ export class FriendService {
         semester,
       });
 
-      return { friend, timetable };
+      return {
+        friend,
+        timetable,
+        activeClassNow: this.timetableService.getCurrentSubject(friend.userId),
+      };
     };
 
     return Promise.all(friends.map((e) => addTimetable(e)));

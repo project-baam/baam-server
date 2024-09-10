@@ -1,15 +1,11 @@
 import { FavoriteFriendInHome } from './../../domain/friend';
 import { FindFavoriteFriendsDto } from '../../adapter/persistence/dto/find-favorite-friends.dto';
-import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 
 export class FavoriteFriendMapper {
   static toDomain(
     dto: FindFavoriteFriendsDto,
-    timetable: UserTimetableEntity[],
+    activeClassNow: string | null,
   ): FavoriteFriendInHome {
-    const activeClassNow = 'ㅎ_ㅎ'; //  TODO : 기획 확인 필요
-    // timetable 로 가져오기
-    timetable;
     return {
       ...dto,
       activeClassNow,
@@ -19,9 +15,9 @@ export class FavoriteFriendMapper {
   static mapToDomain(
     dtos: {
       friend: FindFavoriteFriendsDto;
-      timetable: UserTimetableEntity[];
+      activeClassNow: string | null;
     }[],
   ): FavoriteFriendInHome[] {
-    return dtos.map((dto) => this.toDomain(dto.friend, dto.timetable));
+    return dtos.map((dto) => this.toDomain(dto.friend, dto.activeClassNow));
   }
 }

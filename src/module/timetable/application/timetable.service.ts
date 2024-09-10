@@ -1,3 +1,7 @@
+import {
+  memoizedGetCurrentSubject,
+  optimizeTimetable,
+} from './../../util/timetable-utils';
 import { SchoolTimeSettingsRepository } from 'src/module/timetable/application/repository/school-time-settings.repository.abstract';
 import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
@@ -18,9 +22,16 @@ import { Semester } from 'src/module/school-dataset/domain/value-objects/semeste
 import { SchoolDatasetService } from 'src/module/school-dataset/application/school-dataset.service';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { SchoolTimeSettingsUpsertRequest } from '../adapter/presenter/rest/dto/school-time-settings.dto';
+import { precomputeTimes } from 'src/module/util/timetable-utils';
 
 @Injectable()
 export class TimetableService {
+  private optimizedTimetables: Map<number, Map<string, string>> = new Map();
+  private precomputedTimes: Map<number, ReturnType<typeof precomputeTimes>> =
+    new Map();
+  private currentYear: number;
+  private currentSemester: Semester;
+
   constructor(
     private readonly defaultTimetableRepository: DefaultTimetableRepository,
     private readonly dateUtilService: DateUtilService,
@@ -31,6 +42,58 @@ export class TimetableService {
     private readonly schoolDatasetService: SchoolDatasetService,
     private readonly schoolTimeSettingsRepository: SchoolTimeSettingsRepository,
   ) {}
+
+  async onModuleInit() {
+    [this.currentYear, this.currentSemester] =
+      this.dateUtilService.getYearAndSemesterByDate(new Date());
+    await this.refreshAllUserTimetables();
+  }
+
+  private async refreshAllUserTimetables() {
+    const allTimeSettings = await this.schoolTimeSettingsRepository.find();
+    for (const setting of allTimeSettings) {
+      await this.refreshUserTimetableCache(setting.userId);
+    }
+  }
+
+  async refreshUserTimetableCache(userId: number) {
+    const userTimeSettings =
+      await this.schoolTimeSettingsRepository.findByUserId(userId);
+
+    if (userTimeSettings) {
+      this.precomputedTimes.set(
+        userTimeSettings.userId,
+        precomputeTimes(userTimeSettings),
+      );
+      const timetable = await this.userTimetableRepository.find({
+        userId: userTimeSettings.userId,
+        year: this.currentYear,
+        semester: this.currentSemester,
+      });
+      this.optimizedTimetables.set(
+        userTimeSettings.userId,
+        optimizeTimetable(timetable),
+      );
+    }
+  }
+
+  getCurrentSubject(
+    userId: number,
+    currentTime: Date = new Date(),
+  ): string | null {
+    const optimizedTimetable = this.optimizedTimetables.get(userId);
+    const precomputedTimes = this.precomputedTimes.get(userId);
+
+    if (!optimizedTimetable || !precomputedTimes) {
+      return null;
+    }
+
+    return memoizedGetCurrentSubject(
+      optimizedTimetable,
+      precomputedTimes,
+      currentTime,
+    );
+  }
 
   async findSubjectsInUserTimetable(userId: number): Promise<string[]> {
     const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
@@ -151,6 +214,7 @@ export class TimetableService {
       period,
       subjectId,
     });
+    await this.refreshUserTimetableCache(userId);
   }
 
   async deleteTimetable(params: {

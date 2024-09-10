@@ -1,6 +1,8 @@
 import { SchoolTimeSettingsEntity } from '../../adapter/persistence/entities/school-time-settings.entity';
 
 export abstract class SchoolTimeSettingsRepository {
+  abstract find(): Promise<SchoolTimeSettingsEntity[]>;
+
   abstract save(
     dto: Pick<
       SchoolTimeSettingsEntity,
@@ -11,4 +13,8 @@ export abstract class SchoolTimeSettingsRepository {
   abstract findByUserIdOrFail(
     userId: number,
   ): Promise<SchoolTimeSettingsEntity>;
+
+  abstract findByUserId(
+    userId: number,
+  ): Promise<SchoolTimeSettingsEntity | null>;
 }
