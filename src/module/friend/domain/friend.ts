@@ -89,8 +89,8 @@ export class FavoriteFriendInHome {
   @ApiProperty()
   profileImage: string;
 
-  @ApiProperty()
-  activeClassNow: string;
+  @ApiProperty({ type: 'string' })
+  activeClassNow: string | null;
 }
 
 export class FriendRequest {

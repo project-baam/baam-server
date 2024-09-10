@@ -12,6 +12,14 @@ export class OrmSchoolTimeSettingsRepository
     private readonly schoolTimeSettingsRepository: Repository<SchoolTimeSettingsEntity>,
   ) {}
 
+  find(): Promise<SchoolTimeSettingsEntity[]> {
+    return this.schoolTimeSettingsRepository.find();
+  }
+
+  findByUserId(userId: number): Promise<SchoolTimeSettingsEntity | null> {
+    return this.schoolTimeSettingsRepository.findOneBy({ userId });
+  }
+
   async save(
     dto: Pick<
       SchoolTimeSettingsEntity,

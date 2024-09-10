@@ -240,4 +240,10 @@ export class TimetableService {
       ...dto,
     });
   }
+
+  async updateCurrentYearAndSemester() {
+    [this.currentYear, this.currentSemester] =
+      this.dateUtilService.getYearAndSemesterByDate(new Date());
+    await this.refreshAllUserTimetables();
+  }
 }

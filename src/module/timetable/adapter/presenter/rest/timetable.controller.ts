@@ -209,4 +209,15 @@ export class TimetableController {
 
     return true;
   }
+
+  // TODO: 관리자용 API, 스케줄러 최대한 지양
+  @Auth(AuthType.None)
+  @ApiDescription({
+    tags: ['시간표'],
+    summary: '연도/학기 업데이트(관리자용)',
+  })
+  @Post('update-year-semester')
+  async updateCurrentYearAndSemester() {
+    await this.timetableService.updateCurrentYearAndSemester();
+  }
 }
