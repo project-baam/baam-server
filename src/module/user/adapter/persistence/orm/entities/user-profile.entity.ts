@@ -63,6 +63,12 @@ export class UserProfileEntity extends BaseEntity {
   @JoinColumn({ name: 'class_id' })
   class: ClassEntity;
 
+  @OneToOne(() => UserProfileEntity, (profile) => profile.schoolTimeSettings, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  schoolTimeSettings: UserProfileEntity;
+
   @BeforeInsert()
   @BeforeUpdate()
   setInitialAndSortKey() {

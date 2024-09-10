@@ -3,7 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -31,9 +31,8 @@ export class SchoolTimeSettingsEntity extends BaseEntity {
   @Column('time')
   lunchTimeEnd: string;
 
-  @ManyToOne(() => UserProfileEntity, {
+  @OneToOne(() => UserProfileEntity, (user) => user.schoolTimeSettings, {
     onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
   user: UserProfileEntity;
