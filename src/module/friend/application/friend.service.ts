@@ -38,6 +38,7 @@ import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/use
 import { Transactional } from 'typeorm-transactional';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
 import { FriendshipStatus } from '../domain/enums/friendship-status.enum';
+import { FindFriendsDto } from '../adapter/persistence/dto/find-friends.dto';
 
 @Injectable()
 export class FriendService {
@@ -78,40 +79,41 @@ export class FriendService {
     await this.friendRepository.deleteFriendRequest(requestId);
   }
 
-  private async addFriendsTimetable<T extends { userId: number }>(
-    friends: T[],
-  ): Promise<
-    {
-      friend: T;
-      timetable: UserTimetableEntity[];
-      activeClassNow: string | null;
-    }[]
-  > {
+  private async addTimetable(friend: any): Promise<{
+    friend: FindFriendsDto;
+    timetable: UserTimetableEntity[];
+  }> {
     const [year, semester] = this.dateUtilService.getYearAndSemesterByDate(
       new Date(),
     );
+    const timetable = await this.timetableRepository.find({
+      userId: friend.userId,
+      year,
+      semester,
+    });
 
-    const addTimetable = async (
-      friend: T,
-    ): Promise<{
-      friend: T;
-      timetable: UserTimetableEntity[];
-      activeClassNow: string | null;
-    }> => {
-      const timetable = await this.timetableRepository.find({
-        userId: friend.userId,
-        year,
-        semester,
-      });
+    return {
+      friend,
+      timetable,
+    };
+  }
 
+  // Favorite Friends 또는 Friend
+  private async addFriendsActiveClass<T extends { userId: number }>(
+    dto: T[],
+  ): Promise<{ friend: T; activeClassNow: string | null }[]> {
+    const addFriendActiveClass = (dto: T) => {
       return {
-        friend,
-        timetable,
-        activeClassNow: this.timetableService.getCurrentSubject(friend.userId),
+        friend: dto,
+        activeClassNow: this.timetableService.getCurrentSubject(dto.userId),
       };
     };
 
-    return Promise.all(friends.map((e) => addTimetable(e)));
+    return Promise.all(
+      dto.map((friend) => {
+        return addFriendActiveClass(friend);
+      }),
+    );
   }
 
   async getFriends(
@@ -121,7 +123,7 @@ export class FriendService {
     const result = await this.friendRepository.findFriends(userId, params);
 
     return new FriendsResponse(
-      FriendMapper.mapToDomain(await this.addFriendsTimetable(result.list)),
+      FriendMapper.mapToDomain(await this.addFriendsActiveClass(result.list)),
       result.total,
       result.initialCounts,
     );
@@ -157,16 +159,12 @@ export class FriendService {
     let todayTimetable: Timetable[] | null;
     let className: string | null;
     if (isTimetablePublic || isFriend) {
-      const friendWithTimetable = await this.addFriendsTimetable([
-        {
-          ...friend,
-          userId: friendUserId,
-        },
-      ]);
+      const friendWithTimetable = await this.addTimetable({
+        ...friend,
+        userId: friendUserId,
+      });
 
-      allTimetable = TimetableMapper.mapToDomain(
-        friendWithTimetable[0].timetable,
-      );
+      allTimetable = TimetableMapper.mapToDomain(friendWithTimetable.timetable);
       todayTimetable = allTimetable.filter((timetable) => {
         return timetable.day === dayjs().day();
       });
@@ -206,7 +204,7 @@ export class FriendService {
 
     return {
       list: FavoriteFriendMapper.mapToDomain(
-        await this.addFriendsTimetable(favoriteFriends.list),
+        await this.addFriendsActiveClass(favoriteFriends.list),
       ),
       total: favoriteFriends.total,
     };
@@ -345,7 +343,7 @@ export class FriendService {
 
     return {
       list: SchoolmateMapper.mapToDomain(
-        await this.addFriendsTimetable(result.list),
+        await this.addFriendsActiveClass(result.list),
       ),
       total: result.total,
       initialCounts: result.initialCounts,

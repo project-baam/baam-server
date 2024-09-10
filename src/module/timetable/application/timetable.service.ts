@@ -225,6 +225,7 @@ export class TimetableService {
     period: Period;
   }) {
     await this.userTimetableRepository.delete(params);
+    await this.refreshUserTimetableCache(params.userId);
   }
 
   async checkTimeSettings(userId: number): Promise<void> {
@@ -239,6 +240,7 @@ export class TimetableService {
       userId,
       ...dto,
     });
+    await this.refreshUserTimetableCache(userId);
   }
 
   async updateCurrentYearAndSemester() {
