@@ -23,6 +23,7 @@ import { SchoolDatasetService } from 'src/module/school-dataset/application/scho
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { SchoolTimeSettingsUpsertRequest } from '../adapter/presenter/rest/dto/school-time-settings.dto';
 import { precomputeTimes } from 'src/module/util/timetable-utils';
+import { SchoolTimeSettingsEntity } from '../adapter/persistence/entities/school-time-settings.entity';
 
 @Injectable()
 export class TimetableService {
@@ -228,8 +229,14 @@ export class TimetableService {
     await this.refreshUserTimetableCache(params.userId);
   }
 
-  async checkTimeSettings(userId: number): Promise<void> {
-    await this.schoolTimeSettingsRepository.findByUserIdOrFail(userId);
+  async getTimeSettings(userId: number): Promise<SchoolTimeSettingsEntity> {
+    return this.schoolTimeSettingsRepository.findByUserIdOrFail(userId);
+  }
+
+  async findTimeSettings(
+    userId: number,
+  ): Promise<SchoolTimeSettingsEntity | null> {
+    return this.schoolTimeSettingsRepository.findByUserId(userId);
   }
 
   async upsertSchoolTimeSettings(
