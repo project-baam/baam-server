@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsObject, IsOptional, IsString } from 'class-validator';
 import { ScheduledNotificationEntity } from '../../persistence/orm/entities/scheduled-notification.entity';
+import { truncateData } from 'src/module/util/truncate-data';
+import { EXPO_LIMITS } from '../constants/expo-limits.constant';
 
 export class MessageRequestFormat {
   @ApiProperty({
@@ -46,7 +48,7 @@ export class MessageRequestFormat {
         to: e,
         title: entity.pushTitle,
         body: entity.pushMessage,
-        data: entity.pushData,
+        data: truncateData(entity.pushData, EXPO_LIMITS.MAX_PAYLOAD_SIZE_BYTES),
       };
     });
   }

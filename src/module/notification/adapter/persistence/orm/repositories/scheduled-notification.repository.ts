@@ -3,7 +3,9 @@ import { ScheduledNotificationEntity } from '../entities/scheduled-notification.
 import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class OrmScheduledNotificationRepository
   implements ScheduledNotificationRepository
 {

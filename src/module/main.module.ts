@@ -17,6 +17,8 @@ import { SubjectMemoModule } from './subject-memo/application/subject-memo.modul
 import { FriendModule } from './friend/application/friend.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
+import { NotificationModule } from './notification/application/notification.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { DataSource } from 'typeorm';
     CalendarModule,
     SubjectMemoModule,
     FriendModule,
+    NotificationModule,
+    ScheduleModule.forRoot(),
   ],
 })
 export class MainModule {}
