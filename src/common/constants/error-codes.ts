@@ -1,4 +1,7 @@
 export enum ErrorCode {
+  // 304
+  NotificationAlreadyRead = 3040,
+
   // 400
   InvalidParameter = 4000,
   InvalidFileNameExtension = 4001,
@@ -6,6 +9,7 @@ export enum ErrorCode {
   MissingRequiredFields = 4003,
   InvalidProfileImageField = 4004,
   UnexpectedFields = 4005,
+  MalformedExpoPushToken = 4006,
 
   // 401
   MissingAuthToken = 4010,

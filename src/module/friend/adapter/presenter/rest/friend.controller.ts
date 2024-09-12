@@ -167,11 +167,7 @@ export class FriendController {
     if (user.id === friendUserId) {
       throw new SelfFriendRequestError(user.id);
     }
-    await this.friendService.addFriendRequest(
-      user.profile.class.schoolId,
-      user.id,
-      friendUserId,
-    );
+    await this.friendService.addFriendRequest(user, friendUserId);
 
     return true;
   }

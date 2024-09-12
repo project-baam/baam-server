@@ -167,3 +167,14 @@ export class SchoolTimeNotSetError extends ApplicationException {
     );
   }
 }
+export class MalformedExpoPushTokenError extends ApplicationException {
+  constructor() {
+    super(ErrorCode.MalformedExpoPushToken, '잘못된 Expo Push Token 포맷');
+  }
+}
+
+export class NotificationAlreadyRead extends ApplicationException {
+  constructor() {
+    super(ErrorCode.NotificationAlreadyRead, '이미 읽은 알림');
+  }
+}

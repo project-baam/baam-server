@@ -352,13 +352,14 @@ GROUP BY
     senderId: number,
     receiverId: number,
     status: FriendRequestStatus,
-  ): Promise<void> {
+  ): Promise<FriendRequestsEntity> {
     const friendRequest = this.friendRequestsRepository.create({
       senderId,
       receiverId,
       status,
     });
-    await this.friendRequestsRepository.save(friendRequest);
+
+    return this.friendRequestsRepository.save(friendRequest);
   }
 
   async updateFriendRequestStatus(

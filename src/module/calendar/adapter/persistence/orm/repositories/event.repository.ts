@@ -18,6 +18,14 @@ export class OrmEventRepository implements EventRepository {
     private readonly eventRepository: Repository<EventEntity>,
   ) {}
 
+  insertOne(
+    event:
+      | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime'>
+      | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime' | 'memo'>,
+  ): Promise<EventEntity> {
+    return this.eventRepository.save(event);
+  }
+
   async findOneByIdOrFail(userId: number, id: number): Promise<EventEntity> {
     const event = await this.eventRepository.findOneBy({ userId, id });
     if (!event) {

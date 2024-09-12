@@ -145,10 +145,13 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
           'userId' | 'subjectId' | 'datetime' | 'title' | 'memo'
         >
       | Pick<EventEntity, 'userId' | 'subjectId' | 'datetime' | 'title'>,
-  ): Promise<void> {
-    await this.eventRepository.insert({
+  ): Promise<EventEntity> {
+    const event = this.eventRepository.create({
       ...entity,
       type: EventType.CLASS,
     });
+    await this.eventRepository.insert(event);
+
+    return event;
   }
 }

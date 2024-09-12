@@ -17,11 +17,18 @@ import { v4 as uuidV4 } from 'uuid';
 import { LogProvider } from './common/provider/log.provider';
 import { setupSwagger } from './docs/setup-swagger';
 import { initializeTransactionalContext } from 'typeorm-transactional';
+import dayjs from 'dayjs';
 
 async function bootstrap() {
   initializeTransactionalContext();
 
   process.env.TZ = 'Asia/Seoul';
+  dayjs.extend((_option, dayjsClass) => {
+    const oldFormat = dayjsClass.prototype.format;
+    dayjsClass.prototype.format = function (formatString) {
+      return oldFormat.bind(this)(formatString ?? 'YYYY-MM-DD HH:mm:ss');
+    };
+  });
 
   const app = await NestFactory.create<NestExpressApplication>(MainModule, {
     cors: true,

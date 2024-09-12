@@ -371,4 +371,11 @@ export class UserService {
       backgroundImageUrl: null,
     });
   }
+
+  async updateNotificationSettings(
+    userId: number,
+    notificationsEnabled: boolean,
+  ): Promise<void> {
+    await this.userRepository.updateProfile(userId, { notificationsEnabled });
+  }
 }
