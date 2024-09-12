@@ -5,4 +5,6 @@ export abstract class PushNotificationService {
   abstract sendNotifications(
     ...dto: MessageRequestFormat[]
   ): Promise<NotificationResult[]>;
+
+  abstract checkTokenFormat(token: string): void;
 }

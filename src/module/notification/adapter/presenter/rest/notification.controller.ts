@@ -20,6 +20,7 @@ import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 import { RegisterDeviceTokenDto } from './dto/register-device-token.dto';
 import {
   ContentNotFoundError,
+  MalformedExpoPushTokenError,
   NotificationAlreadyRead,
 } from 'src/common/types/error/application-exceptions';
 import { DeactivateDeviceDto } from './dto/deactivate-device.token.dto';
@@ -101,15 +102,35 @@ export class NotificationController {
   @ApiDescription({
     tags: ['알림'],
     summary: '알림 전송(테스트용)',
-    exceptions: [ContentNotFoundError],
+    exceptions: [MalformedExpoPushTokenError],
   })
   @HttpCode(HttpStatus.OK)
   @Post('send-notification-test')
   async sendNotificationTest(
     @Body() params: MessageRequestFormat,
-  ): Promise<boolean> {
-    await this.pushNotificationService.sendNotifications(params);
+  ): Promise<any> {
+    this.pushNotificationService.checkTokenFormat(params.to);
 
-    return true;
+    return this.pushNotificationService.sendNotifications(params);
+  }
+
+  @ApiBooleanResponse()
+  @ApiDescription({
+    tags: ['알림'],
+    summary: '알림 읽음 표시',
+    description: '성공시 true 응답(200), 이미 읽은 알림은 304 응답',
+    auth: AuthorizationToken.BearerUserToken,
+    exceptions: [NotificationAlreadyRead],
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_MODIFIED,
+    description: '이미 읽은 알림',
+  })
+  @Post('notifications/:id/read')
+  async markAsRead(
+    @Param('id', ParseIntPipe) id: number,
+    @ActiveUser() user: UserEntity,
+  ) {
+    return await this.notificationService.markAsRead(user.id, id);
   }
 }

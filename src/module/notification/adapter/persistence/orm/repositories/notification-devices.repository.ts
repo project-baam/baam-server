@@ -46,6 +46,10 @@ export class OrmNotificationDevicesRepository
     return device;
   }
 
+  async findOneByToken(token: string) {
+    return this.devicesRepository.findOneBy({ deviceToken: token });
+  }
+
   async createOrUpdate(
     dto: Pick<
       NotificationDevicesEntity,

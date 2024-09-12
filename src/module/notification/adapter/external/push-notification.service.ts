@@ -3,7 +3,7 @@ import Expo, { ExpoPushTicket } from 'expo-server-sdk';
 import { PushNotificationService } from './push-notification.abstract.service';
 import { MessageRequestFormat } from './dto/expo.dto';
 import { Injectable } from '@nestjs/common';
-import { InvalidExpoPushTokenError } from 'src/common/types/error/application-exceptions';
+import { MalformedExpoPushTokenError } from 'src/common/types/error/application-exceptions';
 import { NotificationDevicesRepository } from '../../application/port/notification-devices.repository.abstract';
 import { PushNotificationConfig } from '../../domain/constants/push-notification-config.constant';
 import { NotificationResult } from './dto/notification-result.dto';
@@ -19,27 +19,51 @@ export class ExpoPushNotificationService implements PushNotificationService {
     this.expo = new Expo();
   }
 
-  async validateToken(token: string): Promise<boolean> {
-    return Expo.isExpoPushToken(token);
+  checkTokenFormat(token: string) {
+    if (!Expo.isExpoPushToken(token)) {
+      throw new MalformedExpoPushTokenError();
+    }
+  }
+
+  private async filterAndHandleMalformedTokens(
+    dtos: MessageRequestFormat[],
+  ): Promise<MessageRequestFormat[]> {
+    const validDtos: MessageRequestFormat[] = [];
+    const invalidTokens: string[] = [];
+
+    for (const dto of dtos) {
+      if (Expo.isExpoPushToken(dto.to)) {
+        validDtos.push(dto);
+      } else {
+        invalidTokens.push(dto.to);
+      }
+    }
+
+    this.handleMalformedTokens(invalidTokens);
+
+    return validDtos;
+  }
+
+  private async handleMalformedTokens(tokens: string[]): Promise<void> {
+    for (const token of tokens) {
+      await this.notificationService.deactivateDeviceBySystem(token);
+    }
   }
 
   async sendNotifications(
     ...dtos: MessageRequestFormat[]
   ): Promise<NotificationResult[]> {
-    dtos.forEach((e) => {
-      if (!Expo.isExpoPushToken(e.to)) {
-        throw new InvalidExpoPushTokenError();
-      }
-    });
+    // 유효한 토큰만 필터링
+    const validDtos = await this.filterAndHandleMalformedTokens(dtos);
 
     const results: NotificationResult[] = [];
 
     try {
       const tickets: ExpoPushTicket[] =
-        await this.expo.sendPushNotificationsAsync(dtos);
+        await this.expo.sendPushNotificationsAsync(validDtos);
       results.push(
         ...tickets.map((ticket, index) =>
-          this.processTicket(ticket, dtos[index].to),
+          this.processTicket(ticket, validDtos[index].to),
         ),
       );
 
@@ -53,7 +77,7 @@ export class ExpoPushNotificationService implements PushNotificationService {
       }
     } catch (error: any) {
       results.push(
-        ...dtos.map((dto) => ({
+        ...validDtos.map((dto) => ({
           token: dto.to,
           status: 'error' as const,
           message: error.message,

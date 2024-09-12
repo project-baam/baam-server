@@ -10,6 +10,10 @@ export abstract class NotificationDevicesRepository {
       | Pick<NotificationDevicesEntity, 'deviceToken'>,
   ): Promise<NotificationDevicesEntity>;
 
+  abstract findOneByToken(
+    token: string,
+  ): Promise<NotificationDevicesEntity | null>;
+
   abstract createOrUpdate(
     dto: Pick<
       NotificationDevicesEntity,

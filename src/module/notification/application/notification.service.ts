@@ -9,10 +9,13 @@ import { NotificationDto } from './dto/notification.dto';
 import { ScheduledNotificationMapper } from './mapper/scheduled-notification.mapper';
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
 import { MessageRequestFormat } from '../adapter/external/dto/expo.dto';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class NotificationService {
   constructor(
     private readonly devicesRepository: NotificationDevicesRepository,
+    @Inject(forwardRef(() => PushNotificationService))
     private readonly pushNotificationService: PushNotificationService,
     private readonly scheduledNotificationRepository: ScheduledNotificationRepository,
     private readonly notificationRepository: NotificationRepository,
@@ -52,12 +55,12 @@ export class NotificationService {
    * 시스템에 의한 디바이스 토큰 비활성화(로그로 서버에서 판단 후 호출)
    */
   async deactivateDeviceBySystem(deviceToken: string): Promise<void> {
-    const device = await this.devicesRepository.findOneByTokenOrFail({
-      deviceToken,
-    });
-    await this.devicesRepository.update(device.id, {
-      isActive: false,
-    });
+    const device = await this.devicesRepository.findOneByToken(deviceToken);
+    if (device) {
+      await this.devicesRepository.update(device.id, {
+        isActive: false,
+      });
+    }
   }
 
   async createOrScheduleNotification(
