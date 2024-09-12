@@ -67,6 +67,7 @@ export class NotificationController {
     - 푸시 알림 권한을 사용자가 허용한 직후
     - 앱이 새로운 푸시 토큰을 받았을 때 (토큰 갱신)`,
     auth: AuthorizationToken.BearerUserToken,
+    exceptions: [MalformedExpoPushTokenError],
   })
   @HttpCode(HttpStatus.OK)
   @Post('device-token')
@@ -74,6 +75,7 @@ export class NotificationController {
     @ActiveUser() user: UserEntity,
     @Body() params: RegisterDeviceTokenDto,
   ): Promise<boolean> {
+    this.pushNotificationService.checkTokenFormat(params.deviceToken);
     await this.notificationService.registerDeviceToken(user.id, params);
 
     return true;
@@ -85,13 +87,14 @@ export class NotificationController {
     summary: '디바이스 토큰 비활성화',
     description: '로그아웃시 호출',
     auth: AuthorizationToken.BearerUserToken,
-    exceptions: [ContentNotFoundError],
+    exceptions: [ContentNotFoundError, MalformedExpoPushTokenError],
   })
   @Patch('device-token/deactivate')
   async deactivateDevice(
     @ActiveUser() user: UserEntity,
     @Body() params: DeactivateDeviceDto,
   ): Promise<boolean> {
+    this.pushNotificationService.checkTokenFormat(params.deviceToken);
     await this.notificationService.deactivateDeviceByUser(
       user.id,
       params.deviceToken,
