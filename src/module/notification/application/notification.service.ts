@@ -1,0 +1,171 @@
+import { NotificationRepository } from 'src/module/notification/application/port/notification.repository.abstract';
+import { ReportProvider } from 'src/common/provider/report.provider';
+import { PushNotificationService } from '../adapter/external/push-notification.abstract.service';
+import { RegisterDeviceTokenDto } from '../adapter/presenter/rest/dto/register-device-token.dto';
+import { NotificationCategory } from '../domain/enums/notification-category.enum';
+import { NotificationDevicesRepository } from './port/notification-devices.repository.abstract';
+import { NotificationAlreadyRead } from 'src/common/types/error/application-exceptions';
+import { NotificationDto } from './dto/notification.dto';
+import { ScheduledNotificationMapper } from './mapper/scheduled-notification.mapper';
+import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
+import { MessageRequestFormat } from '../adapter/external/dto/expo.dto';
+
+export class NotificationService {
+  constructor(
+    private readonly devicesRepository: NotificationDevicesRepository,
+    private readonly pushNotificationService: PushNotificationService,
+    private readonly scheduledNotificationRepository: ScheduledNotificationRepository,
+    private readonly notificationRepository: NotificationRepository,
+  ) {}
+
+  async registerDeviceToken(
+    userId: number,
+    params: RegisterDeviceTokenDto,
+  ): Promise<void> {
+    const { deviceToken, deviceType, osType } = params;
+    await this.devicesRepository.createOrUpdate({
+      userId,
+      deviceToken,
+      deviceType,
+      osType,
+      isActive: true,
+    });
+  }
+
+  /**
+   * 유저 디바이스 토큰 비활성화(로그아웃시 호출)
+   */
+  async deactivateDeviceByUser(
+    userId: number,
+    deviceToken: string,
+  ): Promise<void> {
+    const device = await this.devicesRepository.findOneByTokenOrFail({
+      userId,
+      deviceToken,
+    });
+    await this.devicesRepository.update(device.id, {
+      isActive: false,
+    });
+  }
+
+  /**
+   * 시스템에 의한 디바이스 토큰 비활성화(로그로 서버에서 판단 후 호출)
+   */
+  async deactivateDeviceBySystem(deviceToken: string): Promise<void> {
+    const device = await this.devicesRepository.findOneByTokenOrFail({
+      deviceToken,
+    });
+    await this.devicesRepository.update(device.id, {
+      isActive: false,
+    });
+  }
+
+  async createOrScheduleNotification(
+    userId: number,
+    category: NotificationCategory,
+    dto: NotificationDto,
+    scheduledAt?: Date,
+  ) {
+    try {
+      const deviceTokens = (
+        await this.devicesRepository.findActiveDevices(userId)
+      ).map((e) => e.deviceToken);
+
+      const entity = ScheduledNotificationMapper.toPersistence(
+        userId,
+        deviceTokens,
+        category,
+        dto,
+        scheduledAt ?? new Date(),
+      );
+
+      if (deviceTokens.length) {
+        // 미래 시간이면 예약된 알림으로 저장
+        if (scheduledAt && scheduledAt > new Date()) {
+          await this.scheduledNotificationRepository.insertOne(entity);
+        } else {
+          // 현재 시간이거나 과거 시간이면 즉시 발송
+          const sendResults =
+            await this.pushNotificationService.sendNotifications(
+              ...MessageRequestFormat.from(entity),
+            );
+
+          const successfulResults = sendResults.filter(
+            (result) => result.status === 'success',
+          );
+          const failedResults = sendResults.filter(
+            (result) => result.status === 'error',
+          );
+
+          // 하나의 디바이스라도 발송 성공하면 notification table 에 insert
+          if (successfulResults.length > 0) {
+            await this.notificationRepository.insertOne({
+              userId: userId,
+              category: category,
+              title: entity.notificationTitle,
+              body: entity.notificationBody,
+              message: entity.notificationMessage,
+              sentAt: new Date(),
+            });
+          }
+
+          // 모두 실패한 경우, 리포팅(재시도는 우선 생략) TODO:
+          if (failedResults.length === sendResults.length) {
+            ReportProvider.error(Error(`알림 발송 실패`), {
+              parameter: {
+                userId,
+                category,
+                dto,
+                scheduledAt,
+              },
+              entity,
+              sendResults,
+            });
+          }
+
+          ReportProvider.info(
+            `예약 알림 발송 결과 [${category}] ${sendResults.length} 중 ${successfulResults.length} 성공`,
+            {
+              parameter: {
+                userId,
+                category,
+                dto,
+                scheduledAt,
+              },
+              entity,
+              sendResults,
+            },
+          );
+        }
+      } else {
+        ReportProvider.info('등록된 디바이스 토큰이 없으므로 알림 발송 불가', {
+          userId,
+          category,
+          dto,
+          deviceTokens,
+        });
+      }
+    } catch (e: any) {
+      ReportProvider.error(
+        e,
+        {
+          userId,
+          category,
+          dto,
+        },
+        NotificationService.name,
+      );
+    }
+  }
+
+  async markAsRead(userId: number, id: number): Promise<void> {
+    const notification = await this.notificationRepository.findByIdOrFail(
+      userId,
+      id,
+    );
+    if (notification.isRead) {
+      throw new NotificationAlreadyRead();
+    }
+    await this.notificationRepository.update(id, { isRead: true });
+  }
+}
