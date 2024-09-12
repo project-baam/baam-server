@@ -44,6 +44,9 @@ export class ExpoPushNotificationService implements PushNotificationService {
     return validDtos;
   }
 
+  /**
+   * 포맷이 잘못된 토큰은 즉시 비활성화
+   */
   private async handleMalformedTokens(tokens: string[]): Promise<void> {
     for (const token of tokens) {
       await this.notificationService.deactivateDeviceBySystem(token);

@@ -14,6 +14,7 @@ import { Notification } from 'src/module/notification/domain/notification';
 import { GetNotificationRequest } from '../adapter/presenter/rest/dto/get-notification.dto';
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { NotificationMapper } from './mapper/notification.mapper';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class NotificationService {
@@ -88,7 +89,7 @@ export class NotificationService {
 
       if (deviceTokens.length) {
         // 미래 시간이면 예약된 알림으로 저장
-        if (scheduledAt && scheduledAt > new Date()) {
+        if (scheduledAt && dayjs(scheduledAt).isAfter(dayjs())) {
           await this.scheduledNotificationRepository.insertOne(entity);
         } else {
           // 현재 시간이거나 과거 시간이면 즉시 발송

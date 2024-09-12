@@ -22,7 +22,10 @@ export class OrmScheduledNotificationRepository
   ): Promise<ScheduledNotificationEntity> {
     return this.scheduledNotificationRepository.save({
       ...dto,
-      scheduledAt: dayjs(dto.scheduledAt).add(1, 'minute').startOf('minute'),
+      scheduledAt: dayjs(dto.scheduledAt)
+        .add(1, 'minute')
+        .startOf('minute')
+        .format(),
     });
   }
 
@@ -36,7 +39,10 @@ export class OrmScheduledNotificationRepository
       dtos.map((e) => {
         return {
           ...e,
-          scheduledAt: dayjs(e.scheduledAt).add(1, 'minute').startOf('minute'),
+          scheduledAt: dayjs(e.scheduledAt)
+            .add(1, 'minute')
+            .startOf('minute')
+            .format(),
         };
       }),
     );
