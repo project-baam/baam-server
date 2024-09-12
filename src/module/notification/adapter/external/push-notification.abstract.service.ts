@@ -1,5 +1,8 @@
 import { MessageRequestFormat } from './dto/expo.dto';
+import { NotificationResult } from './dto/notification-result.dto';
 
 export abstract class PushNotificationService {
-  abstract sendNotification(dto: MessageRequestFormat): Promise<boolean>;
+  abstract sendNotifications(
+    ...dto: MessageRequestFormat[]
+  ): Promise<NotificationResult[]>;
 }

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsObject, IsOptional, IsString } from 'class-validator';
+import { ScheduledNotificationEntity } from '../../persistence/orm/entities/scheduled-notification.entity';
 
 export class MessageRequestFormat {
   @ApiProperty({
@@ -29,4 +30,24 @@ export class MessageRequestFormat {
   @IsString()
   @IsOptional()
   body?: string;
+
+  /**
+   * 예약된 알림 entity 를 푸시 알림 메시지 형태로 변환
+   * @param entity
+   */
+  static from(
+    entity: Pick<
+      ScheduledNotificationEntity,
+      'deviceTokens' | 'pushMessage' | 'pushTitle' | 'pushData'
+    >,
+  ): MessageRequestFormat[] {
+    return entity.deviceTokens.map((e) => {
+      return {
+        to: e,
+        title: entity.pushTitle,
+        body: entity.pushMessage,
+        data: entity.pushData,
+      };
+    });
+  }
 }

@@ -1,16 +1,18 @@
 import { NotificationService } from 'src/module/notification/application/notification.service';
-import Expo from 'expo-server-sdk';
+import Expo, { ExpoPushTicket } from 'expo-server-sdk';
 import { PushNotificationService } from './push-notification.abstract.service';
 import { MessageRequestFormat } from './dto/expo.dto';
 import { Injectable } from '@nestjs/common';
 import { InvalidExpoPushTokenError } from 'src/common/types/error/application-exceptions';
 import { NotificationDevicesRepository } from '../../application/port/notification-devices.repository.abstract';
 import { PushNotificationConfig } from '../../domain/constants/push-notification-config.constant';
+import { NotificationResult } from './dto/notification-result.dto';
 
 @Injectable()
 export class ExpoPushNotificationService implements PushNotificationService {
+  private readonly expo: Expo;
+
   constructor(
-    private readonly expo: Expo,
     private readonly notificationDevicesRepository: NotificationDevicesRepository,
     private readonly notificationService: NotificationService,
   ) {
@@ -21,33 +23,67 @@ export class ExpoPushNotificationService implements PushNotificationService {
     return Expo.isExpoPushToken(token);
   }
 
-  async sendNotification(dto: MessageRequestFormat): Promise<boolean> {
-    if (!Expo.isExpoPushToken(dto.to)) {
-      throw new InvalidExpoPushTokenError();
-    }
+  async sendNotifications(
+    ...dtos: MessageRequestFormat[]
+  ): Promise<NotificationResult[]> {
+    dtos.forEach((e) => {
+      if (!Expo.isExpoPushToken(e.to)) {
+        throw new InvalidExpoPushTokenError();
+      }
+    });
+
+    const results: NotificationResult[] = [];
 
     try {
-      const result = await this.expo.sendPushNotificationsAsync([
-        {
-          to: dto.to,
-          body: dto?.body,
-          title: dto?.title,
-          data: dto?.data,
-        },
-      ]);
+      const tickets: ExpoPushTicket[] =
+        await this.expo.sendPushNotificationsAsync(dtos);
+      results.push(
+        ...tickets.map((ticket, index) =>
+          this.processTicket(ticket, dtos[index].to),
+        ),
+      );
 
-      // Expo SDK는 배열로 결과를 반환
-      if (result[0].status === 'error') {
-        await this.handleNotificationFailure(dto.to, result[0].message);
-
-        return false;
+      for (const result of results) {
+        if (result.status === 'error') {
+          await this.handleNotificationFailure(
+            result.token,
+            result.message || 'Unknown error',
+          );
+        }
       }
-
-      return true;
     } catch (error: any) {
-      await this.handleNotificationFailure(error, error.message);
+      results.push(
+        ...dtos.map((dto) => ({
+          token: dto.to,
+          status: 'error' as const,
+          message: error.message,
+        })),
+      );
+      await Promise.all(
+        results.map((result) =>
+          this.handleNotificationFailure(
+            result.token,
+            result.message || 'Unknown error',
+          ),
+        ),
+      );
+    }
 
-      return false;
+    return results;
+  }
+
+  private processTicket(
+    ticket: ExpoPushTicket,
+    token: string,
+  ): NotificationResult {
+    if (ticket.status === 'ok') {
+      return { token, status: 'success' };
+    } else {
+      return {
+        token,
+        status: 'error',
+        message: ticket.details?.error,
+      };
     }
   }
 

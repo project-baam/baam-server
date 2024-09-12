@@ -4,14 +4,14 @@ export abstract class ScheduledNotificationRepository {
   abstract insertOne(
     dto: Omit<
       ScheduledNotificationEntity,
-      'id' | 'createdAt' | 'updatedAt' | 'userDevice'
+      'id' | 'createdAt' | 'updatedAt' | 'user'
     >,
   ): Promise<ScheduledNotificationEntity>;
 
   abstract insertMany(
     dtos: Omit<
       ScheduledNotificationEntity,
-      'id' | 'createdAt' | 'updatedAt' | 'userDevice'
+      'id' | 'createdAt' | 'updatedAt' | 'user'
     >[],
   ): Promise<ScheduledNotificationEntity[]>;
   abstract deleteOne(id: number): Promise<void>;
