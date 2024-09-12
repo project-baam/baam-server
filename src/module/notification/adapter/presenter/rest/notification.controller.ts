@@ -30,6 +30,9 @@ import { Auth } from 'src/module/iam/adapter/presenter/rest/decorators/auth.deco
 import { AuthType } from 'src/module/iam/domain/enums/auth-type.enum';
 import { ApiResponse } from '@nestjs/swagger';
 import { RestApi } from 'src/common/decorator/rest-api.decorator';
+import { GetNotificationRequest } from './dto/get-notification.dto';
+import { Notification } from 'src/module/notification/domain/notification';
+import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 
 @RestApi()
 export class NotificationController {
@@ -132,5 +135,28 @@ export class NotificationController {
     @ActiveUser() user: UserEntity,
   ) {
     return await this.notificationService.markAsRead(user.id, id);
+  }
+
+  @ApiDescription({
+    tags: ['알림'],
+    summary: '알림 목록',
+    description: '최근 발송된 순',
+    auth: AuthorizationToken.BearerUserToken,
+    dataResponse: {
+      status: HttpStatus.OK,
+      schema: Notification,
+    },
+  })
+  @Get('notifications')
+  async getUserNotifications(
+    @Query() params: GetNotificationRequest,
+    @ActiveUser() user: UserEntity,
+  ): Promise<ResponseListDto<Notification>> {
+    const notifications = await this.notificationService.findNotifications(
+      user.id,
+      params,
+    );
+
+    return new ResponseListDto(notifications.list, notifications.total);
   }
 }

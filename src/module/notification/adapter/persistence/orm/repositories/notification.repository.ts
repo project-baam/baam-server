@@ -4,6 +4,8 @@ import { NotificationEntity } from '../entities/notification.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
+import { PaginatedList } from 'src/common/dto/response.dto';
+import { GetNotificationRequest } from '../../../presenter/rest/dto/get-notification.dto';
 
 @Injectable()
 export class OrmNotificationRepository implements NotificationRepository {
@@ -11,6 +13,28 @@ export class OrmNotificationRepository implements NotificationRepository {
     @InjectRepository(NotificationEntity)
     private readonly notificationRepository: Repository<NotificationEntity>,
   ) {}
+
+  async findPaginated(
+    userId: number,
+    params: GetNotificationRequest,
+  ): Promise<PaginatedList<NotificationEntity>> {
+    const offset = params.count * params.page;
+    const [list, total] = await this.notificationRepository.findAndCount({
+      where: {
+        userId,
+      },
+      skip: offset,
+      take: params.count,
+      order: {
+        sentAt: 'DESC',
+      },
+    });
+
+    return {
+      list,
+      total,
+    };
+  }
 
   async insertOne(
     dto: Pick<

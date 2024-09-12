@@ -10,6 +10,10 @@ import { ScheduledNotificationMapper } from './mapper/scheduled-notification.map
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
 import { MessageRequestFormat } from '../adapter/external/dto/expo.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Notification } from 'src/module/notification/domain/notification';
+import { GetNotificationRequest } from '../adapter/presenter/rest/dto/get-notification.dto';
+import { PaginatedList } from 'src/common/dto/response.dto';
+import { NotificationMapper } from './mapper/notification.mapper';
 
 @Injectable()
 export class NotificationService {
@@ -170,5 +174,17 @@ export class NotificationService {
       throw new NotificationAlreadyRead();
     }
     await this.notificationRepository.update(id, { isRead: true });
+  }
+
+  async findNotifications(
+    userId: number,
+    params: GetNotificationRequest,
+  ): Promise<PaginatedList<Notification>> {
+    const { list, total } = await this.notificationRepository.findPaginated(
+      userId,
+      params,
+    );
+
+    return { list: NotificationMapper.mapToDomain(list), total };
   }
 }
