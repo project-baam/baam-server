@@ -245,7 +245,7 @@ export class FriendService {
     // 친구요청 수신 유저에게 알림
     if (friend.profile.notificationsEnabled) {
       this.notificationService.createOrScheduleNotification(
-        user.id,
+        friendId,
         NotificationCategory.FriendRequest,
         {
           requestId: request.id,
@@ -258,7 +258,7 @@ export class FriendService {
     // 친구요청 발신 유저에게 알림
     if (friend.profile.notificationsEnabled) {
       this.notificationService.createOrScheduleNotification(
-        friendId,
+        user.id,
         NotificationCategory.FriendRequest,
         {
           requestId: request.id,
