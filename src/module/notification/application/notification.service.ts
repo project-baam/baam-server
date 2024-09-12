@@ -131,7 +131,7 @@ export class NotificationService {
           }
 
           ReportProvider.info(
-            `예약 알림 발송 결과 [${category}] ${sendResults.length} 중 ${successfulResults.length} 성공`,
+            `알림 발송 결과 [${category}] ${sendResults.length} 중 ${successfulResults.length} 성공`,
             {
               parameter: {
                 userId,

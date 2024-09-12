@@ -6,6 +6,7 @@ import { OrmSchoolDatasetPersistenceModule } from 'src/module/school-dataset/ada
 import { SchoolDatasetModule } from 'src/module/school-dataset/school-dataset.module';
 import { TimetableModule } from 'src/module/timetable/timetable.module';
 import { OrmTimetablePersistenceModule } from 'src/module/timetable/adapter/persistence/orm-timetable-persistence.module';
+import { NotificationModule } from 'src/module/notification/application/notification.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrmTimetablePersistenceModule } from 'src/module/timetable/adapter/pers
     SchoolDatasetModule,
     TimetableModule,
     OrmTimetablePersistenceModule,
+    NotificationModule,
   ],
   providers: [CalendarService],
   controllers: [CalendarController],

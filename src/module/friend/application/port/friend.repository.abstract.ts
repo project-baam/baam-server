@@ -53,7 +53,7 @@ export abstract class FriendRepository {
     senderId: number,
     receiverId: number,
     status: FriendRequestStatus,
-  ): Promise<void>;
+  ): Promise<FriendRequestsEntity>;
 
   abstract updateFriendRequestStatus(
     id: number,

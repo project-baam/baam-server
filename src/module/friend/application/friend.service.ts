@@ -1,3 +1,4 @@
+import { NotificationService } from 'src/module/notification/application/notification.service';
 import { TimetableService } from './../../timetable/application/timetable.service';
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { DateUtilService } from 'src/module/util/date-util.service';
@@ -39,6 +40,7 @@ import { Transactional } from 'typeorm-transactional';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
 import { FriendshipStatus } from '../domain/enums/friendship-status.enum';
 import { FindFriendsDto } from '../adapter/persistence/dto/find-friends.dto';
+import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
 
 @Injectable()
 export class FriendService {
@@ -48,6 +50,7 @@ export class FriendService {
     private timetableRepository: UserTimetableRepository,
     private dateUtilService: DateUtilService,
     private timetableService: TimetableService,
+    private notificationService: NotificationService,
   ) {}
 
   private async findSchoolmateOrFail(
@@ -210,37 +213,60 @@ export class FriendService {
     };
   }
 
-  async addFriendRequest(
-    schoolId: number,
-    userId: number,
-    friendId: number,
-  ): Promise<void> {
-    await this.findSchoolmateOrFail(schoolId, friendId);
+  async addFriendRequest(user: UserEntity, friendId: number): Promise<void> {
+    const schoolId = user.profile.class.schoolId;
+    const friend = await this.findSchoolmateOrFail(schoolId, friendId);
 
     const isAlreadyFriend = await this.friendRepository.isFriend(
-      userId,
+      user.id,
       friendId,
     );
     if (isAlreadyFriend) {
-      throw new AlreadyFriendsError(userId, friendId);
+      throw new AlreadyFriendsError(user.id, friendId);
     }
 
     const sameRequestsInPending =
       await this.friendRepository.findFriendRequestBySenderAndReceiver({
-        senderId: userId,
+        senderId: user.id,
         receiverId: friendId,
         status: FriendRequestStatus.PENDING,
       });
 
     if (sameRequestsInPending.length) {
-      throw new DuplicateFriendRequestError(userId, friendId);
+      throw new DuplicateFriendRequestError(user.id, friendId);
     }
 
-    await this.friendRepository.insertFriendRequest(
-      userId,
+    const request = await this.friendRepository.insertFriendRequest(
+      user.id,
       friendId,
       FriendRequestStatus.PENDING,
     );
+
+    // 친구요청 수신 유저에게 알림
+    if (friend.profile.notificationsEnabled) {
+      this.notificationService.createOrScheduleNotification(
+        user.id,
+        NotificationCategory.FriendRequest,
+        {
+          requestId: request.id,
+          requestType: 'received',
+          friendName: user.profile.fullName,
+        },
+      );
+    }
+
+    // 친구요청 발신 유저에게 알림
+    if (friend.profile.notificationsEnabled) {
+      this.notificationService.createOrScheduleNotification(
+        friendId,
+        NotificationCategory.FriendRequest,
+        {
+          requestId: request.id,
+          requestType: 'sent',
+          friendName: friend.profile.fullName,
+        },
+      );
+    }
   }
 
   async getSentRequests(

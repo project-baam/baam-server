@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { NotificationController } from '../adapter/presenter/rest/notification.controller';
 import { UserModule } from 'src/module/user/user.module';
 import { NotificationService } from './notification.service';
@@ -8,7 +8,7 @@ import { ExpoPushNotificationService } from '../adapter/external/push-notificati
 import { NotificationSchedulerService } from './notification-scheduler.service';
 
 @Module({
-  imports: [UserModule, OrmNotificationPersistenceModule],
+  imports: [forwardRef(() => UserModule), OrmNotificationPersistenceModule],
   controllers: [NotificationController],
   providers: [
     NotificationService,

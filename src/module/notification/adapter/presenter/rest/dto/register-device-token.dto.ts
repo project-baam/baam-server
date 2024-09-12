@@ -9,11 +9,11 @@ export class RegisterDeviceTokenDto {
   @IsNotEmpty()
   deviceToken: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: 'enum', enum: DeviceType })
   @IsEnum(DeviceType)
   deviceType: DeviceType;
 
-  @ApiProperty()
+  @ApiProperty({ type: 'enum', enum: OSType })
   @IsEnum(OSType)
   osType: OSType;
 }

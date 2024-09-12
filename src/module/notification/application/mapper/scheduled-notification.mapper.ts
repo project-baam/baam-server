@@ -26,19 +26,20 @@ export class ScheduledNotificationMapper {
     switch (category) {
       case NotificationCategory.Calendar:
         const { eventId, eventTitle } = dto as CalendarNotificationDto;
-        let title = `캘린더: ${eventTitle}`;
 
         return {
           userId,
           deviceTokens,
           category,
-          pushTitle: title,
+          pushTitle: `캘린더: ${eventTitle}`,
+          pushMessage: '일정이 있습니다.',
           pushData: {
             eventId,
             category,
           },
-          notificationTitle: title,
+          notificationTitle: `캘린더: ${eventTitle}`,
           notificationBody: { eventId } as CalendarNotificationData,
+          notificationMessage: '일정이 있습니다.',
           scheduledAt,
         };
 
@@ -67,7 +68,7 @@ export class ScheduledNotificationMapper {
       case NotificationCategory.FriendRequest:
         const { requestId, requestType, friendName } =
           dto as FriendRequestNotificationDto;
-        title =
+        const notificatioinTitle =
           requestType === 'sent'
             ? `친구 요청: ${friendName} 님이 친구가 되고 싶어해요!`
             : `친구 요청: ${friendName} 님께 친구 요청을 보냈어요!`;
@@ -76,13 +77,13 @@ export class ScheduledNotificationMapper {
           userId,
           deviceTokens,
           category,
-          pushTitle: title,
+          pushTitle: notificatioinTitle,
           pushData: {
             requestId,
             requestType,
             category,
           },
-          notificationTitle: title,
+          notificationTitle: notificatioinTitle,
           notificationBody: {
             requestId,
             requestType,

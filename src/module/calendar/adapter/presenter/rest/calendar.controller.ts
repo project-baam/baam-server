@@ -87,7 +87,7 @@ export class CalendarController {
       throw new MissingRequiredFieldsError(['subjectName']);
     }
 
-    await this.calendarService.createEvent(user.id, params);
+    await this.calendarService.createEvent(user, params);
 
     return true;
   }

@@ -98,7 +98,7 @@ export class SubjectMemoController {
     @ActiveUser() user: UserEntity,
     @Body() createSubjectMemoDto: CreateSubjectMemoRequest,
   ): Promise<boolean> {
-    await this.subjectMemoService.createOne(user.id, createSubjectMemoDto);
+    await this.subjectMemoService.createOne(user, createSubjectMemoDto);
 
     return true;
   }

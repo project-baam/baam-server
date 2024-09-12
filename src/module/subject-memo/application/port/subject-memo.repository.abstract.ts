@@ -10,7 +10,7 @@ export abstract class SubjectMemoRepository {
           'userId' | 'subjectId' | 'datetime' | 'title' | 'memo'
         >
       | Pick<EventEntity, 'userId' | 'subjectId' | 'datetime' | 'title'>,
-  ): Promise<void>;
+  ): Promise<EventEntity>;
 
   abstract findOneByIdAndUserIdOrFail(
     id: number,

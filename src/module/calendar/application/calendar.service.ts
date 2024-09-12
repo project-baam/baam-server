@@ -19,6 +19,9 @@ import {
   UnauthorizedSubjectAccessError,
   UnexpectedFieldsError,
 } from 'src/common/types/error/application-exceptions';
+import { NotificationService } from 'src/module/notification/application/notification.service';
+import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 
 @Injectable()
 export class CalendarService {
@@ -30,6 +33,7 @@ export class CalendarService {
     private readonly subjectRepository: SubjectRepository,
     private readonly dateUtilService: DateUtilService,
     private readonly userTimetableRepository: UserTimetableRepository,
+    private readonly notificationService: NotificationService,
   ) {}
 
   /**
@@ -115,7 +119,7 @@ export class CalendarService {
     return events;
   }
 
-  async createEvent(userId: number, params: CreateEventRequest) {
+  async createEvent(user: UserEntity, params: CreateEventRequest) {
     if (params.type === EventType.CLASS) {
       const subjectId = await this.subjectRepository.findIdByNameOrFail(
         params.subjectName!,
@@ -127,7 +131,7 @@ export class CalendarService {
 
       const isSubjectInUserTimetable =
         await this.userTimetableRepository.isSubjectInUserTimetable({
-          userId,
+          userId: user.id,
           year,
           semester,
           subjectId,
@@ -146,13 +150,23 @@ export class CalendarService {
       }
     }
 
-    await this.eventRepository.insertMany([
-      {
-        userId,
-        ...params,
-        datetime: dayjs(params.datetime).toDate(),
-      },
-    ]);
+    const event = await this.eventRepository.insertOne({
+      userId: user.id,
+      ...params,
+      datetime: dayjs(params.datetime).toDate(),
+    });
+
+    if (user.profile.notificationsEnabled) {
+      this.notificationService.createOrScheduleNotification(
+        user.id,
+        NotificationCategory.Calendar,
+        {
+          eventId: event.id,
+          eventTitle: params.title,
+        },
+        dayjs(params.datetime).toDate(),
+      );
+    }
   }
 
   async updateEvent(userId: number, params: UpdateEventRequest) {

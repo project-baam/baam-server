@@ -1,3 +1,4 @@
+import { NotificationService } from 'src/module/notification/application/notification.service';
 import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { Injectable } from '@nestjs/common';
@@ -15,6 +16,8 @@ import { SubjectMemoMapper } from 'src/module/subject-memo/application/mappers/s
 import { SubjectMemoDetailMapper } from './mappers/subject-memo-detail.mapper';
 import { SubjectMemoDetail } from '../domain/subjet-memo-detail';
 import { UnauthorizedSubjectAccessError } from 'src/common/types/error/application-exceptions';
+import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 
 @Injectable()
 export class SubjectMemoService {
@@ -23,6 +26,7 @@ export class SubjectMemoService {
     private readonly subjectRepository: SubjectRepository,
     private readonly dateUtilService: DateUtilService,
     private readonly userTimetableRepository: UserTimetableRepository,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async getMemosPaginated(
@@ -50,7 +54,7 @@ export class SubjectMemoService {
   }
 
   async createOne(
-    userId: number,
+    user: UserEntity,
     params: CreateSubjectMemoRequest,
   ): Promise<void> {
     const subjectId = await this.subjectRepository.findIdByNameOrFail(
@@ -64,7 +68,7 @@ export class SubjectMemoService {
     //  유저가 해당 학기에 듣는 과목인지 확인
     const isSubjectInUserTimetable =
       await this.userTimetableRepository.isSubjectInUserTimetable({
-        userId,
+        userId: user.id,
         year,
         semester,
         subjectId,
@@ -74,12 +78,24 @@ export class SubjectMemoService {
       throw new UnauthorizedSubjectAccessError(params.subjectName);
     }
 
-    await this.subjectMemoRepository.insertOne({
+    const event = await this.subjectMemoRepository.insertOne({
       ...params,
-      userId,
+      userId: user.id,
       subjectId,
       datetime: params.datetime,
     });
+
+    if (user.profile.notificationsEnabled) {
+      this.notificationService.createOrScheduleNotification(
+        user.id,
+        NotificationCategory.SubjectMemo,
+        {
+          eventId: event.id,
+          subjectName: params.subjectName,
+        },
+        params.datetime,
+      );
+    }
   }
 
   async updateOne(
