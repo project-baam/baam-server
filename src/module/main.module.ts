@@ -19,6 +19,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { NotificationModule } from './notification/application/notification.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ChatModule } from './chat/application/chat.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     FriendModule,
     NotificationModule,
     ScheduleModule.forRoot(),
+    ChatModule,
   ],
 })
 export class MainModule {}
