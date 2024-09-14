@@ -1,3 +1,4 @@
+import { EnvironmentService } from './../../../config/environment/environment.service';
 import { Injectable } from '@nestjs/common';
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
 import { NotificationRepository } from './port/notification.repository.abstract';
@@ -18,6 +19,7 @@ export class NotificationSchedulerService {
     private readonly scheduledNotificationRepository: ScheduledNotificationRepository,
     private readonly notificationRepository: NotificationRepository,
     private readonly pushNotificationService: PushNotificationService,
+    private readonly environmentService: EnvironmentService,
   ) {
     this.runWithLimit = createConcurrencyLimiter(
       EXPO_LIMITS.FREE_ACCOUNT.REQUESTS_PER_SECOND,
@@ -26,6 +28,10 @@ export class NotificationSchedulerService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async processScheduledNotifications() {
+    if (this.environmentService.isLocal()) {
+      return;
+    }
+
     const now = dayjs().startOf('minute');
     const endOfMinute = now.add(1, 'minute');
 
