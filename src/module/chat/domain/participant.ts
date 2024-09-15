@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 
 export class Participant {
   @ApiProperty()
   @Expose()
   userId: number;
+
+  @ApiProperty({ type: 'enum', enum: UserGrade })
+  @Expose()
+  grade: UserGrade;
 
   @ApiProperty()
   @Expose()

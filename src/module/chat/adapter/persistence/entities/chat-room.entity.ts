@@ -3,7 +3,6 @@ import { ChatRoomType } from 'src/module/chat/domain/enums/chat-room-type';
 import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entities/class.entity';
 import { SchoolEntity } from 'src/module/school-dataset/adapter/persistence/entities/school.entity';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
-import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { Period } from 'src/module/timetable/domain/enums/period';
 import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 import {
@@ -22,10 +21,10 @@ import { MessageEntity } from './message.entity';
 /**
  * 톡방 종류: 학급톡방 / 과목톡방
  * 학급 톡방 개설 기준: 학교, 학년, 반 당 1 개
- * 과목 톡방 개설 기준: 학교, 학년, 과목, 요일, 교시당 1 개
+ * 과목 톡방 개설 기준: 학교, 과목, 요일, 교시당 1 개 (다른 학년이라도 같은 과목 수업을 듣는 경우 존재)
  */
-@Index(['schoolId', 'grade', 'type'])
-@Unique(['schoolId', 'grade', 'type', 'classId', 'subjectId', 'day', 'period'])
+@Index(['schoolId', 'type'])
+@Unique(['schoolId', 'type', 'classId', 'subjectId', 'day', 'period'])
 @Check(`
     (type = '${ChatRoomType.CLASS}' AND class_id IS NOT NULL AND subject_id IS NULL AND day IS NULL AND period IS NULL) OR
     (type = '${ChatRoomType.SUBJECT}' AND class_id IS NULL AND subject_id IS NOT NULL AND day IS NOT NULL AND period IS NOT NULL)
@@ -43,9 +42,6 @@ export class ChatRoomEntity extends BaseEntity {
 
   @Column('int')
   schoolId: number;
-
-  @Column('enum', { enum: UserGrade })
-  grade: UserGrade;
 
   @Column('int', { nullable: true })
   classId: number;
