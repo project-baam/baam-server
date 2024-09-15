@@ -1,5 +1,7 @@
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { ChatRoomType } from 'src/module/chat/domain/enums/chat-room-type';
+import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entities/class.entity';
+import { SchoolEntity } from 'src/module/school-dataset/adapter/persistence/entities/school.entity';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { Period } from 'src/module/timetable/domain/enums/period';
@@ -11,9 +13,11 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { MessageEntity } from './message.entity';
 
 /**
  * 톡방 종류: 학급톡방 / 과목톡방
@@ -55,10 +59,31 @@ export class ChatRoomEntity extends BaseEntity {
   @Column('enum', { enum: Period, nullable: true })
   period: Period;
 
+  @Column('int', { nullable: true })
+  lastMessageId: number;
+
+  @OneToOne(() => MessageEntity, { nullable: true })
+  @JoinColumn({ name: 'last_message_id' })
+  lastMessage: MessageEntity;
+
   @ManyToOne(() => SubjectEntity, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'subject_id' })
   subject: SubjectEntity;
+
+  @ManyToOne(() => SchoolEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'school_id' })
+  school: SchoolEntity;
+
+  @ManyToOne(() => ClassEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'class_id' })
+  class: ClassEntity;
 }
