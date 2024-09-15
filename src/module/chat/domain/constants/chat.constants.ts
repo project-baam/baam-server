@@ -1,0 +1,2 @@
+export const CHAT_ROOM_MAX_PARTICIPANTS = 50;
+// export const MAX_MESSAGE_LENGTH = 2000;

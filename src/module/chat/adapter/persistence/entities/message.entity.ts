@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -31,6 +32,7 @@ export class MessageEntity extends BaseEntity {
   fileSize?: number;
 
   @Column('uuid')
+  @Index()
   roomId: string;
 
   @Column('int')

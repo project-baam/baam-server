@@ -101,8 +101,8 @@ export class FriendService {
     };
   }
 
-  // Favorite Friends 또는 Friend
-  private async addFriendsActiveClass<T extends { userId: number }>(
+  // Favorite Friends 또는 Friend 또는 Participants(채팅방 참여자)
+  async addFriendsActiveClass<T extends { userId: number }>(
     dto: T[],
   ): Promise<{ friend: T; activeClassNow: string | null }[]> {
     const addFriendActiveClass = (dto: T) => {

@@ -22,7 +22,7 @@ export class Friend {
   @ApiProperty()
   isFavorite: boolean;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ nullable: true, type: 'string' })
   activeClassNow: string | null; // 시간표를 등록한 친구만 해당
 
   @ApiProperty()
