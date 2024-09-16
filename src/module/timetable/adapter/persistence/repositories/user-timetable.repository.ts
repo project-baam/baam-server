@@ -8,7 +8,6 @@ import {
   IsSubjectInUserTimetable,
   UpsertUserTimetable,
 } from '../types/user-timetable';
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { CommonSubjects } from 'src/module/school-dataset/domain/constants/common-subjects';
 
 export class OrmUserTimetableRepository implements UserTimetableRepository {
@@ -19,15 +18,14 @@ export class OrmUserTimetableRepository implements UserTimetableRepository {
 
   async findSubjectsInUserTimetable(
     where: FindUserTimetable,
-  ): Promise<SubjectEntity[]> {
+  ): Promise<string[]> {
     return this.userTimetableRepository
-      .find({
-        where,
-        relations: ['subject'],
-      })
-      .then((userTimetables) =>
-        userTimetables.map((userTimetable) => userTimetable.subject),
-      );
+      .createQueryBuilder('userTimetable')
+      .innerJoinAndSelect('userTimetable.subject', 'subject')
+      .select('DISTINCT subject.name', 'name')
+      .where(where)
+      .getRawMany()
+      .then((userTimetables) => userTimetables.map((e) => e.name as string));
   }
 
   async isSubjectInUserTimetable(

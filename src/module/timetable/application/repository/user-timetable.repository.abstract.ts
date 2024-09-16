@@ -25,5 +25,5 @@ export abstract class UserTimetableRepository {
 
   abstract findSubjectsInUserTimetable(
     where: FindUserTimetable,
-  ): Promise<SubjectEntity[]>;
+  ): Promise<string[]>;
 }

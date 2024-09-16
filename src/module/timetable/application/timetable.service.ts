@@ -101,14 +101,11 @@ export class TimetableService {
       new Date(),
     );
 
-    const subjects =
-      await this.userTimetableRepository.findSubjectsInUserTimetable({
-        userId,
-        year,
-        semester,
-      });
-
-    return subjects.map((e) => e.name);
+    return this.userTimetableRepository.findSubjectsInUserTimetable({
+      userId,
+      year,
+      semester,
+    });
   }
 
   async findDefaultClassTimetable(
