@@ -28,7 +28,7 @@ export class ChatController {
   async getChatRooms(
     @ActiveUser() user: UserEntity,
   ): Promise<ResponseListDto<ChatRoom>> {
-    const chatRooms = await this.chatService.getUserChatRooms(user.id);
+    const chatRooms = await this.chatService.getUserChatRooms(user);
 
     return new ResponseListDto(chatRooms);
   }

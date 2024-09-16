@@ -1,13 +1,16 @@
+import { Period } from './../../../timetable/domain/enums/period';
 import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 import { ChatParticipantEntity } from '../../adapter/persistence/entities/chat-participant.entity';
 import { ChatRoomEntity } from '../../adapter/persistence/entities/chat-room.entity';
 import { MessageEntity } from '../../adapter/persistence/entities/message.entity';
 import { ChatRoom } from '../../domain/chat-room';
 import { MessageType } from '../../domain/enums/message-type';
+import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 
 export abstract class ChatRepository {
+  abstract countChatRoomsForUser(userId: number): Promise<number>;
   abstract findClassChatRoom(
-    dto: Pick<ChatRoomEntity, 'schoolId' | 'classId'>,
+    dto: Pick<ChatRoomEntity, 'classId'>,
   ): Promise<ChatRoomEntity | null>;
 
   abstract findSubjectChatRoomsByTimetable(params: {
@@ -17,6 +20,18 @@ export abstract class ChatRepository {
 
   abstract saveChatRoomParticipant(
     dtos: Pick<ChatParticipantEntity, 'userId' | 'roomId'>[],
+  ): Promise<void>;
+
+  abstract removeUserFromClassChatRoom(
+    userId: number,
+    oldClassId: number,
+  ): Promise<void>;
+
+  abstract removeUserFromSubjectChatRooms(
+    userId: number,
+    subjectId: number,
+    day: Weekday,
+    period: Period,
   ): Promise<void>;
 
   abstract getUserChatRooms(userId: number): Promise<ChatRoom[]>;

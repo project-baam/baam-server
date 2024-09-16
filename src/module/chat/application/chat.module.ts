@@ -9,6 +9,6 @@ import { TimetableModule } from 'src/module/timetable/timetable.module';
   imports: [OrmChatPersistenceModule, FriendModule, TimetableModule],
   providers: [ChatService],
   controllers: [ChatController],
-  exports: [],
+  exports: [ChatService],
 })
 export class ChatModule {}

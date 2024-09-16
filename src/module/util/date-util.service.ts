@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Semester } from '../school-dataset/domain/value-objects/semester';
+import { Weekday } from '../timetable/domain/enums/weekday';
 
 @Injectable()
 export class DateUtilService {
@@ -41,5 +42,19 @@ export class DateUtilService {
     }
 
     return [start, end, year, semester];
+  }
+
+  getKoreanWeekday(day: Weekday): string {
+    const weekdaysInKorean = [
+      '일요일',
+      '월요일',
+      '화요일',
+      '수요일',
+      '목요일',
+      '금요일',
+      '토요일',
+    ];
+
+    return weekdaysInKorean[day];
   }
 }

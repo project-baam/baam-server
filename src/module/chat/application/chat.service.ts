@@ -1,3 +1,4 @@
+import { DateUtilService } from 'src/module/util/date-util.service';
 import { TimetableService } from './../../timetable/application/timetable.service';
 import { FriendService } from 'src/module/friend/application/friend.service';
 import { Injectable } from '@nestjs/common';
@@ -6,6 +7,9 @@ import { plainToInstance } from 'class-transformer';
 import { Participant } from '../domain/participant';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
+import { Transactional } from 'typeorm-transactional';
+import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 
 @Injectable()
 export class ChatService {
@@ -13,6 +17,7 @@ export class ChatService {
     private readonly chatRepository: ChatRepository,
     private readonly friendService: FriendService,
     private readonly timetableService: TimetableService,
+    private readonly dateUtilService: DateUtilService,
   ) {}
 
   /**
@@ -20,6 +25,7 @@ export class ChatService {
    * 시간표에 대한 과목 채팅방은 공통 과목을 제외하고 생성
    * @param user
    */
+  @Transactional()
   async initializeChatRoomsForUser(user: UserProfileEntity) {
     await Promise.all([
       this.createOrInviteToClassChatRoom(user),
@@ -30,7 +36,6 @@ export class ChatService {
   // 유저의 학급 채팅방(없을 경우 생성 후 유저 초대)
   private async createOrInviteToClassChatRoom(user: UserProfileEntity) {
     const classChatRoom = await this.chatRepository.findClassChatRoom({
-      schoolId: user.class.schoolId,
       classId: user.classId,
     });
 
@@ -80,7 +85,7 @@ export class ChatService {
           ),
       )
       .map((timetable) => ({
-        name: timetable.subject.name,
+        name: `[${timetable.subject.name}] (${this.dateUtilService.getKoreanWeekday(timetable.day)} ${timetable.period} 교시) `,
         schoolId: user.class.schoolId,
         subjectId: timetable.subjectId,
         day: timetable.day,
@@ -100,8 +105,39 @@ export class ChatService {
     );
   }
 
-  async getUserChatRooms(userId: number) {
-    return this.chatRepository.getUserChatRooms(userId);
+  @Transactional()
+  async handleSchoolInfoChange(user: UserProfileEntity, oldClassId: number) {
+    await this.chatRepository.removeUserFromClassChatRoom(
+      user.userId,
+      oldClassId,
+    );
+    await this.createOrInviteToClassChatRoom(user);
+
+    // TODO: oldClassId 에 해당하는 유저가 아무도 없을 경우 채팅방 삭제(어디서?)
+  }
+
+  // TODO: :
+  async handleTimetableChange(
+    user: UserProfileEntity,
+    oldTimetable: UserTimetableEntity[],
+    newTimetable: UserTimetableEntity[],
+  ) {
+    // await this.createOrInviteToSubjectChatRoom(user);
+  }
+
+  async ensureUserHasChatRooms(user: UserProfileEntity): Promise<void> {
+    const chatRoomsCount = await this.chatRepository.countChatRoomsForUser(
+      user.userId,
+    );
+
+    if (!chatRoomsCount) {
+      await this.initializeChatRoomsForUser(user);
+    }
+  }
+
+  async getUserChatRooms(user: UserEntity) {
+    await this.ensureUserHasChatRooms(user.profile);
+    return this.chatRepository.getUserChatRooms(user.id);
   }
 
   async getChatRoomParticipants(

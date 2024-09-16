@@ -10,6 +10,8 @@ import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.e
 import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
+import { Period } from 'src/module/timetable/domain/enums/period';
+import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 
 export class OrmChatRepository implements ChatRepository {
   constructor(
@@ -26,11 +28,39 @@ export class OrmChatRepository implements ChatRepository {
     private readonly unreadMessageTrackerRepository: Repository<UnreadMessageTrackerEntity>,
   ) {}
 
+  removeUserFromSubjectChatRooms(
+    userId: number,
+    subjectId: number,
+    day: Weekday,
+    period: Period,
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  countChatRoomsForUser(userId: number): Promise<number> {
+    return this.participantRepository.countBy({ userId });
+  }
+
+  async removeUserFromClassChatRoom(
+    userId: number,
+    oldClassId: number,
+  ): Promise<void> {
+    const classChatRoom = await this.chatRoomRepository.findOneBy({
+      classId: oldClassId,
+      type: ChatRoomType.CLASS,
+    });
+    if (classChatRoom) {
+      await this.participantRepository.delete({
+        userId,
+        roomId: classChatRoom.id,
+      });
+    }
+  }
+
   findClassChatRoom(
-    dto: Pick<ChatRoomEntity, 'schoolId' | 'classId'>,
+    dto: Pick<ChatRoomEntity, 'classId'>,
   ): Promise<ChatRoomEntity | null> {
     return this.chatRoomRepository.findOneBy({
-      schoolId: dto.schoolId,
       classId: dto.classId,
     });
   }
@@ -41,16 +71,36 @@ export class OrmChatRepository implements ChatRepository {
   }): Promise<ChatRoomEntity[]> {
     const { schoolId, timetables } = params;
 
-    return this.chatRoomRepository
-      .createQueryBuilder('chatRoom')
-      .where('chatRoom.schoolId = :schoolId', { schoolId })
-      .andWhere(
-        '(chatRoom.subjectId, chatRoom.day, chatRoom.period) IN (:...combinations)',
-        {
-          combinations: timetables.map((t) => [t.subjectId, t.day, t.period]),
-        },
-      )
+    await this.chatRoomRepository.query(`
+      CREATE TEMPORARY TABLE temp_timetable (
+        subject_id INT,
+        day INT,
+        period INT
+      );
+  
+      INSERT INTO temp_timetable (subject_id, day, period)
+      VALUES ${timetables.map((t) => `(${t.subjectId}, ${t.day}, ${t.period})`).join(', ')};
+    `);
+
+    const result = await this.chatRoomRepository
+      .createQueryBuilder('cr')
+      .where('cr.schoolId = :schoolId', { schoolId })
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('1')
+          .from('temp_timetable', 'tt')
+          .where('tt.subject_id = cr.subjectId')
+          .andWhere('tt.day::text = cr.day::text')
+          .andWhere('tt.period::text = cr.period::text')
+          .getQuery();
+        return 'EXISTS ' + subQuery;
+      })
       .getMany();
+
+    await this.chatRoomRepository.query('DROP TABLE temp_timetable;');
+
+    return result;
   }
 
   async saveChatRoomParticipant(

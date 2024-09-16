@@ -6,6 +6,7 @@ import { OrmSchoolDatasetPersistenceModule } from '../school-dataset/adapter/per
 import { ObjectStorageModule } from '../object-storage/application/object-storage.module';
 import { TimetableModule } from '../timetable/timetable.module';
 import { CalendarModule } from '../calendar/application/calendar.module';
+import { ChatModule } from '../chat/application/chat.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CalendarModule } from '../calendar/application/calendar.module';
     ObjectStorageModule,
     TimetableModule,
     CalendarModule,
+    ChatModule,
   ],
   providers: [UserService],
   controllers: [UserController],
