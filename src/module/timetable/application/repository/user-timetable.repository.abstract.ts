@@ -13,6 +13,9 @@ export abstract class UserTimetableRepository {
   ): Promise<void>;
 
   abstract find(where: FindUserTimetable): Promise<UserTimetableEntity[]>;
+  abstract findNotInCommonSubjects(
+    where: FindUserTimetable,
+  ): Promise<UserTimetableEntity[]>;
 
   abstract delete(where: DeleteUserTimetable): Promise<void>;
 

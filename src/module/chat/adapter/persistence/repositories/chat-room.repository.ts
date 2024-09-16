@@ -9,6 +9,7 @@ import { MessageEntity } from '../entities/message.entity';
 import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.entity';
 import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
+import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 
 export class OrmChatRepository implements ChatRepository {
   constructor(
@@ -24,6 +25,39 @@ export class OrmChatRepository implements ChatRepository {
     @InjectRepository(UnreadMessageTrackerEntity)
     private readonly unreadMessageTrackerRepository: Repository<UnreadMessageTrackerEntity>,
   ) {}
+
+  findClassChatRoom(
+    dto: Pick<ChatRoomEntity, 'schoolId' | 'classId'>,
+  ): Promise<ChatRoomEntity | null> {
+    return this.chatRoomRepository.findOneBy({
+      schoolId: dto.schoolId,
+      classId: dto.classId,
+    });
+  }
+
+  async findSubjectChatRoomsByTimetable(params: {
+    schoolId: number;
+    timetables: UserTimetableEntity[];
+  }): Promise<ChatRoomEntity[]> {
+    const { schoolId, timetables } = params;
+
+    return this.chatRoomRepository
+      .createQueryBuilder('chatRoom')
+      .where('chatRoom.schoolId = :schoolId', { schoolId })
+      .andWhere(
+        '(chatRoom.subjectId, chatRoom.day, chatRoom.period) IN (:...combinations)',
+        {
+          combinations: timetables.map((t) => [t.subjectId, t.day, t.period]),
+        },
+      )
+      .getMany();
+  }
+
+  async saveChatRoomParticipant(
+    dtos: Pick<ChatParticipantEntity, 'userId' | 'roomId'>[],
+  ): Promise<void> {
+    await this.participantRepository.save(dtos);
+  }
 
   async getUserChatRooms(userId: number): Promise<ChatRoom[]> {
     return await this.chatRoomRepository
@@ -63,6 +97,29 @@ export class OrmChatRepository implements ChatRepository {
       .where('cp.user_id = :userId', { userId })
       .orderBy('cr.last_message_id', 'DESC')
       .getRawMany();
+  }
+
+  async createClassChatRoom(
+    dto: Pick<ChatRoomEntity, 'name' | 'schoolId' | 'classId'>,
+  ): Promise<ChatRoomEntity> {
+    return this.chatRoomRepository.save({
+      ...dto,
+      type: ChatRoomType.CLASS,
+    });
+  }
+
+  async createSubjectChatRooms(
+    dto: Pick<
+      ChatRoomEntity,
+      'name' | 'schoolId' | 'subjectId' | 'day' | 'period'
+    >[],
+  ): Promise<ChatRoomEntity[]> {
+    return this.chatRoomRepository.save(
+      dto.map((e) => ({
+        ...e,
+        type: ChatRoomType.SUBJECT,
+      })),
+    );
   }
 
   getChatRoomParticipants(roomId: string): Promise<ChatParticipantEntity[]> {

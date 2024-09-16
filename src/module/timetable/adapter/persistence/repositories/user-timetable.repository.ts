@@ -1,7 +1,7 @@
 import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
 import { UserTimetableEntity } from '../entities/user-timetable.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import {
   DeleteUserTimetable,
   FindUserTimetable,
@@ -9,6 +9,7 @@ import {
   UpsertUserTimetable,
 } from '../types/user-timetable';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
+import { CommonSubjects } from 'src/module/school-dataset/domain/constants/common-subjects';
 
 export class OrmUserTimetableRepository implements UserTimetableRepository {
   constructor(
@@ -54,6 +55,20 @@ export class OrmUserTimetableRepository implements UserTimetableRepository {
   find(where: FindUserTimetable): Promise<UserTimetableEntity[]> {
     return this.userTimetableRepository.find({
       where,
+      relations: ['subject'],
+    });
+  }
+
+  findNotInCommonSubjects(
+    where: FindUserTimetable,
+  ): Promise<UserTimetableEntity[]> {
+    return this.userTimetableRepository.find({
+      where: {
+        ...where,
+        subject: {
+          name: Not(In(CommonSubjects)),
+        },
+      },
       relations: ['subject'],
     });
   }
