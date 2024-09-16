@@ -1,3 +1,4 @@
+import { ChatService } from 'src/module/chat/application/chat.service';
 // inbound port
 
 import { FindUniqueUserQuery } from './dto/user.query';
@@ -33,6 +34,7 @@ export class UserService {
     private readonly environmentService: EnvironmentService,
     private readonly timetableService: TimetableService,
     private readonly calendarService: CalendarService,
+    private readonly chatService: ChatService,
   ) {}
 
   async insertTestUser(schoolId: number) {
@@ -192,6 +194,10 @@ export class UserService {
         params.schoolId!,
         classId,
         params.grade!,
+      );
+      this.chatService.handleSchoolInfoChange(
+        updatedUser.profile,
+        user.profile?.classId,
       );
     }
 

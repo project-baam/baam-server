@@ -101,14 +101,11 @@ export class TimetableService {
       new Date(),
     );
 
-    const subjects =
-      await this.userTimetableRepository.findSubjectsInUserTimetable({
-        userId,
-        year,
-        semester,
-      });
-
-    return subjects.map((e) => e.name);
+    return this.userTimetableRepository.findSubjectsInUserTimetable({
+      userId,
+      year,
+      semester,
+    });
   }
 
   async findDefaultClassTimetable(
@@ -192,7 +189,7 @@ export class TimetableService {
     userId: number,
     year: number,
     semester: Semester,
-  ): Promise<UserTimetableEntity[] | null> {
+  ): Promise<UserTimetableEntity[]> {
     const userTimetables = await this.userTimetableRepository.find({
       userId,
       year,
@@ -200,6 +197,18 @@ export class TimetableService {
     });
 
     return userTimetables;
+  }
+
+  async getNonCommonSubjectsFromUserTimetable(
+    userId: number,
+    year: number = this.currentYear,
+    semester: Semester = this.currentSemester,
+  ): Promise<UserTimetableEntity[]> {
+    return this.userTimetableRepository.findNotInCommonSubjects({
+      userId,
+      year,
+      semester,
+    });
   }
 
   async editOrAddTimetable(userId: number, params: EditOrAddTimetableRequest) {
