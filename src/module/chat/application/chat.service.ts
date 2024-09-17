@@ -61,48 +61,55 @@ export class ChatService {
 
   // 유저의 과목 채팅방(없을 경우 생성 후 유저 초대)
   private async createOrInviteToSubjectChatRoom(user: UserProfileEntity) {
-    // 공통 과목은 채팅방 생성 안 함
-    const userTimetable =
-      await this.timetableService.getNonCommonSubjectsFromUserTimetable(
-        user.userId,
+    try {
+      // 공통 과목은 채팅방 생성 안 함
+      const userTimetable =
+        await this.timetableService.getNonCommonSubjectsFromUserTimetable(
+          user.userId,
+        );
+
+      if (!userTimetable.length) {
+        return;
+      }
+      // 모든 가능한 채팅방을 한 번에 조회
+      const existingChatRooms =
+        await this.chatRoomRepository.findSubjectChatRoomsByTimetable({
+          schoolId: user.class.schoolId,
+          timetables: userTimetable,
+        });
+
+      const chatRoomsToCreate = userTimetable
+        .filter(
+          (timetable) =>
+            !existingChatRooms.some(
+              (room) =>
+                room.subjectId === timetable.subjectId &&
+                room.day === timetable.day &&
+                room.period === timetable.period,
+            ),
+        )
+        .map((timetable) => ({
+          name: `[${timetable.subject.name}] (${this.dateUtilService.getKoreanWeekday(timetable.day)} ${timetable.period} 교시) `,
+          schoolId: user.class.schoolId,
+          subjectId: timetable.subjectId,
+          day: timetable.day,
+          period: timetable.period,
+        }));
+
+      const newChatRooms =
+        await this.chatRoomRepository.createSubjectChatRooms(chatRoomsToCreate);
+
+      const allChatRoomIds = [
+        ...existingChatRooms.map((r) => r.id),
+        ...newChatRooms.map((r) => r.id),
+      ];
+
+      await this.chatRoomRepository.saveChatRoomParticipant(
+        allChatRoomIds.map((id) => ({ roomId: id, userId: user.userId })),
       );
-
-    // 모든 가능한 채팅방을 한 번에 조회
-    const existingChatRooms =
-      await this.chatRoomRepository.findSubjectChatRoomsByTimetable({
-        schoolId: user.class.schoolId,
-        timetables: userTimetable,
-      });
-
-    const chatRoomsToCreate = userTimetable
-      .filter(
-        (timetable) =>
-          !existingChatRooms.some(
-            (room) =>
-              room.subjectId === timetable.subjectId &&
-              room.day === timetable.day &&
-              room.period === timetable.period,
-          ),
-      )
-      .map((timetable) => ({
-        name: `[${timetable.subject.name}] (${this.dateUtilService.getKoreanWeekday(timetable.day)} ${timetable.period} 교시) `,
-        schoolId: user.class.schoolId,
-        subjectId: timetable.subjectId,
-        day: timetable.day,
-        period: timetable.period,
-      }));
-
-    const newChatRooms =
-      await this.chatRoomRepository.createSubjectChatRooms(chatRoomsToCreate);
-
-    const allChatRoomIds = [
-      ...existingChatRooms.map((r) => r.id),
-      ...newChatRooms.map((r) => r.id),
-    ];
-
-    await this.chatRoomRepository.saveChatRoomParticipant(
-      allChatRoomIds.map((id) => ({ roomId: id, userId: user.userId })),
-    );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   @Transactional()
@@ -137,11 +144,13 @@ export class ChatService {
 
   async getUserChatRooms(user: UserEntity) {
     await this.ensureUserHasChatRooms(user.profile);
-    return this.chatRoomRepository.getUserChatRooms(user.id);
+    const chatRooms = await this.chatRoomRepository.getUserChatRooms(user.id);
+
+    return chatRooms;
   }
 
   async isUserInChatRoomOrFail(userId: number, roomId: string): Promise<void> {
-    const isUserInChatRoom = this.chatRoomRepository.isUserInChatRoom(
+    const isUserInChatRoom = await this.chatRoomRepository.isUserInChatRoom(
       userId,
       roomId,
     );

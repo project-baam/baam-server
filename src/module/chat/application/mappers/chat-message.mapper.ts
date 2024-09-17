@@ -21,4 +21,8 @@ export class ChatMessageMapper {
       sentAt: entity.createdAt,
     };
   }
+
+  static mapToDomain(entities: MessageEntity[]): Message[] {
+    return entities.map((entity) => this.toDomain(entity));
+  }
 }

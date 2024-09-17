@@ -31,9 +31,35 @@ async function bootstrap() {
     cors: true,
   });
   app.useWebSocketAdapter(new IoAdapter(app));
+  // app.enableCors({
+  //   origin: true,
+  //   methods: [
+  //     'GET',
+  //     'POST',
+  //     'PUT',
+  //     'DELETE',
+  //     'PATCH',
+  //     'OPTIONS',
+  //     'HEAD',
+  //     'CONNECT',
+  //     'TRACE',
+  //     'WS',
+  //     'WSS',
+  //     'WEBSOCKET',
+  //   ],
+  //   credentials: true,
+  // });
+
   app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+    ],
     credentials: true,
   });
 

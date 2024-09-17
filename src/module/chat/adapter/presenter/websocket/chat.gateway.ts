@@ -3,7 +3,6 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -24,6 +23,7 @@ import { ChatMessageService } from './../../../application/chat-message.service'
 import { ChatService } from 'src/module/chat/application/chat.service';
 import {
   IncompleteProfileError,
+  InvalidAccessTokenError,
   UserNotOnlineInRoomError,
 } from 'src/common/types/error/application-exceptions';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
@@ -31,6 +31,8 @@ import { MessageEntity } from '../../persistence/entities/message.entity';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
 import { ChatEvents } from './constants/chat-events';
+import { ChatMessageMapper } from 'src/module/chat/application/mappers/chat-message.mapper';
+import { ErrorCode } from 'src/common/constants/error-codes';
 
 interface AuthenticatedSocket extends Socket {
   user: UserEntity;
@@ -38,7 +40,7 @@ interface AuthenticatedSocket extends Socket {
 
 @AppWebsocketGateway({
   namespace: 'chat',
-  cors: { origin: '*' },
+  // cors: { origin: '*' },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -68,46 +70,67 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // 채팅 목록 화면 진입 시
   async handleConnection(client: AuthenticatedSocket) {
-    const user = await this.iamService.validateAccessToken(
-      this.extractTokenFromHeader(client),
-    );
-    client.user = user;
+    try {
+      const user = await this.iamService.validateAccessToken(
+        this.extractTokenFromHeader(client),
+      );
+      client.user = user;
 
-    if (user?.status === UserStatus.INCOMPLETE_PROFILE) {
-      throw new IncompleteProfileError();
+      if (user?.status === UserStatus.INCOMPLETE_PROFILE) {
+        throw new IncompleteProfileError();
+      }
+
+      this.userChatListPageMap.set(user.id, true);
+
+      const sockets = this.userSocketMap.get(user.id) || new Set();
+      sockets.add(client.id);
+      this.userSocketMap.set(user.id, sockets);
+
+      Logger.log(
+        `User ${user.id} connected(채팅 목록 화면 진입)`,
+        ChatGateway.name,
+      );
+    } catch (error) {
+      this.handleConnectionError(error, client);
     }
+  }
 
-    this.userChatListPageMap.set(user.id, true);
-
-    const sockets = this.userSocketMap.get(user.id) || new Set();
-    sockets.add(client.id);
-    this.userSocketMap.set(user.id, sockets);
-
-    Logger.log(
-      `User ${user.id} connected(채팅 목록 화면 진입)`,
-      ChatGateway.name,
-    );
+  private handleConnectionError(error: any, client: Socket) {
+    if (error instanceof InvalidAccessTokenError) {
+      client.emit(ChatEvents.FromServer.Exception, {
+        code: ErrorCode.InvalidAccessToken,
+        message: 'Invalid access token',
+      });
+    } else {
+      client.emit(ChatEvents.FromServer.Exception, {
+        code: ErrorCode.InternalServerError,
+        message: 'Internal server error',
+      });
+    }
+    client.disconnect();
   }
 
   // 채팅 목록 화면 나갈 시
   handleDisconnect(client: AuthenticatedSocket) {
-    const userId = client.user.id;
-    this.userChatListPageMap.delete(userId);
+    if (client.user) {
+      const userId = client.user.id;
+      this.userChatListPageMap.delete(userId);
 
-    const sockets = this.userSocketMap.get(userId);
-    if (sockets) {
-      sockets.delete(client.id);
-      if (sockets.size === 0) {
-        this.userSocketMap.delete(userId);
+      const sockets = this.userSocketMap.get(userId);
+      if (sockets) {
+        sockets.delete(client.id);
+        if (sockets.size === 0) {
+          this.userSocketMap.delete(userId);
+        }
       }
+
+      this.userRoomMap.delete(userId);
+
+      Logger.log(
+        `User ${userId} disconnected(채팅목록 화면 나감)`,
+        ChatGateway.name,
+      );
     }
-
-    this.userRoomMap.delete(userId);
-
-    Logger.log(
-      `User ${userId} disconnected(채팅목록 화면 나감)`,
-      ChatGateway.name,
-    );
   }
 
   // 채팅방 입장
@@ -153,6 +176,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: SendTextMessageDto,
   ) {
+    console.log('handleSendTextMessage', payload);
     if (!this.isUserInRoom(client.user.id, payload.roomId)) {
       throw new UserNotOnlineInRoomError(payload.roomId, client.user.id);
     }
@@ -174,6 +198,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: SendFileMessageDto,
   ) {
+    console.log('handleSendFileMessage', payload);
     const message = await this.chatMessageService.sendFileMessage(
       payload.roomId,
       client.user.id,
@@ -214,7 +239,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socketIds.forEach((socketId) => {
         this.server
           .to(socketId)
-          .emit(ChatEvents.FromServer.NewMessages, undeliveredMessages);
+          .emit(
+            ChatEvents.FromServer.NewMessages,
+            ChatMessageMapper.mapToDomain(undeliveredMessages),
+          );
       });
       await this.chatMessageService.markMessagesAsDelivered(
         undeliveredMessages.map((e) => e.id),

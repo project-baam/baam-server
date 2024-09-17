@@ -25,7 +25,7 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
     await this.chatRoomRepository.update(roomId, { lastMessageId: messageId });
   }
 
-  // TODO: 
+  // TODO:
   removeUserFromSubjectChatRooms(
     userId: number,
     subjectId: number,
@@ -105,6 +105,15 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
     dtos: Pick<ChatParticipantEntity, 'userId' | 'roomId'>[],
   ): Promise<void> {
     await this.participantRepository.save(dtos);
+
+    // 채팅방 참여자 수 증가
+    for (const dto of dtos) {
+      await this.chatRoomRepository.increment(
+        { id: dto.roomId },
+        'participantsCount',
+        1,
+      );
+    }
   }
 
   async getUserChatRooms(userId: number): Promise<ChatRoom[]> {

@@ -66,7 +66,13 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
     );
     await this.chatRoomRepository.updateLastMessage(roomId, message.id);
 
-    return message;
+    return (await this.messageRepository.findOne({
+      where: { id: message.id },
+      relations: {
+        sender: true,
+        chatRoom: true,
+      },
+    }))!;
   }
 
   async getUnreadMessages(
@@ -76,7 +82,9 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
     return (
       await this.unreadMessageTrackerRepository.find({
         relations: {
-          message: true,
+          message: {
+            sender: true,
+          },
         },
         where: { userId, message: { roomId } },
       })
