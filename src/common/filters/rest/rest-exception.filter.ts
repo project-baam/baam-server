@@ -3,7 +3,7 @@ import { Response } from 'express';
 import { ApplicationException } from 'src/common/types/error/application-exceptions.base';
 
 @Catch(ApplicationException)
-export class HttpExceptionFilter<T extends ApplicationException>
+export class RestExceptionFilter<T extends ApplicationException>
   implements ExceptionFilter
 {
   catch(exception: T, host: ArgumentsHost) {
