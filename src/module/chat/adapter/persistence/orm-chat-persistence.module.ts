@@ -4,8 +4,11 @@ import { ChatRoomEntity } from './entities/chat-room.entity';
 import { ChatParticipantEntity } from './entities/chat-participant.entity';
 import { MessageEntity } from './entities/message.entity';
 import { UnreadMessageTrackerEntity } from './entities/unread-message-tracker.entity';
-import { OrmChatRepository } from './repositories/chat-room.repository';
-import { ChatRepository } from '../../application/port/chat.repository.abstract';
+
+import { ChatRoomRepository } from '../../application/port/chat-room.repository.abstract';
+import { ChatMessageRepository } from '../../application/port/chat-message.repository.abstract';
+import { OrmChatMessageRepository } from './repositories/chat-message.repository';
+import { OrmChatRoomRepository } from './repositories/chat-room.repository';
 
 @Module({
   imports: [
@@ -18,10 +21,14 @@ import { ChatRepository } from '../../application/port/chat.repository.abstract'
   ],
   providers: [
     {
-      provide: ChatRepository,
-      useClass: OrmChatRepository,
+      provide: ChatRoomRepository,
+      useClass: OrmChatRoomRepository,
+    },
+    {
+      provide: ChatMessageRepository,
+      useClass: OrmChatMessageRepository,
     },
   ],
-  exports: [ChatRepository],
+  exports: [ChatRoomRepository],
 })
 export class OrmChatPersistenceModule {}

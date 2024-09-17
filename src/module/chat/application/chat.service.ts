@@ -1,8 +1,8 @@
+import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.repository.abstract';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { TimetableService } from './../../timetable/application/timetable.service';
 import { FriendService } from 'src/module/friend/application/friend.service';
 import { Injectable } from '@nestjs/common';
-import { ChatRepository } from './port/chat.repository.abstract';
 import { plainToInstance } from 'class-transformer';
 import { Participant } from '../domain/participant';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
@@ -14,7 +14,7 @@ import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/en
 @Injectable()
 export class ChatService {
   constructor(
-    private readonly chatRepository: ChatRepository,
+    private readonly chatRoomRepository: ChatRoomRepository,
     private readonly friendService: FriendService,
     private readonly timetableService: TimetableService,
     private readonly dateUtilService: DateUtilService,
@@ -35,25 +35,25 @@ export class ChatService {
 
   // 유저의 학급 채팅방(없을 경우 생성 후 유저 초대)
   private async createOrInviteToClassChatRoom(user: UserProfileEntity) {
-    const classChatRoom = await this.chatRepository.findClassChatRoom({
+    const classChatRoom = await this.chatRoomRepository.findClassChatRoom({
       classId: user.classId,
     });
 
     if (!classChatRoom) {
       // 채팅방 생성
-      const newChatRoom = await this.chatRepository.createClassChatRoom({
+      const newChatRoom = await this.chatRoomRepository.createClassChatRoom({
         name: `${user.class.grade}학년 ${user.class.name}반`,
         schoolId: user.class.schoolId,
         classId: user.classId,
       });
 
       // 채팅방 초대
-      this.chatRepository.saveChatRoomParticipant([
+      this.chatRoomRepository.saveChatRoomParticipant([
         { userId: user.userId, roomId: newChatRoom.id },
       ]);
     } else {
       // 채팅방 초대
-      await this.chatRepository.saveChatRoomParticipant([
+      await this.chatRoomRepository.saveChatRoomParticipant([
         { userId: user.userId, roomId: classChatRoom.id },
       ]);
     }
@@ -69,7 +69,7 @@ export class ChatService {
 
     // 모든 가능한 채팅방을 한 번에 조회
     const existingChatRooms =
-      await this.chatRepository.findSubjectChatRoomsByTimetable({
+      await this.chatRoomRepository.findSubjectChatRoomsByTimetable({
         schoolId: user.class.schoolId,
         timetables: userTimetable,
       });
@@ -93,21 +93,21 @@ export class ChatService {
       }));
 
     const newChatRooms =
-      await this.chatRepository.createSubjectChatRooms(chatRoomsToCreate);
+      await this.chatRoomRepository.createSubjectChatRooms(chatRoomsToCreate);
 
     const allChatRoomIds = [
       ...existingChatRooms.map((r) => r.id),
       ...newChatRooms.map((r) => r.id),
     ];
 
-    await this.chatRepository.saveChatRoomParticipant(
+    await this.chatRoomRepository.saveChatRoomParticipant(
       allChatRoomIds.map((id) => ({ roomId: id, userId: user.userId })),
     );
   }
 
   @Transactional()
   async handleSchoolInfoChange(user: UserProfileEntity, oldClassId: number) {
-    await this.chatRepository.removeUserFromClassChatRoom(
+    await this.chatRoomRepository.removeUserFromClassChatRoom(
       user.userId,
       oldClassId,
     );
@@ -126,7 +126,7 @@ export class ChatService {
   }
 
   async ensureUserHasChatRooms(user: UserProfileEntity): Promise<void> {
-    const chatRoomsCount = await this.chatRepository.countChatRoomsForUser(
+    const chatRoomsCount = await this.chatRoomRepository.countChatRoomsForUser(
       user.userId,
     );
 
@@ -137,20 +137,20 @@ export class ChatService {
 
   async getUserChatRooms(user: UserEntity) {
     await this.ensureUserHasChatRooms(user.profile);
-    return this.chatRepository.getUserChatRooms(user.id);
+    return this.chatRoomRepository.getUserChatRooms(user.id);
   }
 
   async getChatRoomParticipants(
     userId: number,
     roomId: string,
   ): Promise<Participant[]> {
-    await this.chatRepository.findChatRoomByIdOrFail(roomId);
-    if (!(await this.chatRepository.isUserInChatRoom(userId, roomId))) {
+    await this.chatRoomRepository.findChatRoomByIdOrFail(roomId);
+    if (!(await this.chatRoomRepository.isUserInChatRoom(userId, roomId))) {
       throw new ContentNotFoundError('chatroom-user', `${roomId}-${userId}`);
     }
 
     const participants =
-      await this.chatRepository.getChatRoomParticipants(roomId);
+      await this.chatRoomRepository.getChatRoomParticipants(roomId);
 
     return (await this.friendService.addFriendsActiveClass(participants)).map(
       (e) => {

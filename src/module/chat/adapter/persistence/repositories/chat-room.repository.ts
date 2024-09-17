@@ -1,19 +1,18 @@
 import { ChatParticipantEntity } from './../entities/chat-participant.entity';
 import { ChatRoomEntity } from '../entities/chat-room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatRepository } from 'src/module/chat/application/port/chat.repository.abstract';
 import { Repository } from 'typeorm';
 import { ChatRoomType } from 'src/module/chat/domain/enums/chat-room-type';
 import { ChatRoom } from 'src/module/chat/domain/chat-room';
 import { MessageEntity } from '../entities/message.entity';
 import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.entity';
-import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 import { Period } from 'src/module/timetable/domain/enums/period';
 import { Weekday } from 'src/module/timetable/domain/enums/weekday';
+import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.repository.abstract';
 
-export class OrmChatRepository implements ChatRepository {
+export class OrmChatRoomRepository implements ChatRoomRepository {
   constructor(
     @InjectRepository(ChatRoomEntity)
     private readonly chatRoomRepository: Repository<ChatRoomEntity>,

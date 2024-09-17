@@ -1,13 +1,11 @@
-import { Period } from './../../../timetable/domain/enums/period';
+import { Period } from '../../../timetable/domain/enums/period';
 import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 import { ChatParticipantEntity } from '../../adapter/persistence/entities/chat-participant.entity';
 import { ChatRoomEntity } from '../../adapter/persistence/entities/chat-room.entity';
-import { MessageEntity } from '../../adapter/persistence/entities/message.entity';
 import { ChatRoom } from '../../domain/chat-room';
-import { MessageType } from '../../domain/enums/message-type';
 import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 
-export abstract class ChatRepository {
+export abstract class ChatRoomRepository {
   abstract countChatRoomsForUser(userId: number): Promise<number>;
   abstract findClassChatRoom(
     dto: Pick<ChatRoomEntity, 'classId'>,
