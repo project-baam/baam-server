@@ -4,6 +4,7 @@ import {
   GatewayMetadata,
 } from '@nestjs/websockets';
 import { WebsocketExceptionFilter } from '../filters/websocket/websocket-exception.filter';
+import { WebsocketParameterValidationExceptionFilter } from '../filters/websocket/websocket-parameter-validator-exception.fileter';
 
 export function AppWebsocketGateway(): ClassDecorator;
 export function AppWebsocketGateway(port: number): ClassDecorator;
@@ -23,6 +24,9 @@ export function AppWebsocketGateway(
 
   return applyDecorators(
     nestGatewayDecorator,
-    UseFilters(new WebsocketExceptionFilter()),
+    UseFilters(
+      WebsocketExceptionFilter,
+      WebsocketParameterValidationExceptionFilter,
+    ),
   );
 }

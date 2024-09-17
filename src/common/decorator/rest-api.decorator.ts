@@ -4,10 +4,9 @@ import {
   ControllerOptions,
   UseFilters,
 } from '@nestjs/common';
-
-import { HttpExceptionFilter } from 'src/common/filters/http-exception/http-exception.filter';
-import { InternalServerErrorFilter } from 'src/common/filters/http-exception/internal-server-exception.filter';
-import { ParameterValidationExceptionFilter } from 'src/common/filters/http-exception/parameter-validator-exception.filter';
+import { InternalServerErrorFilter } from '../filters/rest/internal-server-exception.filter';
+import { RestExceptionFilter } from '../filters/rest/rest-exception.filter';
+import { ParameterValidationExceptionFilter } from '../filters/rest/parameter-validator-exception.filter';
 
 export function RestApi(): MethodDecorator & ClassDecorator;
 export function RestApi(
@@ -21,7 +20,7 @@ export function RestApi(param?: string | string[] | ControllerOptions) {
   // !! 필터는 역순으로 적용됨(params validation > http > 500)
   const exceptionFilters = [
     InternalServerErrorFilter,
-    HttpExceptionFilter,
+    RestExceptionFilter,
     ParameterValidationExceptionFilter,
   ];
 
