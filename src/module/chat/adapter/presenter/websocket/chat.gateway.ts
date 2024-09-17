@@ -176,9 +176,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: SendTextMessageDto,
   ) {
-    console.log('handleSendTextMessage', payload);
-    if (!this.isUserInRoom(client.user.id, payload.roomId)) {
-      throw new UserNotOnlineInRoomError(payload.roomId, client.user.id);
+    const userId = client.user.id;
+
+    if (!this.isUserInRoom(userId, payload.roomId)) {
+      throw new UserNotOnlineInRoomError(payload.roomId, userId);
     }
     const message = await this.chatMessageService.sendTextMessage(
       payload.roomId,
@@ -191,18 +192,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendFileMessage)
-  @UseInterceptors(FileInterceptor('file'))
   async handleSendFileMessage(
-    client: AuthenticatedSocket,
-    @UploadedFile() file: Express.Multer.File,
+    @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody()
     payload: SendFileMessageDto,
   ) {
-    console.log('handleSendFileMessage', payload);
+    const userId = client.user.id;
+    const { roomId, fileName, fileType, fileSize, fileData } = payload;
+    const buffer = Buffer.from(fileData);
+
     const message = await this.chatMessageService.sendFileMessage(
-      payload.roomId,
-      client.user.id,
-      file,
+      roomId,
+      userId,
+      buffer,
+      fileName,
+      fileSize,
+      fileType,
     );
     this.server
       .to(payload.roomId)

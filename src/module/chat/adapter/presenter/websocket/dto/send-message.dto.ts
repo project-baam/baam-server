@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsDefined, IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
 export class SendTextMessageDto {
   @IsString()
@@ -17,4 +17,16 @@ export class SendTextMessageDto {
 export class SendFileMessageDto {
   @IsUUID()
   roomId: string;
+
+  @IsString()
+  fileName: string;
+
+  @IsString()
+  fileType: string;
+
+  @IsNumber() // validate file size
+  fileSize: number;
+
+  @IsDefined() // TODO:
+  fileData: ArrayBuffer;
 }

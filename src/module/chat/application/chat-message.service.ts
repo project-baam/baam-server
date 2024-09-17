@@ -11,6 +11,8 @@ import { StorageCategory } from 'src/module/object-storage/domain/enums/storage-
 import { SupportedEnvironment } from 'src/config/environment/environment';
 import { MessageEntity } from '../adapter/persistence/entities/message.entity';
 import { ReportProvider } from 'src/common/provider/report.provider';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ChatMessageService {
@@ -65,13 +67,25 @@ export class ChatMessageService {
   async sendFileMessage(
     roomId: string,
     senderId: number,
-    file: Express.Multer.File,
+    fileData: Buffer,
+    fileName: string,
+    fileSize: number,
+    mimeType: string,
   ): Promise<Message> {
+    const uniqueKey = this.generateUniqueKey(fileName);
+
+    const file = {
+      buffer: fileData,
+      originalname: fileName,
+      size: fileSize,
+      mimetype: mimeType,
+    } as Express.Multer.File;
+
     const fileUrl = await this.objectStorageService.uploadFile({
       file,
-      category: StorageCategory.USER_BACKGROUNDS,
+      category: StorageCategory.CHAT_FILES,
       environment: this.environmentService.get<SupportedEnvironment>('ENV')!,
-      uniqueKey: '',
+      uniqueKey,
     });
 
     const message = await this.chatMessageRepository.createMessage(
@@ -122,5 +136,14 @@ export class ChatMessageService {
         );
       }
     }
+  }
+
+  private generateUniqueKey(fileName: string): string {
+    const timestamp = Date.now();
+    const randomString = uuidv4().split('-')[0]; // UUID의 첫 부분만 사용
+    const extension = path.extname(fileName);
+    const baseName = path.basename(fileName, extension);
+
+    return `${baseName}-${timestamp}-${randomString}${extension}`;
   }
 }
