@@ -2,12 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { MainModule } from './module/main.module';
 import { EnvironmentService } from './config/environment/environment.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import {
-  BadRequestException,
-  ClassSerializerInterceptor,
-  HttpStatus,
-  ValidationPipe,
-} from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { json, NextFunction, urlencoded } from 'express';
 import morganBody from 'morgan-body';
 import helmet from 'helmet';
@@ -18,6 +13,8 @@ import { LogProvider } from './common/provider/log.provider';
 import { setupSwagger } from './docs/setup-swagger';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import dayjs from 'dayjs';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { commonValidationPipeOptions } from './config/validation-pipe.config';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -32,6 +29,12 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(MainModule, {
     cors: true,
+  });
+  app.useWebSocketAdapter(new IoAdapter(app));
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
   });
 
   app.set('trust proxy', true);
@@ -92,24 +95,8 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      errorHttpStatusCode: HttpStatus.BAD_REQUEST,
-      transform: true,
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      disableErrorMessages: false,
-      validationError: {
-        target: true,
-        value: true,
-      },
-      transformOptions: {
-        // excludeExtraneousValues: true,
-      },
-      exceptionFactory: (errors) => new BadRequestException(errors),
-    }),
-  );
+  // HTTP 에서만 적용됨
+  app.useGlobalPipes(new ValidationPipe(commonValidationPipeOptions));
 
   await app.listen(port);
 
