@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -48,6 +49,17 @@ export class AuthenticationController {
       getClientIp(req),
       req.headers['user-agent'],
     );
+  }
+
+  @ApiDescription({
+    tags: ['Authentication'],
+    summary: 'user_id 로 해당 유저 access token 받기 (테스트용)',
+  })
+  @Get('test/access-token')
+  async getAccessTokenByUserId(
+    @Query('userId', ParseIntPipe) userId: number,
+  ): Promise<JWT> {
+    return this.authService.getAccessTokenByUserId(userId);
   }
 
   @ApiDescription({

@@ -6,6 +6,7 @@ import { EnvironmentService } from 'src/config/environment/environment.service';
 import { FindUniqueUserQuery } from 'src/module/user/application/dto/user.query';
 import { RefreshTokenIdsStorage } from '../adapter/persistence/in-memory/refresh-token-ids.storage';
 import {
+  ContentNotFoundError,
   InvalidAccessTokenError,
   InvalidatedRefreshTokenError,
   MissingAuthTokenError,
@@ -111,6 +112,16 @@ export class AuthenticationService {
     });
 
     return new SignInResponse(user, jwts);
+  }
+
+  // TODO: 테스트용 메서드
+  async getAccessTokenByUserId(userId: number): Promise<JWT> {
+    const user = await this.userRepository.findOneById(userId);
+    if (!user) {
+      throw new ContentNotFoundError('user', userId);
+    }
+
+    return this.generateTokens({ sub: user.id, provider: user.provider });
   }
 
   private async saveLoginLog(
