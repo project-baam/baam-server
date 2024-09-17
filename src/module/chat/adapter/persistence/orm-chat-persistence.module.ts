@@ -29,6 +29,6 @@ import { OrmChatRoomRepository } from './repositories/chat-room.repository';
       useClass: OrmChatMessageRepository,
     },
   ],
-  exports: [ChatRoomRepository],
+  exports: [ChatRoomRepository, ChatMessageRepository],
 })
 export class OrmChatPersistenceModule {}

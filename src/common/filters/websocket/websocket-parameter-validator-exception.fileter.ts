@@ -7,6 +7,7 @@ import {
 import { ErrorCode } from 'src/common/constants/error-codes';
 import { EnvironmentService } from '../../../config/environment/environment.service';
 import { Socket } from 'socket.io';
+import { ChatEvents } from 'src/module/chat/adapter/presenter/websocket/constants/chat-events';
 
 @Catch(BadRequestException)
 export class WebsocketParameterValidationExceptionFilter
@@ -34,7 +35,7 @@ export class WebsocketParameterValidationExceptionFilter
 
     const finalErrorMessage = errorMessages.join('. ');
 
-    client.emit('exception', {
+    client.emit(ChatEvents.FromServer.Exception, {
       code: ErrorCode.InvalidParameter,
       message: isProduction ? 'Invalid parameter' : finalErrorMessage,
     });

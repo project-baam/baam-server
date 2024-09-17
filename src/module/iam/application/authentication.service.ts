@@ -5,7 +5,11 @@ import { randomUUID } from 'crypto';
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { FindUniqueUserQuery } from 'src/module/user/application/dto/user.query';
 import { RefreshTokenIdsStorage } from '../adapter/persistence/in-memory/refresh-token-ids.storage';
-import { InvalidatedRefreshTokenError } from 'src/common/types/error/application-exceptions';
+import {
+  InvalidAccessTokenError,
+  InvalidatedRefreshTokenError,
+  MissingAuthTokenError,
+} from 'src/common/types/error/application-exceptions';
 import { UserService } from '../../user/application/user.service';
 import {
   AccessTokenPayload,
@@ -41,6 +45,28 @@ export class AuthenticationService {
       [SignInProvider.KAKAO, kakaoAuth],
       [SignInProvider.APPLE, appleAuth],
     ]);
+  }
+
+  async validateAccessToken(token?: string): Promise<UserEntity> {
+    if (!token) {
+      throw new MissingAuthTokenError();
+    }
+
+    let userId: number;
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      userId = payload.sub;
+    } catch (err) {
+      throw new InvalidAccessTokenError();
+    }
+
+    const user = await this.userRepository.findOneById(userId);
+
+    if (!user) {
+      throw new InvalidAccessTokenError();
+    }
+
+    return user;
   }
 
   async signInOrSignUp(

@@ -19,14 +19,13 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
 
     @InjectRepository(ChatParticipantEntity)
     private readonly participantRepository: Repository<ChatParticipantEntity>,
-
-    @InjectRepository(MessageEntity)
-    private readonly messageRepository: Repository<MessageEntity>,
-
-    @InjectRepository(UnreadMessageTrackerEntity)
-    private readonly unreadMessageTrackerRepository: Repository<UnreadMessageTrackerEntity>,
   ) {}
 
+  async updateLastMessage(roomId: string, messageId: number): Promise<void> {
+    await this.chatRoomRepository.update(roomId, { lastMessageId: messageId });
+  }
+
+  // TODO: 
   removeUserFromSubjectChatRooms(
     userId: number,
     subjectId: number,

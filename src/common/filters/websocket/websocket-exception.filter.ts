@@ -5,6 +5,7 @@ import { ApplicationException } from 'src/common/types/error/application-excepti
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { ReportProvider } from 'src/common/provider/report.provider';
 import { ErrorCode } from 'src/common/constants/error-codes';
+import { ChatEvents } from 'src/module/chat/adapter/presenter/websocket/constants/chat-events';
 
 @Catch()
 export class WebsocketExceptionFilter extends BaseWsExceptionFilter {
@@ -28,7 +29,7 @@ export class WebsocketExceptionFilter extends BaseWsExceptionFilter {
     exception: ApplicationException,
     client: Socket,
   ) {
-    client.emit('exception', {
+    client.emit(ChatEvents.FromServer.Exception, {
       code: exception.code,
       message: this.environmentService.isProduction()
         ? 'An error occurred'
@@ -36,14 +37,15 @@ export class WebsocketExceptionFilter extends BaseWsExceptionFilter {
     });
   }
 
-  private handleInternalServerError(exception: unknown, client: Socket) {
-    this.logger.error('Unexpected error', exception);
+  private handleInternalServerError(exception: any, client: Socket) {
+    this.logger.error(exception.message);
+    this.logger.error(exception.stack);
 
     if (!this.environmentService.isLocal()) {
       this.reportError(exception, client);
     }
 
-    client.emit('exception', {
+    client.emit(ChatEvents.FromServer.Exception, {
       code: ErrorCode.InternalServerError,
       message: this.environmentService.isProduction()
         ? 'Internal server error'
@@ -56,11 +58,11 @@ export class WebsocketExceptionFilter extends BaseWsExceptionFilter {
   private reportError(exception: unknown, client: Socket) {
     const errorInfo = {
       event: client.eventNames()[0], // 현재 처리 중인 이벤트 이름
-      payload: client.data, // 클라이언트에서 전송한 데이터
-      query: client.handshake.query, // 연결 시 쿼리 파라미터
-      headers: client.handshake.headers, // 연결 시 헤더
-      address: client.handshake.address, // 클라이언트 IP 주소
-      time: new Date().toISOString(), // 오류 발생 시간
+      payload: client.data,
+      query: client.handshake.query,
+      headers: client.handshake.headers,
+      address: client.handshake.address,
+      time: new Date().toISOString(),
     };
 
     ReportProvider.error(

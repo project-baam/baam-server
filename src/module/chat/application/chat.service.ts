@@ -140,6 +140,17 @@ export class ChatService {
     return this.chatRoomRepository.getUserChatRooms(user.id);
   }
 
+  async isUserInChatRoomOrFail(userId: number, roomId: string): Promise<void> {
+    const isUserInChatRoom = this.chatRoomRepository.isUserInChatRoom(
+      userId,
+      roomId,
+    );
+
+    if (!isUserInChatRoom) {
+      throw new ContentNotFoundError('chatroom-user', `${roomId}-${userId}`);
+    }
+  }
+
   async getChatRoomParticipants(
     userId: number,
     roomId: string,

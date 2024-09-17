@@ -49,4 +49,6 @@ export abstract class ChatRoomRepository {
   abstract findChatRoomByIdOrFail(roomId: string): Promise<ChatRoomEntity>;
 
   abstract isUserInChatRoom(userId: number, roomId: string): Promise<boolean>;
+
+  abstract updateLastMessage(roomId: string, messageId: number): Promise<void>;
 }

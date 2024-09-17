@@ -18,10 +18,10 @@ export abstract class ChatMessageRepository {
 
   abstract trackUnreadMessage(messageId: number, userId: number): Promise<void>;
 
-  abstract removeUnreadMessageTrack(
-    messageId: number,
+  abstract removeUnreadMessagesTrack(
+    messageIds: number[],
     userId: number,
   ): Promise<void>;
 
-  abstract deleteMessageIfNotLast(messageId: number): Promise<void>;
+  abstract deleteMessageIfNotLast(messageIds: number[]): Promise<void>;
 }

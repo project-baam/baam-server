@@ -178,3 +178,13 @@ export class NotificationAlreadyRead extends ApplicationException {
     super(ErrorCode.NotificationAlreadyRead, '이미 읽은 알림');
   }
 }
+
+// 유저가 해당 채팅방에 온라인 상태가 아닌 경우
+export class UserNotOnlineInRoomError extends ApplicationException {
+  constructor(roomId: string = '$roomid', userId: string | number = '$userId') {
+    super(
+      ErrorCode.UserNotOnlineInRoom,
+      `유저(${userId})가 해당 채팅방(${roomId}) 온라인 상태가 아님`,
+    );
+  }
+}

@@ -10,6 +10,7 @@ export enum ErrorCode {
   InvalidProfileImageField = 4004,
   UnexpectedFields = 4005,
   MalformedExpoPushToken = 4006,
+  UserNotOnlineInRoom = 4007,
 
   // 401
   MissingAuthToken = 4010,

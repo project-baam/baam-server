@@ -1,15 +1,17 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { MessageType } from './enums/message-type';
 
 export class Message {
-  @ApiProperty()
-  roomId: string;
-
-  @ApiProperty()
-  senderId: number; // user id
-
-  @ApiProperty()
-  content: string;
-
-  @ApiProperty()
-  createdAt: Date;
+  type: MessageType;
+  sender: {
+    id: number;
+    name: string;
+    profileImageUrl?: string | null;
+  };
+  content?: string | null;
+  file?: {
+    url: string;
+    name: string;
+    size: number;
+  } | null;
+  sentAt: Date;
 }

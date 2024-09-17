@@ -33,6 +33,7 @@ import { AppleAuth } from '../adapter/external/social/apple-auth';
     AppleAuth,
   ],
   controllers: [AuthenticationController],
+  exports: [AuthenticationService],
 })
 export class IamModule {}
 // Iam = identity and access management
