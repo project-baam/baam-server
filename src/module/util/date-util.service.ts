@@ -57,4 +57,8 @@ export class DateUtilService {
 
     return weekdaysInKorean[day];
   }
+
+  getKoreanWeekdayShort(day: Weekday): string {
+    return this.getKoreanWeekday(day).at(0) as string;
+  }
 }
