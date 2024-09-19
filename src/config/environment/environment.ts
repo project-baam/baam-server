@@ -16,7 +16,6 @@ export enum SupportedEnvironment {
   production = 'prod',
 }
 
-// TODO: .env File Validation
 export class EnvironmentVariables {
   // STAGE Environment
   @IsEnum(SupportedEnvironment)
@@ -112,6 +111,11 @@ export class EnvironmentVariables {
   @IsString()
   @Expose()
   readonly DISCORD_WEBHOOK_URL: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly DISCORD_WEBHOOK_URL_FOR_REPORTING_DISRUCTIVE_CHAT: string;
 
   // 카카오 로그인
   @IsNotEmpty()

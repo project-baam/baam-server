@@ -48,13 +48,27 @@ export class ReportProvider {
     });
   }
 
-  private static sendToDiscord(params: {
-    severity: SeverityLevel;
-    title: string;
-    error?: Error;
-    extra?: Record<string, unknown>;
-    moduleName?: string;
-  }): void {
+  static reportChatIssue(info: Record<string, unknown>): void {
+    this.sendToDiscord(
+      {
+        severity: SeverityLevel.Info,
+        title: '부적절한 채팅 신고',
+        extra: info,
+      },
+      process.env.DISCORD_WEBHOOK_URL_FOR_REPORTING_DISRUCTIVE_CHAT!,
+    );
+  }
+
+  private static sendToDiscord(
+    params: {
+      severity: SeverityLevel;
+      title: string;
+      error?: Error;
+      extra?: Record<string, unknown>;
+      moduleName?: string;
+    },
+    customWebhookUrl?: string,
+  ): void {
     const { severity, title, error, extra, moduleName } = params;
     let color: number;
     switch (severity) {
@@ -86,7 +100,7 @@ export class ReportProvider {
     };
 
     axios
-      .post(process.env.DISCORD_WEBHOOK_URL!, data)
+      .post(customWebhookUrl ?? process.env.DISCORD_WEBHOOK_URL!, data)
       .catch((err) => Logger.error(err));
   }
 }
