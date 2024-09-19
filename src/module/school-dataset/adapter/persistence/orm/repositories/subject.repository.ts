@@ -94,6 +94,15 @@ export class OrmSubjectRepository implements SubjectRepository {
     return id;
   }
 
+  async findByNameOrFail(name: string): Promise<SubjectEntity> {
+    const subject = await this.subjectRepository.findOneBy({ name });
+    if (!subject) {
+      throw new ContentNotFoundError('subject', name);
+    }
+
+    return subject;
+  }
+
   async findExistingIds(names: string[]): Promise<number[]> {
     const result = await this.subjectRepository.find({
       select: ['id'],

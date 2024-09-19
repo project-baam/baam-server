@@ -54,8 +54,8 @@ export abstract class ChatRoomRepository {
 
   abstract updateLastMessage(roomId: string, messageId: number): Promise<void>;
 
-  abstract findSubjectChatRoomByUserIdAndSubjectId(
+  abstract findSubjectChatRoomsByUserIdAndSubjectId(
     userId: number,
     subjectId: number,
-  ): Promise<ChatRoomEntity | null>;
+  ): Promise<ChatRoomEntity[]>;
 }

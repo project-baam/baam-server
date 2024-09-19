@@ -22,25 +22,23 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
     await this.chatRoomRepository.delete(roomIds);
   }
 
-  async findSubjectChatRoomByUserIdAndSubjectId(
+  async findSubjectChatRoomsByUserIdAndSubjectId(
     userId: number,
     subjectId: number,
-  ): Promise<ChatRoomEntity | null> {
+  ): Promise<ChatRoomEntity[]> {
     return (
-      (
-        await this.participantRepository.findOne({
-          relations: {
-            chatRoom: true,
+      await this.participantRepository.find({
+        relations: {
+          chatRoom: true,
+        },
+        where: {
+          userId,
+          chatRoom: {
+            subjectId,
           },
-          where: {
-            userId,
-            chatRoom: {
-              subjectId,
-            },
-          },
-        })
-      )?.chatRoom ?? null
-    );
+        },
+      })
+    ).map((e) => e.chatRoom);
   }
 
   async createSubjectChatRooms(

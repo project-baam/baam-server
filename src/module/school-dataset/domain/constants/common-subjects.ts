@@ -1,4 +1,4 @@
-export const CommonSubjects = [
+export const CommonSubjects: string[] = [
   '국어',
   '수학',
   '영어',

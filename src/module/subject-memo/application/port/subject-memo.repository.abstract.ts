@@ -22,6 +22,7 @@ export abstract class SubjectMemoRepository {
   ): Promise<void>;
 
   abstract deleteOne(entity: Pick<EventEntity, 'id'>): Promise<void>;
+  abstract deleteBySubject(userId: number, subjectId: number): Promise<void>;
 
   abstract getMemosPaginated(
     userId: number,

@@ -1,6 +1,7 @@
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { CurriculumVersion } from '../../domain/value-objects/curriculum-version';
 import { SubjectCategoryResponse } from '../../adapter/presenter/rest/dto/subject-categories.dto';
+import { SubjectEntity } from '../../adapter/persistence/entities/subject.entity';
 
 export abstract class SubjectRepository {
   /**
@@ -32,6 +33,7 @@ export abstract class SubjectRepository {
 
   abstract findIdByName(name: string): Promise<number | null>;
   abstract findIdByNameOrFail(name: string): Promise<number>;
+  abstract findByNameOrFail(name: string): Promise<SubjectEntity>;
 
   /**
    * 해당 과목명이 존재하는 교과목인지 확인

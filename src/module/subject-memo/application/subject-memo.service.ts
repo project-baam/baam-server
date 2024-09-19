@@ -116,4 +116,8 @@ export class SubjectMemoService {
 
     await this.subjectMemoRepository.deleteOne({ id: memoId });
   }
+
+  async deleteBySubjectId(userId: number, subjectId: number) {
+    await this.subjectMemoRepository.deleteBySubject(userId, subjectId);
+  }
 }

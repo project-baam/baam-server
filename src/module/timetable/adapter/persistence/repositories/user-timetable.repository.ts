@@ -9,6 +9,7 @@ import {
   UpsertUserTimetable,
 } from '../types/user-timetable';
 import { CommonSubjects } from 'src/module/school-dataset/domain/constants/common-subjects';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 
 export class OrmUserTimetableRepository implements UserTimetableRepository {
   constructor(
@@ -57,6 +58,15 @@ export class OrmUserTimetableRepository implements UserTimetableRepository {
     });
   }
 
+  findUserTimetableBySubject(
+    where: FindUserTimetable & Pick<UserTimetableEntity, 'subjectId'>,
+  ): Promise<UserTimetableEntity[]> {
+    return this.userTimetableRepository.find({
+      where,
+      relations: ['subject'],
+    });
+  }
+
   findNotInCommonSubjects(
     where: FindUserTimetable,
   ): Promise<UserTimetableEntity[]> {
@@ -69,6 +79,21 @@ export class OrmUserTimetableRepository implements UserTimetableRepository {
       },
       relations: ['subject'],
     });
+  }
+
+  async findSubjectByDayAndPeriod(
+    where: DeleteUserTimetable,
+  ): Promise<SubjectEntity | null> {
+    return (
+      (
+        await this.userTimetableRepository.findOne({
+          where,
+          relations: {
+            subject: true,
+          },
+        })
+      )?.subject || null
+    );
   }
 
   async delete(where: DeleteUserTimetable): Promise<void> {

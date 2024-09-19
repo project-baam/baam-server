@@ -1,3 +1,4 @@
+import { ChatService } from 'src/module/chat/application/chat.service';
 import {
   memoizedGetCurrentSubject,
   optimizeTimetable,
@@ -6,7 +7,7 @@ import { SchoolTimeSettingsRepository } from 'src/module/timetable/application/r
 import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { DefaultTimetableRepository } from './repository/default-timetable.repository.abstract';
 import { DefaultTimetableEntity } from '../adapter/persistence/entities/default-timetable.entity';
 import { DateUtilService } from 'src/module/util/date-util.service';
@@ -24,6 +25,10 @@ import { SchoolRepository } from 'src/module/school-dataset/application/port/sch
 import { SchoolTimeSettingsUpsertRequest } from '../adapter/presenter/rest/dto/school-time-settings.dto';
 import { precomputeTimes } from 'src/module/util/timetable-utils';
 import { SchoolTimeSettingsEntity } from '../adapter/persistence/entities/school-time-settings.entity';
+import { ReportProvider } from 'src/common/provider/report.provider';
+import { SubjectMemoService } from 'src/module/subject-memo/application/subject-memo.service';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
+import { LogProvider } from 'src/common/provider/log.provider';
 
 @Injectable()
 export class TimetableService {
@@ -42,6 +47,9 @@ export class TimetableService {
     private readonly schoolRepository: SchoolRepository,
     private readonly schoolDatasetService: SchoolDatasetService,
     private readonly schoolTimeSettingsRepository: SchoolTimeSettingsRepository,
+    @Inject(forwardRef(() => ChatService))
+    private readonly chatService: ChatService,
+    private readonly subjectMemoSerivce: SubjectMemoService,
   ) {}
 
   async onModuleInit() {
@@ -136,7 +144,8 @@ export class TimetableService {
   }
 
   /**
-   * 회원가입시 기본 시간표를 설정(필요한 경우 Neis API 를 통해 가져옴)
+   * 회원가입시 기본 시간표를 설정(필요한 경우 Neis API 를 통해 가져옴) or
+   * 유저가 학급 정보 변경 시 기본 시간표를 설정 <- TODO: 이 경우에 기존 유저가 세팅해둔 시간표를 모두 삭제해야할지 (<- 삭제하면 관련 과목별 메모, 캘린더, 채팅방 모두 영향)
    * 회원가입 시점
    * 1학기: 2월 1일 ~ 7월 31일
    * 2학기: 8월 1일 ~ 1월 31일
@@ -144,7 +153,6 @@ export class TimetableService {
   async setUserDefaultTimetableWithFallbackFetch(
     userId: number,
     classId: number,
-    //TODO: user id 만 받고, class id 는 user 에서 가져올지?
   ): Promise<void> {
     const today = new Date();
     const [thisYear, semester] =
@@ -213,8 +221,18 @@ export class TimetableService {
 
   async editOrAddTimetable(userId: number, params: EditOrAddTimetableRequest) {
     const { year, semester, subjectName, day, period } = params;
-    const subjectId =
-      await this.subjectRepository.findIdByNameOrFail(subjectName);
+    const newSubject =
+      await this.subjectRepository.findByNameOrFail(subjectName);
+
+    // 해당 시간의 기존 과목
+    const oldSubject =
+      await this.userTimetableRepository.findSubjectByDayAndPeriod({
+        userId,
+        year,
+        semester,
+        day,
+        period,
+      });
 
     await this.userTimetableRepository.upsert({
       userId,
@@ -222,9 +240,20 @@ export class TimetableService {
       semester,
       day,
       period,
-      subjectId,
+      subjectId: newSubject.id,
     });
     await this.refreshUserTimetableCache(userId);
+
+    // 채팅방 변경 처리
+    if (!oldSubject) {
+      // 새로운 과목 추가
+      this.handleChatRoomChange(userId, year, semester, newSubject);
+    } else if (oldSubject.id !== newSubject.id) {
+      // 기존 과목이 다른 과목으로 변경됨(**두 과목에 대한 분반 변경 필요**)
+      this.handleChatRoomChange(userId, year, semester, oldSubject);
+      this.handleChatRoomChange(userId, year, semester, newSubject);
+    }
+    // 같은 과목으로 '변경'된 경우, 필요한 작업 없음
   }
 
   async deleteTimetable(params: {
@@ -234,8 +263,72 @@ export class TimetableService {
     day: Weekday;
     period: Period;
   }) {
-    await this.userTimetableRepository.delete(params);
+    const subject =
+      await this.userTimetableRepository.findSubjectByDayAndPeriod(params);
+
+    if (subject) {
+      await this.userTimetableRepository.delete(params);
+      this.handleChatRoomChange(
+        params.userId,
+        params.year,
+        params.semester,
+        subject,
+      );
+      this.handleSubjectDeleted(
+        params.userId,
+        params.year,
+        params.semester,
+        subject.id,
+      );
+    }
+
     await this.refreshUserTimetableCache(params.userId);
+  }
+
+  /**
+   * 해당 과목의 모든 수업이 삭제되었을 경우, 과목 메모 삭제
+   * (과목메모 = event table 의 class type)
+   */
+  private async handleSubjectDeleted(
+    userId: number,
+    year: number,
+    semester: Semester,
+    subjectId: number,
+  ) {
+    const timetable =
+      await this.userTimetableRepository.findUserTimetableBySubject({
+        userId,
+        year,
+        semester,
+        subjectId,
+      });
+
+    if (!timetable.length) {
+      this.subjectMemoSerivce.deleteBySubjectId(userId, subjectId);
+    }
+  }
+
+  private handleChatRoomChange(
+    userId: number,
+    year: number,
+    semester: Semester,
+    subject: SubjectEntity,
+  ) {
+    this.chatService
+      .handleTimetableChange(userId, year, semester, subject)
+      .catch((error) => {
+        Logger.error(error.message, error.stack, TimetableService.name);
+        ReportProvider.error(
+          error,
+          {
+            title: '유저 시간표 변경 반영해서 채팅방 변경 실패',
+            userId,
+            year,
+            semester,
+          },
+          TimetableService.name,
+        );
+      });
   }
 
   async getTimeSettings(userId: number): Promise<SchoolTimeSettingsEntity> {
