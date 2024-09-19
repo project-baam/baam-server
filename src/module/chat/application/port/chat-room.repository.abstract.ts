@@ -1,20 +1,21 @@
-import { Period } from '../../../timetable/domain/enums/period';
-import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
 import { ChatParticipantEntity } from '../../adapter/persistence/entities/chat-participant.entity';
 import { ChatRoomEntity } from '../../adapter/persistence/entities/chat-room.entity';
 import { ChatRoom } from '../../domain/chat-room';
-import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 
 export abstract class ChatRoomRepository {
-  abstract countChatRoomsForUser(userId: number): Promise<number>;
+  abstract countChatRoomsForUser(userId: number): Promise<{
+    classChatRoomCount: number;
+    subjectChatRoomCount: number;
+  }>;
   abstract findClassChatRoom(
     dto: Pick<ChatRoomEntity, 'classId'>,
   ): Promise<ChatRoomEntity | null>;
 
-  abstract findSubjectChatRoomsByTimetable(params: {
-    schoolId: number;
-    timetables: UserTimetableEntity[];
-  }): Promise<ChatRoomEntity[]>;
+  abstract findSubjectChatRoomByHashes(
+    scheduleHashes: string[],
+  ): Promise<ChatRoomEntity[]>;
+
+  abstract deleteChatRooms(roomIds: string[]): Promise<void>;
 
   abstract saveChatRoomParticipant(
     dtos: Pick<ChatParticipantEntity, 'userId' | 'roomId'>[],
@@ -27,21 +28,22 @@ export abstract class ChatRoomRepository {
 
   abstract removeUserFromSubjectChatRooms(
     userId: number,
-    subjectId: number,
-    day: Weekday,
-    period: Period,
+    scheduleHashes: string[],
   ): Promise<void>;
 
   abstract getUserChatRooms(userId: number): Promise<ChatRoom[]>;
+  abstract findUserChatRooms(userId: number): Promise<ChatRoomEntity[]>;
+
   abstract createClassChatRoom(
     dto: Pick<ChatRoomEntity, 'name' | 'schoolId' | 'classId'>,
   ): Promise<ChatRoomEntity>;
   abstract createSubjectChatRooms(
-    dto: Pick<
+    dtos: Pick<
       ChatRoomEntity,
-      'name' | 'schoolId' | 'subjectId' | 'day' | 'period'
+      'name' | 'schoolId' | 'subjectId' | 'scheduleHash'
     >[],
   ): Promise<ChatRoomEntity[]>;
+
   abstract getChatRoomParticipants(
     roomId: string,
   ): Promise<ChatParticipantEntity[]>;
@@ -51,4 +53,9 @@ export abstract class ChatRoomRepository {
   abstract isUserInChatRoom(userId: number, roomId: string): Promise<boolean>;
 
   abstract updateLastMessage(roomId: string, messageId: number): Promise<void>;
+
+  abstract findSubjectChatRoomByUserIdAndSubjectId(
+    userId: number,
+    subjectId: number,
+  ): Promise<ChatRoomEntity | null>;
 }

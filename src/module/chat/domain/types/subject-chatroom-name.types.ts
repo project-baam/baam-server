@@ -17,6 +17,11 @@ export interface ClassSession {
 export type ClassSchedule = ClassSession[];
 
 /**
+ * [subjectId, subjectName, ClassSchedule]
+ */
+export type SubjectSchedule = [number, string, ClassSchedule];
+
+/**
  * 과목 채팅방 이름 구조를 나타내는 타입
  */
 export interface ChatRoomNameStructure {

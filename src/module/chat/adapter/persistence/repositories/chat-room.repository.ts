@@ -1,15 +1,12 @@
 import { ChatParticipantEntity } from './../entities/chat-participant.entity';
 import { ChatRoomEntity } from '../entities/chat-room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ChatRoomType } from 'src/module/chat/domain/enums/chat-room-type';
 import { ChatRoom } from 'src/module/chat/domain/chat-room';
 import { MessageEntity } from '../entities/message.entity';
 import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.entity';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
-import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
-import { Period } from 'src/module/timetable/domain/enums/period';
-import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.repository.abstract';
 
 export class OrmChatRoomRepository implements ChatRoomRepository {
@@ -21,22 +18,96 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
     private readonly participantRepository: Repository<ChatParticipantEntity>,
   ) {}
 
+  async deleteChatRooms(roomIds: string[]): Promise<void> {
+    await this.chatRoomRepository.delete(roomIds);
+  }
+
+  async findSubjectChatRoomByUserIdAndSubjectId(
+    userId: number,
+    subjectId: number,
+  ): Promise<ChatRoomEntity | null> {
+    return (
+      (
+        await this.participantRepository.findOne({
+          relations: {
+            chatRoom: true,
+          },
+          where: {
+            userId,
+            chatRoom: {
+              subjectId,
+            },
+          },
+        })
+      )?.chatRoom ?? null
+    );
+  }
+
+  async createSubjectChatRooms(
+    dtos: Pick<
+      ChatRoomEntity,
+      'name' | 'schoolId' | 'subjectId' | 'scheduleHash'
+    >[],
+  ): Promise<ChatRoomEntity[]> {
+    const newChatRooms = await this.chatRoomRepository.save(
+      dtos.map((e) => Object.assign(e, { type: ChatRoomType.SUBJECT })),
+    );
+
+    return newChatRooms;
+  }
+
   async updateLastMessage(roomId: string, messageId: number): Promise<void> {
     await this.chatRoomRepository.update(roomId, { lastMessageId: messageId });
   }
 
-  // TODO:
-  removeUserFromSubjectChatRooms(
+  async removeUserFromSubjectChatRooms(
     userId: number,
-    subjectId: number,
-    day: Weekday,
-    period: Period,
+    scheduleHashes: string[],
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    const chatRooms = await this.chatRoomRepository.find({
+      where: { scheduleHash: In(scheduleHashes) },
+    });
+
+    const roomIds = chatRooms.map((room) => room.id);
+
+    await this.participantRepository.delete({
+      userId,
+      roomId: In(roomIds),
+    });
+
+    // 채팅방 참여자 수 감소
+    for (const id of roomIds) {
+      await this.chatRoomRepository.decrement({ id }, 'participantsCount', 1);
+    }
   }
 
-  countChatRoomsForUser(userId: number): Promise<number> {
-    return this.participantRepository.countBy({ userId });
+  async countChatRoomsForUser(userId: number): Promise<{
+    classChatRoomCount: number;
+    subjectChatRoomCount: number;
+  }> {
+    const results = await this.participantRepository
+      .createQueryBuilder('participant')
+      .innerJoin('participant.chatRoom', 'chatRoom')
+      .select('chatRoom.type', 'type')
+      .addSelect('COUNT(*)', 'count')
+      .where('participant.userId = :userId', { userId })
+      .groupBy('chatRoom.type')
+      .getRawMany();
+
+    const counts = {
+      classChatRoomCount: 0,
+      subjectChatRoomCount: 0,
+    };
+
+    results.forEach((result) => {
+      if (result.type === ChatRoomType.CLASS) {
+        counts.classChatRoomCount = parseInt(result.count);
+      } else if (result.type === ChatRoomType.SUBJECT) {
+        counts.subjectChatRoomCount = parseInt(result.count);
+      }
+    });
+
+    return counts;
   }
 
   async removeUserFromClassChatRoom(
@@ -52,6 +123,13 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
         userId,
         roomId: classChatRoom.id,
       });
+
+      // 채팅방 참여자 수 감소
+      await this.chatRoomRepository.decrement(
+        { id: classChatRoom.id },
+        'participantsCount',
+        1,
+      );
     }
   }
 
@@ -63,42 +141,15 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
     });
   }
 
-  async findSubjectChatRoomsByTimetable(params: {
-    schoolId: number;
-    timetables: UserTimetableEntity[];
-  }): Promise<ChatRoomEntity[]> {
-    const { schoolId, timetables } = params;
-
-    await this.chatRoomRepository.query(`
-      CREATE TEMPORARY TABLE temp_timetable (
-        subject_id INT,
-        day INT,
-        period INT
-      );
-  
-      INSERT INTO temp_timetable (subject_id, day, period)
-      VALUES ${timetables.map((t) => `(${t.subjectId}, ${t.day}, ${t.period})`).join(', ')};
-    `);
-
-    const result = await this.chatRoomRepository
-      .createQueryBuilder('cr')
-      .where('cr.schoolId = :schoolId', { schoolId })
-      .andWhere((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .select('1')
-          .from('temp_timetable', 'tt')
-          .where('tt.subject_id = cr.subjectId')
-          .andWhere('tt.day::text = cr.day::text')
-          .andWhere('tt.period::text = cr.period::text')
-          .getQuery();
-        return 'EXISTS ' + subQuery;
-      })
-      .getMany();
-
-    await this.chatRoomRepository.query('DROP TABLE temp_timetable;');
-
-    return result;
+  async findSubjectChatRoomByHashes(
+    scheduleHashes: string[],
+  ): Promise<ChatRoomEntity[]> {
+    return this.chatRoomRepository.find({
+      relations: {
+        subject: true,
+      },
+      where: { scheduleHash: In(scheduleHashes) },
+    });
   }
 
   async saveChatRoomParticipant(
@@ -156,6 +207,17 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
       .getRawMany();
   }
 
+  async findUserChatRooms(userId: number): Promise<ChatRoomEntity[]> {
+    return (
+      await this.participantRepository.find({
+        where: { userId },
+        relations: {
+          chatRoom: true,
+        },
+      })
+    ).map((e) => e.chatRoom);
+  }
+
   async createClassChatRoom(
     dto: Pick<ChatRoomEntity, 'name' | 'schoolId' | 'classId'>,
   ): Promise<ChatRoomEntity> {
@@ -163,20 +225,6 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
       ...dto,
       type: ChatRoomType.CLASS,
     });
-  }
-
-  async createSubjectChatRooms(
-    dto: Pick<
-      ChatRoomEntity,
-      'name' | 'schoolId' | 'subjectId' | 'day' | 'period'
-    >[],
-  ): Promise<ChatRoomEntity[]> {
-    return this.chatRoomRepository.save(
-      dto.map((e) => ({
-        ...e,
-        type: ChatRoomType.SUBJECT,
-      })),
-    );
   }
 
   getChatRoomParticipants(roomId: string): Promise<ChatParticipantEntity[]> {
