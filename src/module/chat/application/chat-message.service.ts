@@ -13,6 +13,8 @@ import { MessageEntity } from '../adapter/persistence/entities/message.entity';
 import { ReportProvider } from 'src/common/provider/report.provider';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { ReportDisruptiveMessageDto } from '../adapter/presenter/rest/dto/report.dto';
+import { ReportStatus } from '../domain/enums/report.enums';
 
 @Injectable()
 export class ChatMessageService {
@@ -145,5 +147,48 @@ export class ChatMessageService {
     const baseName = path.basename(fileName, extension);
 
     return `${baseName}-${timestamp}-${randomString}${extension}`;
+  }
+
+  async reportDisruptiveMessage(
+    userId: number,
+    dto: ReportDisruptiveMessageDto,
+  ) {
+    const log =
+      await this.chatMessageRepository.insertLogReportingDisruptiveMessage(
+        userId,
+        dto,
+      );
+
+    const [reportedUserTotalReportsCount, reporterUserTotalReportsCount] =
+      await Promise.all([
+        this.chatMessageRepository.countReportedUserTotalReports(dto.senderId),
+        this.chatMessageRepository.countReporterTotalReports(userId),
+      ]);
+
+    const reportContent: {
+      '신고한 사용자 ID': number;
+      '신고자 누적 신고 수': number;
+      '피신고자 누적 신고 수': number;
+      '메시지 발송 사용자 ID': number;
+      '메시지 내용': string | undefined;
+      '신고 시간': Date;
+      '신고 처리 상태': ReportStatus;
+      파일?: string;
+    } = {
+      '신고한 사용자 ID': userId,
+      '신고자 누적 신고 수': reporterUserTotalReportsCount,
+      '피신고자 누적 신고 수': reportedUserTotalReportsCount,
+      '메시지 발송 사용자 ID': dto.senderId,
+      '메시지 내용': dto.messageContent,
+      '신고 시간': log.reportedAt,
+      '신고 처리 상태': ReportStatus.PENDING,
+    };
+    if (dto?.fileUrl) {
+      reportContent['파일'] = `${dto?.fileUrl} ${dto?.fileSize}`;
+    }
+
+    if (log) {
+      ReportProvider.reportChatIssue(reportContent);
+    }
   }
 }

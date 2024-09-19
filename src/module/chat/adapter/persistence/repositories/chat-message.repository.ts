@@ -5,6 +5,8 @@ import { MessageEntity } from '../entities/message.entity';
 import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.entity';
 import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { ChatMessageRepository } from 'src/module/chat/application/port/chat-message.repository.abstract';
+import { LogChatMessageReportEntity } from '../entities/log-chat-message-report.entity';
+import { ReportDisruptiveMessageDto } from '../../presenter/rest/dto/report.dto';
 
 export class OrmChatMessageRepository implements ChatMessageRepository {
   constructor(
@@ -15,6 +17,9 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
     private readonly unreadMessageTrackerRepository: Repository<UnreadMessageTrackerEntity>,
 
     private readonly chatRoomRepository: ChatRoomRepository,
+
+    @InjectRepository(LogChatMessageReportEntity)
+    private readonly logChatMessageReportRepository: Repository<LogChatMessageReportEntity>,
   ) {}
 
   // TODO: 암호화 추가
@@ -130,5 +135,38 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
         }
       }
     }
+  }
+
+  async insertLogReportingDisruptiveMessage(
+    reportingUserId: number,
+    dto: ReportDisruptiveMessageDto,
+  ): Promise<LogChatMessageReportEntity> {
+    return this.logChatMessageReportRepository.save({
+      content: dto.messageContent,
+      reportingUserId,
+      reportedUserId: dto.senderId,
+      fileUrl: dto.fileUrl,
+      fileSize: dto.fileSize,
+    });
+  }
+
+  async countReporterTotalReports(reportingUserId: number): Promise<number> {
+    const result = await this.logChatMessageReportRepository
+      .createQueryBuilder('report')
+      .select('COUNT(report.id)', 'totalReports')
+      .where('report.reportingUserId = :reportingUserId', { reportingUserId })
+      .getRawOne();
+
+    return result ? parseInt(result.totalReports, 10) : 0;
+  }
+
+  async countReportedUserTotalReports(reportedUserId: number): Promise<number> {
+    const result = await this.logChatMessageReportRepository
+      .createQueryBuilder('report')
+      .select('COUNT(report.id)', 'totalReports')
+      .where('report.reportedUserId = :reportedUserId', { reportedUserId })
+      .getRawOne();
+
+    return result ? parseInt(result.totalReports, 10) : 0;
   }
 }

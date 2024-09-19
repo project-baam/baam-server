@@ -9,6 +9,7 @@ import { ChatRoomRepository } from '../../application/port/chat-room.repository.
 import { ChatMessageRepository } from '../../application/port/chat-message.repository.abstract';
 import { OrmChatMessageRepository } from './repositories/chat-message.repository';
 import { OrmChatRoomRepository } from './repositories/chat-room.repository';
+import { LogChatMessageReportEntity } from './entities/log-chat-message-report.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { OrmChatRoomRepository } from './repositories/chat-room.repository';
       ChatParticipantEntity,
       MessageEntity,
       UnreadMessageTrackerEntity,
+      LogChatMessageReportEntity,
     ]),
   ],
   providers: [
