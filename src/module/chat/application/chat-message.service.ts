@@ -159,15 +159,36 @@ export class ChatMessageService {
         dto,
       );
 
+    const [reportedUserTotalReportsCount, reporterUserTotalReportsCount] =
+      await Promise.all([
+        this.chatMessageRepository.countReportedUserTotalReports(dto.senderId),
+        this.chatMessageRepository.countReporterTotalReports(userId),
+      ]);
+
+    const reportContent: {
+      '신고한 사용자 ID': number;
+      '신고자 누적 신고 수': number;
+      '피신고자 누적 신고 수': number;
+      '메시지 발송 사용자 ID': number;
+      '메시지 내용': string | undefined;
+      '신고 시간': Date;
+      '신고 처리 상태': ReportStatus;
+      파일?: string;
+    } = {
+      '신고한 사용자 ID': userId,
+      '신고자 누적 신고 수': reporterUserTotalReportsCount,
+      '피신고자 누적 신고 수': reportedUserTotalReportsCount,
+      '메시지 발송 사용자 ID': dto.senderId,
+      '메시지 내용': dto.messageContent,
+      '신고 시간': log.reportedAt,
+      '신고 처리 상태': ReportStatus.PENDING,
+    };
+    if (dto?.fileUrl) {
+      reportContent['파일'] = `${dto?.fileUrl} ${dto?.fileSize}`;
+    }
+
     if (log) {
-      ReportProvider.reportChatIssue({
-        '신고한 사용자 ID': userId,
-        '메시지 발송 사용자 ID': dto.senderId,
-        '메시지 내용': dto.messageContent,
-        파일: `${dto?.fileUrl} ${dto?.fileSize}`,
-        '신고 시간': log.reportedAt,
-        '신고 처리 상태': ReportStatus.PENDING,
-      });
+      ReportProvider.reportChatIssue(reportContent);
     }
   }
 }

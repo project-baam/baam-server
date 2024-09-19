@@ -149,4 +149,24 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
       fileSize: dto.fileSize,
     });
   }
+
+  async countReporterTotalReports(reportingUserId: number): Promise<number> {
+    const result = await this.logChatMessageReportRepository
+      .createQueryBuilder('report')
+      .select('COUNT(report.id)', 'totalReports')
+      .where('report.reportingUserId = :reportingUserId', { reportingUserId })
+      .getRawOne();
+
+    return result ? parseInt(result.totalReports, 10) : 0;
+  }
+
+  async countReportedUserTotalReports(reportedUserId: number): Promise<number> {
+    const result = await this.logChatMessageReportRepository
+      .createQueryBuilder('report')
+      .select('COUNT(report.id)', 'totalReports')
+      .where('report.reportedUserId = :reportedUserId', { reportedUserId })
+      .getRawOne();
+
+    return result ? parseInt(result.totalReports, 10) : 0;
+  }
 }

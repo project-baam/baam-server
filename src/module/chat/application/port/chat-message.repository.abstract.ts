@@ -30,5 +30,11 @@ export abstract class ChatMessageRepository {
   abstract insertLogReportingDisruptiveMessage(
     reportingUserId: number,
     dto: ReportDisruptiveMessageDto,
-  ): Promise<LogChatMessageReportEntity | null>;
+  ): Promise<LogChatMessageReportEntity>;
+
+  abstract countReporterTotalReports(reportingUserId: number): Promise<number>;
+
+  abstract countReportedUserTotalReports(
+    reportedUserId: number,
+  ): Promise<number>;
 }
