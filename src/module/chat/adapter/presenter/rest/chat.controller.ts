@@ -1,18 +1,32 @@
-import { Get, HttpStatus, Param, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Body,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { RestApi } from 'src/common/decorator/rest-api.decorator';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
 import { AuthorizationToken } from 'src/docs/constant/authorization-token';
+import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
 import { ApiDescription } from 'src/docs/decorator/api-description.decorator';
+import { ChatMessageService } from 'src/module/chat/application/chat-message.service';
 import { ChatService } from 'src/module/chat/application/chat.service';
 import { ChatRoom } from 'src/module/chat/domain/chat-room';
 import { CHAT_ROOM_MAX_PARTICIPANTS } from 'src/module/chat/domain/constants/chat.constants';
 import { Participant } from 'src/module/chat/domain/participant';
 import { ActiveUser } from 'src/module/iam/adapter/presenter/rest/decorators/active-user.decorator';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
+import { ReportDisruptiveMessageDto } from './dto/report.dto';
 
 @RestApi('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly chatMessageService: ChatMessageService,
+  ) {}
 
   @ApiDescription({
     tags: ['Chat'],
@@ -55,5 +69,22 @@ export class ChatController {
     );
 
     return new ResponseListDto(participants);
+  }
+
+  @ApiBooleanResponse(HttpStatus.OK)
+  @ApiDescription({
+    tags: ['Chat'],
+    summary: '부적절한 채팅 메시지 신고',
+    auth: AuthorizationToken.BearerUserToken,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post('report')
+  async reportDisruptiveMessage(
+    @ActiveUser() user: UserEntity,
+    @Body() dto: ReportDisruptiveMessageDto,
+  ): Promise<boolean> {
+    await this.chatMessageService.reportDisruptiveMessage(user.id, dto);
+
+    return true;
   }
 }

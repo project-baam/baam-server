@@ -1,5 +1,7 @@
 import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { MessageEntity } from '../../adapter/persistence/entities/message.entity';
+import { LogChatMessageReportEntity } from '../../adapter/persistence/entities/log-chat-message-report.entity';
+import { ReportDisruptiveMessageDto } from '../../adapter/presenter/rest/dto/report.dto';
 
 export abstract class ChatMessageRepository {
   abstract createMessage(
@@ -24,4 +26,9 @@ export abstract class ChatMessageRepository {
   ): Promise<void>;
 
   abstract deleteMessageIfNotLast(messageIds: number[]): Promise<void>;
+
+  abstract insertLogReportingDisruptiveMessage(
+    reportingUserId: number,
+    dto: ReportDisruptiveMessageDto,
+  ): Promise<LogChatMessageReportEntity | null>;
 }

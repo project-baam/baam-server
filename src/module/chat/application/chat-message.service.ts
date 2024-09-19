@@ -13,6 +13,8 @@ import { MessageEntity } from '../adapter/persistence/entities/message.entity';
 import { ReportProvider } from 'src/common/provider/report.provider';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { ReportDisruptiveMessageDto } from '../adapter/presenter/rest/dto/report.dto';
+import { ReportStatus } from '../domain/enums/report.enums';
 
 @Injectable()
 export class ChatMessageService {
@@ -145,5 +147,27 @@ export class ChatMessageService {
     const baseName = path.basename(fileName, extension);
 
     return `${baseName}-${timestamp}-${randomString}${extension}`;
+  }
+
+  async reportDisruptiveMessage(
+    userId: number,
+    dto: ReportDisruptiveMessageDto,
+  ) {
+    const log =
+      await this.chatMessageRepository.insertLogReportingDisruptiveMessage(
+        userId,
+        dto,
+      );
+
+    if (log) {
+      ReportProvider.reportChatIssue({
+        '신고한 사용자 ID': userId,
+        '메시지 발송 사용자 ID': dto.senderId,
+        '메시지 내용': dto.messageContent,
+        파일: `${dto?.fileUrl} ${dto?.fileSize}`,
+        '신고 시간': log.reportedAt,
+        '신고 처리 상태': ReportStatus.PENDING,
+      });
+    }
   }
 }
