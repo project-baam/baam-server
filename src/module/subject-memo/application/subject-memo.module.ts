@@ -15,5 +15,6 @@ import { NotificationModule } from 'src/module/notification/application/notifica
   ],
   controllers: [SubjectMemoController],
   providers: [SubjectMemoService],
+  exports: [SubjectMemoService],
 })
 export class SubjectMemoModule {}

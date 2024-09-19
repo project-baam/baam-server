@@ -1,23 +1,35 @@
+import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Transactional } from 'typeorm-transactional';
 import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.repository.abstract';
-import { DateUtilService } from 'src/module/util/date-util.service';
 import { TimetableService } from './../../timetable/application/timetable.service';
 import { FriendService } from 'src/module/friend/application/friend.service';
-import { Injectable } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
+import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
+import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
+import { ChatRoomEntity } from '../adapter/persistence/entities/chat-room.entity';
 import { Participant } from '../domain/participant';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
-import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
+import { plainToInstance } from 'class-transformer';
 import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
-import { Transactional } from 'typeorm-transactional';
-import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
+import {
+  ClassSchedule,
+  SubjectSchedule,
+} from '../domain/types/subject-chatroom-name.types';
+import { CommonSubjects } from 'src/module/school-dataset/domain/constants/common-subjects';
+import { ChatRoomType } from '../domain/enums/chat-room-type';
+import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
+import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 
 @Injectable()
 export class ChatService {
   constructor(
     private readonly chatRoomRepository: ChatRoomRepository,
     private readonly friendService: FriendService,
+    @Inject(forwardRef(() => TimetableService))
     private readonly timetableService: TimetableService,
-    private readonly dateUtilService: DateUtilService,
+    private readonly timetableRepository: UserTimetableRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   /**
@@ -29,7 +41,7 @@ export class ChatService {
   async initializeChatRoomsForUser(user: UserProfileEntity) {
     await Promise.all([
       this.createOrInviteToClassChatRoom(user),
-      this.createOrInviteToSubjectChatRoom(user),
+      this.createOrInviteToSubjectChatRooms(user),
     ]);
   }
 
@@ -40,19 +52,16 @@ export class ChatService {
     });
 
     if (!classChatRoom) {
-      // 채팅방 생성
       const newChatRoom = await this.chatRoomRepository.createClassChatRoom({
         name: `${user.class.grade}학년 ${user.class.name}반`,
         schoolId: user.class.schoolId,
         classId: user.classId,
       });
 
-      // 채팅방 초대
-      this.chatRoomRepository.saveChatRoomParticipant([
+      await this.chatRoomRepository.saveChatRoomParticipant([
         { userId: user.userId, roomId: newChatRoom.id },
       ]);
     } else {
-      // 채팅방 초대
       await this.chatRoomRepository.saveChatRoomParticipant([
         { userId: user.userId, roomId: classChatRoom.id },
       ]);
@@ -60,56 +69,91 @@ export class ChatService {
   }
 
   // 유저의 과목 채팅방(없을 경우 생성 후 유저 초대)
-  private async createOrInviteToSubjectChatRoom(user: UserProfileEntity) {
-    try {
-      // 공통 과목은 채팅방 생성 안 함
-      const userTimetable =
-        await this.timetableService.getNonCommonSubjectsFromUserTimetable(
-          user.userId,
-        );
-
-      if (!userTimetable.length) {
-        return;
-      }
-      // 모든 가능한 채팅방을 한 번에 조회
-      const existingChatRooms =
-        await this.chatRoomRepository.findSubjectChatRoomsByTimetable({
-          schoolId: user.class.schoolId,
-          timetables: userTimetable,
-        });
-
-      const chatRoomsToCreate = userTimetable
-        .filter(
-          (timetable) =>
-            !existingChatRooms.some(
-              (room) =>
-                room.subjectId === timetable.subjectId &&
-                room.day === timetable.day &&
-                room.period === timetable.period,
-            ),
-        )
-        .map((timetable) => ({
-          name: `[${timetable.subject.name}] (${this.dateUtilService.getKoreanWeekday(timetable.day)} ${timetable.period} 교시) `,
-          schoolId: user.class.schoolId,
-          subjectId: timetable.subjectId,
-          day: timetable.day,
-          period: timetable.period,
-        }));
-
-      const newChatRooms =
-        await this.chatRoomRepository.createSubjectChatRooms(chatRoomsToCreate);
-
-      const allChatRoomIds = [
-        ...existingChatRooms.map((r) => r.id),
-        ...newChatRooms.map((r) => r.id),
-      ];
-
-      await this.chatRoomRepository.saveChatRoomParticipant(
-        allChatRoomIds.map((id) => ({ roomId: id, userId: user.userId })),
+  private async createOrInviteToSubjectChatRooms(user: UserProfileEntity) {
+    // 공통 과목 제외한 시간표
+    const userTimetable =
+      await this.timetableService.getNonCommonSubjectsFromUserTimetable(
+        user.userId,
       );
-    } catch (error) {
-      console.error(error);
+    if (!userTimetable.length) return;
+
+    // 과목별 분반 목록
+    const subjectSchedules = this.groupTimetableBySubject(userTimetable);
+    const subjectSchedulesWithHash: {
+      schedule: SubjectSchedule;
+      scheduleHash: string;
+    }[] = subjectSchedules.map((e: SubjectSchedule) => {
+      return {
+        schedule: e,
+        scheduleHash: ChatRoomEntity.generateHash(
+          user.class.schoolId,
+          e[0],
+          e[2],
+        ),
+      };
+    });
+
+    // 채팅방이 이미 존재하는 분반
+    const existingChatRooms =
+      await this.chatRoomRepository.findSubjectChatRoomByHashes(
+        subjectSchedulesWithHash.map((e) => e.scheduleHash),
+      );
+
+    // 채팅방 생성할 분반
+    const chatRoomsToCreate: Pick<
+      ChatRoomEntity,
+      'name' | 'schoolId' | 'subjectId' | 'scheduleHash'
+    >[] = [];
+
+    subjectSchedulesWithHash.forEach((e) => {
+      if (
+        !existingChatRooms.some((room) => room.scheduleHash === e.scheduleHash)
+      ) {
+        chatRoomsToCreate.push({
+          name: ChatRoomEntity.generateName(e.schedule[1], e.schedule[2]),
+          schoolId: user.class.schoolId,
+          subjectId: e.schedule[0],
+          scheduleHash: e.scheduleHash,
+        });
+      }
+    });
+
+    // 새로 생성한 채팅방
+    const newChatRooms =
+      await this.chatRoomRepository.createSubjectChatRooms(chatRoomsToCreate);
+
+    const allChatRoomsToInvite = [...existingChatRooms, ...newChatRooms].map(
+      (e) => {
+        return {
+          roomId: e.id,
+          userId: user.userId,
+        };
+      },
+    );
+
+    await this.chatRoomRepository.saveChatRoomParticipant(allChatRoomsToInvite);
+  }
+
+  private groupTimetableBySubject(
+    timetable: UserTimetableEntity[],
+  ): SubjectSchedule[] {
+    const subjectMap = new Map<number, [string, ClassSchedule]>();
+
+    for (const entry of timetable) {
+      const { subjectId, subject, day, period } = entry;
+      if (!subjectMap.has(subjectId)) {
+        subjectMap.set(subjectId, [subject.name, []]);
+      }
+
+      const [, schedule] = subjectMap.get(subjectId)!;
+      schedule.push({ day, period });
     }
+
+    return Array.from(subjectMap, ([subjectId, [name, schedule]]) => [
+      subjectId,
+      name,
+      schedule,
+    ]);
   }
 
   @Transactional()
@@ -123,22 +167,138 @@ export class ChatService {
     // TODO: oldClassId 에 해당하는 유저가 아무도 없을 경우 채팅방 삭제(어디서?)
   }
 
-  // TODO: :
+  @Transactional()
   async handleTimetableChange(
-    user: UserProfileEntity,
-    oldTimetable: UserTimetableEntity[],
-    newTimetable: UserTimetableEntity[],
+    userId: number,
+    year: number,
+    semester: Semester,
+    subject: SubjectEntity,
   ) {
-    // await this.createOrInviteToSubjectChatRoom(user);
+    // 공통과목은 분반 톡방 생성 생략
+    if (CommonSubjects.includes(subject.name)) {
+      return;
+    }
+    const subjectId = subject.id;
+
+    const schoolId = (await this.userRepository.findOneById(userId))?.profile
+      .class.schoolId;
+
+    if (schoolId) {
+      const updatedSubjectTimetable =
+        await this.timetableRepository.findUserTimetableBySubject({
+          userId,
+          year,
+          semester,
+          subjectId,
+        });
+
+      const newScheduleHash = ChatRoomEntity.generateHash(
+        schoolId,
+        subjectId,
+        updatedSubjectTimetable,
+      );
+
+      // 현재 사용자가 속한 변경된 과목의 채팅방 조회
+      const currentRooms =
+        await this.chatRoomRepository.findSubjectChatRoomsByUserIdAndSubjectId(
+          userId,
+          subjectId,
+        );
+
+      if (currentRooms.length) {
+        for (const currentRoom of currentRooms) {
+          if (currentRoom.scheduleHash !== newScheduleHash) {
+            // 기존 방에서 나가기
+            await this.chatRoomRepository.removeUserFromSubjectChatRooms(
+              userId,
+              [currentRoom.scheduleHash],
+            );
+
+            // 해당 방의 참가자 수가 0이면 방 삭제
+            if (currentRoom.participantsCount - 1 === 0) {
+              await this.chatRoomRepository.deleteChatRooms([currentRoom.id]);
+            }
+          }
+        }
+      }
+
+      // 해당 과목의 수업 조합(분반) 채팅방 찾기 또는 생성
+      if (updatedSubjectTimetable.length) {
+        let targetRoom =
+          await this.chatRoomRepository.findSubjectChatRoomByHashes([
+            newScheduleHash,
+          ]);
+
+        if (!targetRoom.length) {
+          // 새 방 생성
+          const subjectName = subject.name;
+          targetRoom = await this.chatRoomRepository.createSubjectChatRooms([
+            {
+              name: ChatRoomEntity.generateName(
+                subjectName,
+                updatedSubjectTimetable,
+              ),
+              schoolId,
+              subjectId,
+              scheduleHash: newScheduleHash,
+            },
+          ]);
+        }
+        // 채팅방에 초대
+        await this.chatRoomRepository.saveChatRoomParticipant([
+          { userId, roomId: targetRoom[0].id },
+        ]);
+      }
+    }
   }
 
   async ensureUserHasChatRooms(user: UserProfileEntity): Promise<void> {
-    const chatRoomsCount = await this.chatRoomRepository.countChatRoomsForUser(
+    const { classChatRoomCount, subjectChatRoomCount } =
+      await this.chatRoomRepository.countChatRoomsForUser(user.userId);
+
+    const userTimetable =
+      await this.timetableService.getNonCommonSubjectsFromUserTimetable(
+        user.userId,
+      );
+
+    const expectedSubjectCount = new Set(
+      userTimetable.map((entry) => entry.subjectId),
+    ).size;
+
+    const needsInitialization =
+      classChatRoomCount === 0 || subjectChatRoomCount < expectedSubjectCount;
+
+    if (needsInitialization) {
+      await this.initializeChatRoomsForUser(user);
+    } else if (subjectChatRoomCount > expectedSubjectCount) {
+      // 옵션: 필요 없는 과목 채팅방에서 사용자 제거
+      await this.removeUserFromUnnecessarySubjectRooms(user, userTimetable);
+    }
+  }
+
+  private async removeUserFromUnnecessarySubjectRooms(
+    user: UserProfileEntity,
+    currentTimetable: UserTimetableEntity[],
+  ): Promise<void> {
+    const currentSubjectIds = new Set(
+      currentTimetable.map((entry) => entry.subjectId),
+    );
+    const userChatRooms = await this.chatRoomRepository.findUserChatRooms(
       user.userId,
     );
 
-    if (!chatRoomsCount) {
-      await this.initializeChatRoomsForUser(user);
+    // 시간표에는 없는데 채팅방에 있는 과목 채팅방
+    const unnecessaryRooms = userChatRooms.filter(
+      (room) =>
+        room.type === ChatRoomType.SUBJECT &&
+        !currentSubjectIds.has(room.subjectId),
+    );
+
+    if (unnecessaryRooms.length > 0) {
+      await this.chatRoomRepository.removeUserFromSubjectChatRooms(
+        user.userId,
+        unnecessaryRooms.map((room) => room.scheduleHash),
+      );
     }
   }
 

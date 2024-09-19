@@ -52,6 +52,14 @@ export class OrmSubjectMemoRepository implements SubjectMemoRepository {
     await this.eventRepository.delete(entity.id);
   }
 
+  async deleteBySubject(userId: number, subjectId: number): Promise<void> {
+    await this.eventRepository.delete({
+      userId,
+      type: EventType.CLASS,
+      subjectId,
+    });
+  }
+
   getMemosByPeriod(
     userId: number,
     period: {

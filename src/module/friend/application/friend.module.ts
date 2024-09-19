@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FriendController } from '../adapter/presenter/rest/friend.controller';
 import { FriendService } from './friend.service';
 import { OrmFriendPersistenceModule } from '../adapter/persistence/orm-friend-persistence.module';
@@ -12,7 +12,7 @@ import { NotificationModule } from 'src/module/notification/application/notifica
     OrmFriendPersistenceModule,
     OrmUserPersistenceModule,
     OrmTimetablePersistenceModule,
-    TimetableModule,
+    forwardRef(() => TimetableModule),
     NotificationModule,
   ],
   providers: [FriendService],

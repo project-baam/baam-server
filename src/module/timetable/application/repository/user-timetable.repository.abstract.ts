@@ -12,10 +12,18 @@ export abstract class UserTimetableRepository {
     itemOrItems: UpsertUserTimetable | UpsertUserTimetable[],
   ): Promise<void>;
 
+  abstract findUserTimetableBySubject(
+    where: FindUserTimetable & Pick<UserTimetableEntity, 'subjectId'>,
+  ): Promise<UserTimetableEntity[]>;
+
   abstract find(where: FindUserTimetable): Promise<UserTimetableEntity[]>;
   abstract findNotInCommonSubjects(
     where: FindUserTimetable,
   ): Promise<UserTimetableEntity[]>;
+
+  abstract findSubjectByDayAndPeriod(
+    where: DeleteUserTimetable,
+  ): Promise<SubjectEntity | null>;
 
   abstract delete(where: DeleteUserTimetable): Promise<void>;
 

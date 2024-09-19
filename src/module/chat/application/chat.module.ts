@@ -9,6 +9,7 @@ import { ChatMessageService } from './chat-message.service';
 import { ChatGateway } from '../adapter/presenter/websocket/chat.gateway';
 import { OrmUserPersistenceModule } from 'src/module/user/adapter/persistence/orm/orm-user-persistence.module';
 import { IamModule } from 'src/module/iam/application/iam.module';
+import { OrmTimetablePersistenceModule } from 'src/module/timetable/adapter/persistence/orm-timetable-persistence.module';
 
 @Module({
   imports: [
@@ -16,8 +17,9 @@ import { IamModule } from 'src/module/iam/application/iam.module';
     OrmChatPersistenceModule,
     OrmUserPersistenceModule,
     FriendModule,
-    TimetableModule,
     forwardRef(() => IamModule),
+    forwardRef(() => TimetableModule),
+    OrmTimetablePersistenceModule,
   ],
   providers: [ChatService, ChatMessageService, ChatGateway],
   controllers: [ChatController],
