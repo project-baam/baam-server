@@ -155,8 +155,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     rooms.add(payload.roomId);
     this.userRoomMap.set(client.user.id, rooms);
 
-    console.log(`User ${client.user.id} joined room ${payload.roomId}`);
-
     await this.sendUndeliveredMessages(payload.roomId, client.user.id);
     await this.chatMessageService.sendSystemMessage(
       payload.roomId,
@@ -177,8 +175,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const rooms = this.userRoomMap.get(client.user.id) || new Set();
     rooms.delete(payload.roomId);
     this.userRoomMap.set(client.user.id, rooms);
-
-    console.log(`User ${client.user.id} left room ${payload.roomId}`);
 
     await this.chatMessageService.sendSystemMessage(
       payload.roomId,

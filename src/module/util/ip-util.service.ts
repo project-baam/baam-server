@@ -3,14 +3,16 @@ import * as net from 'net';
 
 export function getClientIp(request: Request): string {
   const possibleIps: string[] = [
-    request.ip,
     getIpFromXForwardedFor(request),
+    getIpFromXRealIp(request),
+    request.ip,
     request.socket?.remoteAddress,
   ].filter((ip): ip is string => ip != null && ip !== '');
 
   for (const ip of possibleIps) {
     if (ip && isValidIp(ip)) {
-      return normalizeIp(ip);
+      const normalizedIp = normalizeIp(ip);
+      return normalizedIp;
     }
   }
 
@@ -20,7 +22,17 @@ export function getClientIp(request: Request): string {
 function getIpFromXForwardedFor(request: Request): string | undefined {
   const forwardedFor = request.headers['x-forwarded-for'];
   if (typeof forwardedFor === 'string') {
-    return forwardedFor.split(',')[0].trim();
+    const ips = forwardedFor.split(',').map((ip) => ip.trim());
+
+    return ips[0]; // 첫 번째 IP가 원래 클라이언트 IP
+  }
+  return undefined;
+}
+
+function getIpFromXRealIp(request: Request): string | undefined {
+  const xRealIp = request.headers['x-real-ip'];
+  if (typeof xRealIp === 'string') {
+    return xRealIp.trim();
   }
   return undefined;
 }
