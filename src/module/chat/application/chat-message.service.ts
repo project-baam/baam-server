@@ -126,10 +126,7 @@ export class ChatMessageService {
       await this.chatRoomRepository.getChatRoomParticipants(roomId);
 
     for (const participant of participants) {
-      if (
-        participant.userId !== senderId &&
-        this.chatGateway.isUserInRoom(participant.userId, roomId)
-      ) {
+      if (this.chatGateway.isUserInRoom(participant.userId, roomId)) {
         this.chatGateway.sendMessageToUser(
           participant.userId,
           ChatMessageMapper.toDomain(message),

@@ -6,7 +6,7 @@ import {
   SubscribeMessage,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { forwardRef, Inject, Logger, UseGuards } from '@nestjs/common';
+import { forwardRef, Inject, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { AppWebsocketGateway } from 'src/common/decorator/websocket-api.decorator';
 import { SendFileMessageDto, SendTextMessageDto } from './dto/send-message.dto';
