@@ -48,22 +48,22 @@ export class ChatMessageService {
     senderId: number,
     content: string,
   ): Promise<Message> {
-    const message = await this.chatMessageRepository.createMessage(
+    const messageEntity = await this.chatMessageRepository.createMessage(
       roomId,
       senderId,
       MessageType.TEXT,
       content,
     );
 
-    this.sendOrQueueMessage(roomId, senderId, message).catch((error) => {
+    this.sendOrQueueMessage(roomId, senderId, messageEntity).catch((error) => {
       ReportProvider.error(error, {
         roomId,
         senderId,
-        message,
+        messageEntity,
       });
     });
 
-    return ChatMessageMapper.toDomain(message);
+    return ChatMessageMapper.toDomain(messageEntity);
   }
 
   async sendFileMessage(
@@ -90,7 +90,7 @@ export class ChatMessageService {
       uniqueKey,
     });
 
-    const message = await this.chatMessageRepository.createMessage(
+    const messageEntity = await this.chatMessageRepository.createMessage(
       roomId,
       senderId,
       MessageType.FILE,
@@ -103,15 +103,15 @@ export class ChatMessageService {
       },
     );
 
-    this.sendOrQueueMessage(roomId, senderId, message).catch((error) => {
+    this.sendOrQueueMessage(roomId, senderId, messageEntity).catch((error) => {
       ReportProvider.error(error, {
         roomId,
         senderId,
-        message,
+        messageEntity,
       });
     });
 
-    return ChatMessageMapper.toDomain(message);
+    return ChatMessageMapper.toDomain(messageEntity);
   }
 
   /**
@@ -130,7 +130,10 @@ export class ChatMessageService {
         participant.userId !== senderId &&
         this.chatGateway.isUserInRoom(participant.userId, roomId)
       ) {
-        this.chatGateway.sendMessageToUser(participant.userId, message);
+        this.chatGateway.sendMessageToUser(
+          participant.userId,
+          ChatMessageMapper.toDomain(message),
+        );
       } else {
         await this.chatMessageRepository.trackUnreadMessage(
           message.id,

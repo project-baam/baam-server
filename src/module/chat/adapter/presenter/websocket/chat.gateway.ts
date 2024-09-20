@@ -20,13 +20,13 @@ import {
   UserNotOnlineInRoomError,
 } from 'src/common/types/error/application-exceptions';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
-import { MessageEntity } from '../../persistence/entities/message.entity';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
 import { ChatEvents } from './constants/chat-events';
 import { ChatMessageMapper } from 'src/module/chat/application/mappers/chat-message.mapper';
 import { ErrorCode } from 'src/common/constants/error-codes';
 import { WebSocketAuthGuard } from './guards/websocket-auth-guard';
+import { Message } from 'src/module/chat/domain/message';
 
 interface AuthenticatedSocket extends Socket {
   user: UserEntity;
@@ -174,19 +174,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: SendTextMessageDto,
   ) {
+    console.log(payload);
     const userId = client.user.id;
 
     if (!this.isUserInRoom(userId, payload.roomId)) {
       throw new UserNotOnlineInRoomError(payload.roomId, userId);
     }
-    const message = await this.chatMessageService.sendTextMessage(
+    await this.chatMessageService.sendTextMessage(
       payload.roomId,
       client.user.id,
       payload.content,
     );
-    this.server
-      .to(payload.roomId)
-      .emit(ChatEvents.FromServer.NewMessage, message);
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendFileMessage)
@@ -200,7 +198,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { roomId, fileName, fileType, fileSize, fileData } = payload;
     const buffer = Buffer.from(fileData);
 
-    const message = await this.chatMessageService.sendFileMessage(
+    await this.chatMessageService.sendFileMessage(
       roomId,
       userId,
       buffer,
@@ -208,12 +206,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       fileSize,
       fileType,
     );
-    this.server
-      .to(payload.roomId)
-      .emit(ChatEvents.FromServer.NewMessage, message);
   }
 
-  sendMessageToUser(userId: number, message: MessageEntity): void {
+  sendMessageToUser(userId: number, message: Message): void {
     const socketIds = this.userSocketMap.get(userId);
     if (socketIds) {
       socketIds.forEach((socketId) => {
