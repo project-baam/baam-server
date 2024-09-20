@@ -6,7 +6,7 @@ import { ReportDisruptiveMessageDto } from '../../adapter/presenter/rest/dto/rep
 export abstract class ChatMessageRepository {
   abstract createMessage(
     roomId: string,
-    senderId: number,
+    senderId: number | null,
     type: MessageType,
     contentOrFileInfo:
       | string

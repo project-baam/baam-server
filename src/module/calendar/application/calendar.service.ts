@@ -37,9 +37,11 @@ export class CalendarService {
   ) {}
 
   /**
-   * 회원가입시 캘린더에 학교 이벤트 세팅
+   * 회원가입시 캘린더에 학교 이벤트 세팅 or 유저가 학교 정보 변경 시 캘린더에 학교 이벤트 세팅 <- TODO: 이 경우에 기존 유저가 세팅해둔 학교 이벤트를 모두 삭제해야할지
    * (현재 날짜가 속한 년도의 모든 유저 학교 이벤트를 Neis API 를 통해 가져옴)
    * @param year 년도 (선택사항) 현재 날짜가 속한 년도로 설정
+   *
+   *
    */
   async setUserSchoolEventsWithFallbackFetch(
     userId: number,
