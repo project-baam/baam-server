@@ -4,11 +4,13 @@ export class ChatMessageMapper {
   static toDomain(entity: MessageEntity): Message {
     return {
       type: entity.type,
-      sender: {
-        id: entity.senderId,
-        name: entity.sender.fullName,
-        profileImageUrl: entity.sender.profileImageUrl,
-      },
+      sender: entity.senderId
+        ? {
+            id: entity.senderId,
+            name: entity.sender.fullName,
+            profileImageUrl: entity.sender.profileImageUrl,
+          }
+        : null,
       content: entity?.content ?? null,
       file:
         entity.fileUrl && entity.fileName && entity.fileSize !== undefined

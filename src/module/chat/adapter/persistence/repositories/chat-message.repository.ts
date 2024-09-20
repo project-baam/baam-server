@@ -52,7 +52,7 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
       isLastMessage: true,
     };
 
-    if (type === MessageType.TEXT) {
+    if (type === MessageType.TEXT || type == MessageType.SYSTEM) {
       messageData.content = contentOrFileInfo as string;
     } else if (type === MessageType.FILE) {
       const fileInfo = contentOrFileInfo as {
@@ -110,7 +110,7 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
     });
 
     // 모든 사용자가 읽었다면 메시지 삭제 & 해당 채팅방의 마지막 메시지 갱신
-    this.deleteMessageIfNotLast(messageIds);
+    await this.deleteMessageIfNotLast(messageIds);
   }
 
   async deleteMessageIfNotLast(messageIds: number[]): Promise<void> {

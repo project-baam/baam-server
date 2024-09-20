@@ -35,7 +35,7 @@ export class MessageEntity extends BaseEntity {
   @Index()
   roomId: string;
 
-  @Column('int')
+  @Column('int', { nullable: true, comment: '시스템 메시지일 경우 null' })
   senderId: number;
 
   @Column({ default: false })

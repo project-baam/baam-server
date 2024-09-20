@@ -43,6 +43,26 @@ export class ChatMessageService {
     return this.chatMessageRepository.getUnreadMessages(roomId, userId);
   }
 
+  async sendSystemMessage(roomId: string, content: string) {
+    const messageEntity = await this.chatMessageRepository.createMessage(
+      roomId,
+      null,
+      MessageType.SYSTEM,
+      content,
+    );
+
+    await this.sendOrQueueMessage(roomId, null, messageEntity).catch(
+      (error) => {
+        ReportProvider.error(error, {
+          roomId,
+          messageEntity,
+        });
+      },
+    );
+
+    return ChatMessageMapper.toDomain(messageEntity);
+  }
+
   async sendTextMessage(
     roomId: string,
     senderId: number,
@@ -55,13 +75,15 @@ export class ChatMessageService {
       content,
     );
 
-    this.sendOrQueueMessage(roomId, senderId, messageEntity).catch((error) => {
-      ReportProvider.error(error, {
-        roomId,
-        senderId,
-        messageEntity,
-      });
-    });
+    await this.sendOrQueueMessage(roomId, senderId, messageEntity).catch(
+      (error) => {
+        ReportProvider.error(error, {
+          roomId,
+          senderId,
+          messageEntity,
+        });
+      },
+    );
 
     return ChatMessageMapper.toDomain(messageEntity);
   }
@@ -119,7 +141,7 @@ export class ChatMessageService {
    */
   private async sendOrQueueMessage(
     roomId: string,
-    senderId: number,
+    senderId: number | null,
     message: MessageEntity,
   ): Promise<void> {
     const participants =
@@ -137,6 +159,26 @@ export class ChatMessageService {
           participant.userId,
         );
       }
+    }
+  }
+
+  async sendMessageToUser(
+    userId: number,
+    roomId: string,
+    message: MessageEntity,
+  ): Promise<void> {
+    const undeliveredMessages = await this.getUndeliveredMessages(
+      roomId,
+      userId,
+    );
+    const isUndelivered = undeliveredMessages.some((m) => m.id === message.id);
+
+    if (isUndelivered) {
+      await this.chatGateway.sendMessageToUser(
+        userId,
+        ChatMessageMapper.toDomain(message),
+      );
+      await this.markMessagesAsDelivered([message.id], userId);
     }
   }
 

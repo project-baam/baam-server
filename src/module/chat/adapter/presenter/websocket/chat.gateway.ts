@@ -51,6 +51,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // 사용자가 특정 채팅방에 참여하고 있는지 확인
   isUserInRoom(userId: number, roomId: string): boolean {
+    // const socketIds = this.userSocketMap.get(userId);
+    // if (!socketIds) return false;
+
+    // for (const socketId of socketIds) {
+    //   const socket = this.server.sockets.sockets.get(socketId);
+    //   if (socket && socket.rooms.has(roomId)) {
+    //     return true;
+    //   }
+    // }
+    // return false;
     const rooms = this.userRoomMap.get(userId) || new Set();
     return rooms.has(roomId);
   }
@@ -147,7 +157,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     console.log(`User ${client.user.id} joined room ${payload.roomId}`);
 
-    this.sendUndeliveredMessages(payload.roomId, client.user.id);
+    await this.sendUndeliveredMessages(payload.roomId, client.user.id);
+    await this.chatMessageService.sendSystemMessage(
+      payload.roomId,
+      `${client.user.profile.fullName}님이 입장했습니다.`,
+    );
   }
 
   // 채팅방 퇴장
@@ -165,6 +179,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.userRoomMap.set(client.user.id, rooms);
 
     console.log(`User ${client.user.id} left room ${payload.roomId}`);
+
+    await this.chatMessageService.sendSystemMessage(
+      payload.roomId,
+      `${client.user.profile.fullName}님이 퇴장했습니다.`,
+    );
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendTextMessage)
