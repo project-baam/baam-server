@@ -6,14 +6,7 @@ import {
   SubscribeMessage,
   WebSocketServer,
 } from '@nestjs/websockets';
-import {
-  forwardRef,
-  Inject,
-  Logger,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { forwardRef, Inject, Logger, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { AppWebsocketGateway } from 'src/common/decorator/websocket-api.decorator';
 import { SendFileMessageDto, SendTextMessageDto } from './dto/send-message.dto';
@@ -33,6 +26,7 @@ import { LeaveRoomDto } from './dto/leave-room.dto';
 import { ChatEvents } from './constants/chat-events';
 import { ChatMessageMapper } from 'src/module/chat/application/mappers/chat-message.mapper';
 import { ErrorCode } from 'src/common/constants/error-codes';
+import { WebSocketAuthGuard } from './guards/websocket-auth-guard';
 
 interface AuthenticatedSocket extends Socket {
   user: UserEntity;
@@ -134,6 +128,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // 채팅방 입장
+  @UseGuards(WebSocketAuthGuard)
   @SubscribeMessage(ChatEvents.FromClient.JoinRoom)
   async handleJoinRoom(
     @ConnectedSocket() client: AuthenticatedSocket,
@@ -156,6 +151,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // 채팅방 퇴장
+  @UseGuards(WebSocketAuthGuard)
   @SubscribeMessage(ChatEvents.FromClient.LeaveRoom)
   async handleLeaveRoom(
     @ConnectedSocket() client: AuthenticatedSocket,
@@ -171,6 +167,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendTextMessage)
+  @UseGuards(WebSocketAuthGuard)
+  @UseGuards(WebSocketAuthGuard)
   async handleSendTextMessage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody()
@@ -192,6 +190,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendFileMessage)
+  @UseGuards(WebSocketAuthGuard)
   async handleSendFileMessage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody()

@@ -18,6 +18,7 @@ export enum ErrorCode {
   InvalidRefreshToken = 4012,
   IncorrectLoginInfo = 4013,
   SocialAuthenticationFailed = 4014,
+  ChatUnAuthenticated = 4015,
 
   // 403
   IncompleteProfile = 4030,

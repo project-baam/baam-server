@@ -17,6 +17,7 @@ export const CodeToStatus: {
   [ErrorCode.InvalidAccessToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidRefreshToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.IncorrectLoginInfo]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.ChatUnAuthenticated]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.ContentNotFound]: HttpStatus.NOT_FOUND,
   [ErrorCode.DuplicateValue]: HttpStatus.CONFLICT,
   [ErrorCode.SelfFriendRequest]: HttpStatus.CONFLICT,
