@@ -25,10 +25,10 @@ import { LeaveRoomDto } from './dto/leave-room.dto';
 import { ChatEvents } from './constants/chat-events';
 import { ChatMessageMapper } from 'src/module/chat/application/mappers/chat-message.mapper';
 import { ErrorCode } from 'src/common/constants/error-codes';
-import { WebSocketAuthGuard } from './guards/websocket-auth-guard';
 import { Message } from 'src/module/chat/domain/message';
+import { WebsocketAuthGuard } from './guards/websocket-auth-guard';
 
-interface AuthenticatedSocket extends Socket {
+export interface AuthenticatedSocket extends Socket {
   user: UserEntity;
 }
 
@@ -128,12 +128,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // 채팅방 입장
-  @UseGuards(WebSocketAuthGuard)
   @SubscribeMessage(ChatEvents.FromClient.JoinRoom)
   async handleJoinRoom(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() payload: JoinRoomDto,
   ) {
+    WebsocketAuthGuard(client);
     await this.chatService.isUserInChatRoomOrFail(
       client.user.id,
       payload.roomId,
@@ -151,12 +151,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // 채팅방 퇴장
-  @UseGuards(WebSocketAuthGuard)
   @SubscribeMessage(ChatEvents.FromClient.LeaveRoom)
   async handleLeaveRoom(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() payload: LeaveRoomDto,
   ) {
+    WebsocketAuthGuard(client);
+
     client.leave(payload.roomId);
 
     const rooms = this.userRoomMap.get(client.user.id) || new Set();
@@ -167,14 +168,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendTextMessage)
-  @UseGuards(WebSocketAuthGuard)
-  @UseGuards(WebSocketAuthGuard)
   async handleSendTextMessage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody()
     payload: SendTextMessageDto,
   ) {
-    console.log(payload);
+    WebsocketAuthGuard(client);
+
     const userId = client.user.id;
 
     if (!this.isUserInRoom(userId, payload.roomId)) {
@@ -188,12 +188,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(ChatEvents.FromClient.SendFileMessage)
-  @UseGuards(WebSocketAuthGuard)
   async handleSendFileMessage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody()
     payload: SendFileMessageDto,
   ) {
+    WebsocketAuthGuard(client);
+
     const userId = client.user.id;
     const { roomId, fileName, fileType, fileSize, fileData } = payload;
     const buffer = Buffer.from(fileData);
