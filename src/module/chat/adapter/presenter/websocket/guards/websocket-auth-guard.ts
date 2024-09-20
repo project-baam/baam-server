@@ -3,7 +3,7 @@ import { ErrorCode } from 'src/common/constants/error-codes';
 import { AuthenticatedSocket } from '../chat.gateway';
 
 export function WebsocketAuthGuard(client: AuthenticatedSocket) {
-  if (!client.user) {
+  if (!client.user || client.user.id === undefined || client.user.id === null) {
     client.emit(ChatEvents.FromServer.Exception, {
       code: ErrorCode.ChatUnAuthenticated,
       message: '채팅 연결 미인증',
