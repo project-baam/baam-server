@@ -13,7 +13,7 @@ export class User {
   @Expose()
   status: UserStatus;
 
-  @ApiProperty()
+  @ApiProperty({ enum: SignInProvider, type: 'enum' })
   @Expose()
   provider: SignInProvider;
 
@@ -24,7 +24,7 @@ export class User {
 
   @ApiProperty()
   @Expose()
-  schoolName: number;
+  schoolName: string;
 
   @ApiProperty({ enum: UserGrade, type: 'enum' })
   @Expose()
@@ -46,15 +46,15 @@ export class User {
   @Expose()
   backgroundImageUrl: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: '반 공개 여부' })
   @Expose()
   isClassPublic: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ description: '시간표 공개 여부' })
   @Expose()
   isTimetablePublic: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ description: '알림 설정 여부' })
   @Expose()
   notificationsEnabled: boolean;
 }

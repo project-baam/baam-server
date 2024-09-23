@@ -22,8 +22,6 @@ export const profileImageMulterOptions: MulterOptions = {
       return cb(new InvalidFileNameExtensionError(), false);
     }
 
-    // TODO: ProfileImageField validation
-
     cb(null, true);
   },
 };

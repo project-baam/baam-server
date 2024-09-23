@@ -11,6 +11,7 @@ export enum ErrorCode {
   UnexpectedFields = 4005,
   MalformedExpoPushToken = 4006,
   UserNotOnlineInRoom = 4007,
+  InvalidFileSize = 4008,
 
   // 401
   MissingAuthToken = 4010,

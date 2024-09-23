@@ -10,6 +10,7 @@ export const CodeToStatus: {
   [ErrorCode.InvalidFilenameCharacters]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MissingRequiredFields]: HttpStatus.BAD_REQUEST,
   [ErrorCode.InvalidProfileImageField]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.InvalidFileSize]: HttpStatus.BAD_REQUEST,
   [ErrorCode.UnexpectedFields]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MalformedExpoPushToken]: HttpStatus.BAD_REQUEST,
   [ErrorCode.UserNotOnlineInRoom]: HttpStatus.BAD_REQUEST,

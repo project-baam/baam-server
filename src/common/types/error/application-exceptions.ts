@@ -75,19 +75,19 @@ export class IncompleteProfileError extends ApplicationException {
 
 export class InvalidFileNameExtensionError extends ApplicationException {
   constructor() {
-    super(
-      ErrorCode.InvalidFileNameExtension,
-      'Invalid Filename Extension. Only JPG, PNG, JPEG and GIF files are allowed.',
-    );
+    super(ErrorCode.InvalidFileNameExtension, '허용하지 않는 파일 형식');
   }
 }
 
 export class InvalidFileNameCharatersError extends ApplicationException {
   constructor() {
-    super(
-      ErrorCode.InvalidFilenameCharacters,
-      'File names can only contain English letters (a-z, A-Z), numbers (0-9), Korean characters, underscores (_), hyphens (-), and periods (.)',
-    );
+    super(ErrorCode.InvalidFilenameCharacters, '파일명 invalid');
+  }
+}
+
+export class InvalidFileSizeError extends ApplicationException {
+  constructor() {
+    super(ErrorCode.InvalidFileSize, '파일 크기 초과');
   }
 }
 

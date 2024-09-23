@@ -96,7 +96,9 @@ export class ChatMessageService {
     fileSize: number,
     mimeType: string,
   ): Promise<Message> {
-    const uniqueKey = this.generateUniqueKey(fileName);
+    const uniqueKey = this.generateUniqueKey(
+      fileName + new Date().toISOString(),
+    );
 
     const file = {
       buffer: fileData,
@@ -118,9 +120,7 @@ export class ChatMessageService {
       MessageType.FILE,
       {
         fileUrl,
-        fileName: Buffer.from(file.originalname, 'ascii')
-          .toString('utf-8')
-          .normalize('NFC'),
+        fileName,
         fileSize: file.size,
       },
     );

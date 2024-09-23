@@ -17,6 +17,9 @@ import { ChatService } from 'src/module/chat/application/chat.service';
 import {
   IncompleteProfileError,
   InvalidAccessTokenError,
+  InvalidFileNameCharatersError,
+  InvalidFileNameExtensionError,
+  InvalidFileSizeError,
   UserNotOnlineInRoomError,
 } from 'src/common/types/error/application-exceptions';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
@@ -213,6 +216,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = client.user.id;
     const { roomId, fileName, fileType, fileSize, fileData } = payload;
     const buffer = Buffer.from(fileData);
+
+    const allowedCharacters = /^[\p{L}\p{N}._\s-]+$/u;
+    if (!allowedCharacters.test(fileName)) {
+      throw new InvalidFileNameCharatersError();
+    }
+
+    const allowedExtensions = /\.(jpg|jpeg|png|mp4|mov|avi|wmv|pdf)$/i;
+    if (!allowedExtensions.test(fileType)) {
+      throw new InvalidFileNameExtensionError();
+    }
+    // jpg|jpeg|png|gif 이미지 파일은 5MB 이하로 제한
+    if (
+      ['jpg', 'jpeg', 'png'].includes(fileType) &&
+      fileSize > 5 * 1024 * 1024
+    ) {
+      throw new InvalidFileSizeError();
+    }
+
+    // 동영상(MP4/ MOV/ AVI/ WMV), 파일(PDF) 는 25MB 이하로 제한
+    if (
+      ['mp4', 'mov', 'avi', 'wmv', 'pdf'].includes(fileType) &&
+      fileSize > 25 * 1024 * 1024
+    ) {
+      throw new InvalidFileSizeError();
+    }
 
     await this.chatMessageService.sendFileMessage(
       roomId,

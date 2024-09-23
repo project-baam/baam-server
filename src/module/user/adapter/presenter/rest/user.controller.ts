@@ -43,6 +43,7 @@ import { InsertTestUserDto } from './dto/insert-test-user';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  // TODO: 추후 삭제 예정
   @ApiBooleanResponse()
   @ApiDescription({
     tags: ['테스트용(추후 삭제 예정)'],

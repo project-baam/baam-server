@@ -51,6 +51,7 @@ export class AuthenticationController {
     );
   }
 
+  // TODO: 테스트용 코드
   @ApiDescription({
     tags: ['Authentication'],
     summary: 'user_id 로 해당 유저 access token 받기 (테스트용)',
@@ -62,6 +63,7 @@ export class AuthenticationController {
     return this.authService.getAccessTokenByUserId(userId);
   }
 
+  // TODO: 테스트용 코드
   @ApiDescription({
     tags: ['Authentication'],
     summary: '카카오 로그인 콜백(테스트용)',
