@@ -107,7 +107,7 @@ export class UnexpectedFieldsError extends ApplicationException {
     message: string = '없어야하는 필드가 포함되어 있음',
   ) {
     super(
-      ErrorCode.MissingRequiredFields,
+      ErrorCode.UnexpectedFields,
       message ??
         'The following fields are not allowed: ' + unexpectedFields?.join(', '),
     );
