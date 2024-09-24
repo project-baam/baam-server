@@ -84,14 +84,14 @@ export const ApiDescription = <
   if (dto.dataResponse) {
     decorators.push(
       ApiExtraModels(dto.dataResponse.schema),
-      ResponseData(dto.dataResponse.schema),
+      ResponseData(dto.dataResponse.schema, dto.dataResponse.status),
     );
   }
 
   if (dto.listResponse) {
     decorators.push(
       ApiExtraModels(dto.listResponse.schema),
-      ResponseList(dto.listResponse.schema),
+      ResponseList(dto.listResponse.schema, dto.listResponse.status),
     );
   }
 
