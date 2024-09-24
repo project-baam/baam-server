@@ -169,6 +169,8 @@ export class CalendarService {
         dayjs(params.datetime).toDate(),
       );
     }
+
+    return event;
   }
 
   async updateEvent(userId: number, params: UpdateEventRequest) {

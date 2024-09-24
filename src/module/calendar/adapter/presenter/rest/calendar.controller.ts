@@ -61,7 +61,6 @@ export class CalendarController {
     return new ResponseListDto(EventMapper.mapToDomain(events ?? []));
   }
 
-  @ApiBooleanResponse(HttpStatus.CREATED)
   @ApiDescription({
     tags: ['Calendar'],
     summary: '일정 생성',
@@ -77,19 +76,23 @@ export class CalendarController {
       UnauthorizedSubjectAccessError,
       UnexpectedFieldsError,
     ],
+    dataResponse: {
+      status: HttpStatus.CREATED,
+      schema: Event,
+    },
   })
   @Post('event')
   async createEvent(
     @ActiveUser() user: UserEntity,
     @Body() params: CreateEventRequest,
-  ): Promise<boolean> {
+  ): Promise<Event> {
     if (params.type === EventType.CLASS && !params.subjectName) {
       throw new MissingRequiredFieldsError(['subjectName']);
     }
 
-    await this.calendarService.createEvent(user, params);
-
-    return true;
+    return EventMapper.toDomain(
+      await this.calendarService.createEvent(user, params),
+    );
   }
 
   @ApiBooleanResponse()
