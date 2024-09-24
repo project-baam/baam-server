@@ -52,6 +52,7 @@ export class SpacesObjectStorage implements ObjectStorageService {
       Body: buffer,
       ACL: 'public-read',
       ContentType: mimetype,
+      Expires: params.expiredAt,
     };
 
     await this.s3Client.putObject(uploadParams);

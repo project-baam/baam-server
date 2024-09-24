@@ -6,6 +6,7 @@ export interface UploadFileParams {
   category: StorageCategory;
   environment: SupportedEnvironment;
   uniqueKey: string | number;
+  expiredAt?: Date;
 }
 
 export interface DeleteFileParams {
