@@ -29,7 +29,12 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
     type: MessageType,
     contentOrFileInfo:
       | string
-      | { fileUrl: string; fileName: string; fileSize?: number },
+      | {
+          fileUrl: string;
+          fileName: string;
+          fileSize?: number;
+          fileExpiredAt?: Date;
+        },
   ): Promise<MessageEntity> {
     const previousLastMessage = await this.messageRepository.findOne({
       relations: { chatRoom: true },
@@ -59,10 +64,12 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
         fileUrl: string;
         fileName: string;
         fileSize?: number;
+        fileExpiredAt?: Date;
       };
       messageData.fileUrl = fileInfo.fileUrl;
       messageData.fileName = fileInfo.fileName;
       messageData.fileSize = fileInfo.fileSize;
+      messageData.fileExpiredAt = fileInfo.fileExpiredAt;
       messageData.content = fileInfo.fileName;
     }
 

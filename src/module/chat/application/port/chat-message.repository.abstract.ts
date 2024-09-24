@@ -10,7 +10,12 @@ export abstract class ChatMessageRepository {
     type: MessageType,
     contentOrFileInfo:
       | string
-      | { fileUrl: string; fileName: string; fileSize?: number },
+      | {
+          fileUrl: string;
+          fileName: string;
+          fileSize?: number;
+          fileExpiredAt?: Date;
+        },
   ): Promise<MessageEntity>;
 
   abstract getUnreadMessages(

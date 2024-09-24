@@ -19,6 +19,7 @@ export class Message {
     url: string;
     name: string;
     size: number;
+    expiredAt?: Date;
   } | null;
   sentAt: Date;
 }

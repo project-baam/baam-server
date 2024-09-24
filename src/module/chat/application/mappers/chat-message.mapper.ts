@@ -18,6 +18,7 @@ export class ChatMessageMapper {
               url: entity.fileUrl,
               name: entity.fileName,
               size: entity.fileSize,
+              expiredAt: entity.fileExpiredAt,
             }
           : null,
       sentAt: entity.createdAt,

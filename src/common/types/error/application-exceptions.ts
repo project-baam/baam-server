@@ -74,8 +74,11 @@ export class IncompleteProfileError extends ApplicationException {
 }
 
 export class InvalidFileNameExtensionError extends ApplicationException {
-  constructor() {
-    super(ErrorCode.InvalidFileNameExtension, '허용하지 않는 파일 형식');
+  constructor(fileType: string = '$fileType') {
+    super(
+      ErrorCode.InvalidFileNameExtension,
+      `허용하지 않는 파일 형식: ${fileType}`,
+    );
   }
 }
 

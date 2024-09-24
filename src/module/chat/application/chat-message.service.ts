@@ -15,6 +15,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ReportDisruptiveMessageDto } from '../adapter/presenter/rest/dto/report.dto';
 import { ReportStatus } from '../domain/enums/report.enums';
+import { getExpirationDate } from '../adapter/presenter/websocket/constants/chat-file-expiration';
 
 @Injectable()
 export class ChatMessageService {
@@ -107,11 +108,14 @@ export class ChatMessageService {
       mimetype: mimeType,
     } as Express.Multer.File;
 
+    const fileExpiredAt = getExpirationDate(mimeType);
+
     const fileUrl = await this.objectStorageService.uploadFile({
       file,
       category: StorageCategory.CHAT_FILES,
       environment: this.environmentService.get<SupportedEnvironment>('ENV')!,
       uniqueKey,
+      expiredAt: fileExpiredAt,
     });
 
     const messageEntity = await this.chatMessageRepository.createMessage(
@@ -122,6 +126,7 @@ export class ChatMessageService {
         fileUrl,
         fileName,
         fileSize: file.size,
+        fileExpiredAt,
       },
     );
 

@@ -31,6 +31,9 @@ export class MessageEntity extends BaseEntity {
   @Column('int', { nullable: true })
   fileSize?: number;
 
+  @Column('timestamp', { nullable: true })
+  fileExpiredAt?: Date;
+
   @Column('uuid')
   @Index()
   roomId: string;
