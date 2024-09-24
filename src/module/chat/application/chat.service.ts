@@ -20,6 +20,8 @@ import { ChatRoomType } from '../domain/enums/chat-room-type';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
+import { CHAT_ROOM_MAX_PARTICIPANTS } from '../domain/constants/chat.constants';
+import { ReportProvider } from 'src/common/provider/report.provider';
 
 @Injectable()
 export class ChatService {
@@ -62,6 +64,17 @@ export class ChatService {
         { userId: user.userId, roomId: newChatRoom.id },
       ]);
     } else {
+      // 최대 수용 인원 초과 시 초대하지 않음
+      if (classChatRoom.participantsCount >= CHAT_ROOM_MAX_PARTICIPANTS) {
+        ReportProvider.info(
+          '최대 수용 인원 초과로 인한 학급 채팅방 초대 제한',
+          {
+            userId: user.userId,
+            classChatRoomId: classChatRoom.id,
+          },
+        );
+        return;
+      }
       await this.chatRoomRepository.saveChatRoomParticipant([
         { userId: user.userId, roomId: classChatRoom.id },
       ]);
@@ -99,6 +112,10 @@ export class ChatService {
         subjectSchedulesWithHash.map((e) => e.scheduleHash),
       );
 
+    const availableExistingChatRooms = existingChatRooms.filter(
+      (room) => room.participantsCount < CHAT_ROOM_MAX_PARTICIPANTS,
+    );
+
     // 채팅방 생성할 분반
     const chatRoomsToCreate: Pick<
       ChatRoomEntity,
@@ -107,7 +124,9 @@ export class ChatService {
 
     subjectSchedulesWithHash.forEach((e) => {
       if (
-        !existingChatRooms.some((room) => room.scheduleHash === e.scheduleHash)
+        !availableExistingChatRooms.some(
+          (room) => room.scheduleHash === e.scheduleHash,
+        )
       ) {
         chatRoomsToCreate.push({
           name: ChatRoomEntity.generateName(e.schedule[1], e.schedule[2]),
@@ -122,14 +141,15 @@ export class ChatService {
     const newChatRooms =
       await this.chatRoomRepository.createSubjectChatRooms(chatRoomsToCreate);
 
-    const allChatRoomsToInvite = [...existingChatRooms, ...newChatRooms].map(
-      (e) => {
-        return {
-          roomId: e.id,
-          userId: user.userId,
-        };
-      },
-    );
+    const allChatRoomsToInvite = [
+      ...availableExistingChatRooms,
+      ...newChatRooms,
+    ].map((e) => {
+      return {
+        roomId: e.id,
+        userId: user.userId,
+      };
+    });
 
     await this.chatRoomRepository.saveChatRoomParticipant(allChatRoomsToInvite);
   }
@@ -243,6 +263,17 @@ export class ChatService {
               scheduleHash: newScheduleHash,
             },
           ]);
+        } else {
+          if (targetRoom[0].participantsCount >= CHAT_ROOM_MAX_PARTICIPANTS) {
+            ReportProvider.info(
+              '채팅방 최대 수용 인원 초과로 인한 채팅방 참가 제한',
+              {
+                userId,
+                chatRoomId: targetRoom[0].id,
+              },
+            );
+            return;
+          }
         }
         // 채팅방에 초대
         await this.chatRoomRepository.saveChatRoomParticipant([

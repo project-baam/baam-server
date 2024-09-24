@@ -96,8 +96,7 @@ export class UpdateEventRequest {
   @ApiProperty({ required: false, type: 'enum', enum: EventType })
   @IsEnum(EventType)
   @IsOptional()
-  type?: EventType; // TODO: 학교 일정은 Neis 기반으로 가져오는데, 유저가 임의로 수정하거나 삭제할 수 있는지 확인 필요
-  // 우선 학교 일정을 직접 추가할 수 있긴 함(유저가 추가한 학교일정인지, 나이스인지 구분 필요?)
+  type?: EventType;
 
   @ApiProperty({ required: false })
   @MaxLength(EVENT_VALIDATION.CONTENT_MAX_LENGTH, {
