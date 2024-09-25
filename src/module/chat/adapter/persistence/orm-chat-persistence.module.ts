@@ -10,6 +10,7 @@ import { ChatMessageRepository } from '../../application/port/chat-message.repos
 import { OrmChatMessageRepository } from './repositories/chat-message.repository';
 import { OrmChatRoomRepository } from './repositories/chat-room.repository';
 import { LogChatMessageReportEntity } from './entities/log-chat-message-report.entity';
+import { MessageEncryptionService } from './chat-message-encryption.service';
 
 @Module({
   imports: [
@@ -30,7 +31,12 @@ import { LogChatMessageReportEntity } from './entities/log-chat-message-report.e
       provide: ChatMessageRepository,
       useClass: OrmChatMessageRepository,
     },
+    MessageEncryptionService,
   ],
-  exports: [ChatRoomRepository, ChatMessageRepository],
+  exports: [
+    ChatRoomRepository,
+    ChatMessageRepository,
+    MessageEncryptionService,
+  ],
 })
 export class OrmChatPersistenceModule {}

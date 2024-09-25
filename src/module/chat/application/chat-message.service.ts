@@ -16,6 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ReportDisruptiveMessageDto } from '../adapter/presenter/rest/dto/report.dto';
 import { ReportStatus } from '../domain/enums/report.enums';
 import { getExpirationDate } from '../adapter/presenter/websocket/constants/chat-file-expiration';
+import { MessageEncryptionService } from '../adapter/persistence/chat-message-encryption.service';
 
 @Injectable()
 export class ChatMessageService {
@@ -25,6 +26,7 @@ export class ChatMessageService {
     private readonly objectStorageService: ObjectStorageService,
     private readonly environmentService: EnvironmentService,
     private readonly chatGateway: ChatGateway,
+    private messageEncryptionService: MessageEncryptionService,
   ) {}
 
   async markMessagesAsDelivered(
@@ -156,7 +158,13 @@ export class ChatMessageService {
       if (this.chatGateway.isUserInRoom(participant.userId, roomId)) {
         this.chatGateway.sendMessageToUser(
           participant.userId,
-          ChatMessageMapper.toDomain(message),
+          ChatMessageMapper.toDomain({
+            ...message,
+            content:
+              message.type !== MessageType.FILE && message.content
+                ? this.messageEncryptionService.decrypt(message.content)
+                : message.content,
+          }),
         );
       } else {
         await this.chatMessageRepository.trackUnreadMessage(

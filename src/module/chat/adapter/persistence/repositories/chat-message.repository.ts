@@ -7,6 +7,7 @@ import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { ChatMessageRepository } from 'src/module/chat/application/port/chat-message.repository.abstract';
 import { LogChatMessageReportEntity } from '../entities/log-chat-message-report.entity';
 import { ReportDisruptiveMessageDto } from '../../presenter/rest/dto/report.dto';
+import { MessageEncryptionService } from 'src/module/chat/adapter/persistence/chat-message-encryption.service';
 
 export class OrmChatMessageRepository implements ChatMessageRepository {
   constructor(
@@ -20,9 +21,10 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
 
     @InjectRepository(LogChatMessageReportEntity)
     private readonly logChatMessageReportRepository: Repository<LogChatMessageReportEntity>,
+
+    private messageEncryptionService: MessageEncryptionService,
   ) {}
 
-  // TODO: 암호화 추가
   async createMessage(
     roomId: string,
     senderId: number,
@@ -58,7 +60,9 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
     };
 
     if (type === MessageType.TEXT || type == MessageType.SYSTEM) {
-      messageData.content = contentOrFileInfo as string;
+      messageData.content = this.messageEncryptionService.encrypt(
+        contentOrFileInfo as string,
+      );
     } else if (type === MessageType.FILE) {
       const fileInfo = contentOrFileInfo as {
         fileUrl: string;
@@ -100,7 +104,15 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
         },
         where: { userId, message: { roomId } },
       })
-    ).map((e) => e.message);
+    ).map((e) => {
+      return {
+        ...e.message,
+        content:
+          e.message.type !== MessageType.FILE && e.message.content
+            ? this.messageEncryptionService.decrypt(e.message.content)
+            : e.message.content,
+      };
+    });
   }
 
   async trackUnreadMessage(messageId: number, userId: number): Promise<void> {

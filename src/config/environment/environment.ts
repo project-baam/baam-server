@@ -180,6 +180,11 @@ export class EnvironmentVariables {
   @IsString()
   @Expose()
   readonly SPACES_BUCKET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly MESSAGE_ENCRYPTION_KEY: string;
 }
 
 export const getEnvFilePath = (): string =>
