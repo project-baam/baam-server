@@ -5,7 +5,11 @@ import { RegisterDeviceTokenDto } from '../adapter/presenter/rest/dto/register-d
 import { NotificationCategory } from '../domain/enums/notification-category.enum';
 import { NotificationDevicesRepository } from './port/notification-devices.repository.abstract';
 import { NotificationAlreadyRead } from 'src/common/types/error/application-exceptions';
-import { NotificationDto } from './dto/notification.dto';
+import {
+  FriendRequestNotificationDto,
+  NotificationDto,
+  SubjectMemoNotificationDto,
+} from './dto/notification.dto';
 import { ScheduledNotificationMapper } from './mapper/scheduled-notification.mapper';
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
 import { MessageRequestFormat } from '../adapter/external/dto/expo.dto';
@@ -123,10 +127,8 @@ export class NotificationService {
               parameter: {
                 userId,
                 category,
-                dto,
                 scheduledAt,
               },
-              entity,
               sendResults,
             });
           }
@@ -137,10 +139,11 @@ export class NotificationService {
               parameter: {
                 userId,
                 category,
-                dto,
+                id:
+                  (dto as SubjectMemoNotificationDto)['eventId'] ??
+                  (dto as FriendRequestNotificationDto)['requestId'],
                 scheduledAt,
               },
-              entity,
               sendResults,
             },
           );
@@ -149,7 +152,9 @@ export class NotificationService {
         ReportProvider.info('등록된 디바이스 토큰이 없으므로 알림 발송 불가', {
           userId,
           category,
-          dto,
+          id:
+            (dto as SubjectMemoNotificationDto)['eventId'] ??
+            (dto as FriendRequestNotificationDto)['requestId'],
           deviceTokens,
         });
       }
@@ -159,7 +164,9 @@ export class NotificationService {
         {
           userId,
           category,
-          dto,
+          id:
+            (dto as SubjectMemoNotificationDto)['eventId'] ??
+            (dto as FriendRequestNotificationDto)['requestId'],
         },
         NotificationService.name,
       );
