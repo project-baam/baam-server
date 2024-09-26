@@ -166,6 +166,7 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
       reportedUserId: dto.senderId,
       fileUrl: dto.fileUrl,
       fileSize: dto.fileSize,
+      reason: dto.reason,
     });
   }
 

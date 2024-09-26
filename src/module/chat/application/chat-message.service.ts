@@ -197,7 +197,7 @@ export class ChatMessageService {
 
   private generateUniqueKey(fileName: string): string {
     const timestamp = Date.now();
-    const randomString = uuidv4().split('-')[0]; // UUID의 첫 부분만 사용
+    const randomString = uuidv4().split('-')[0];
     const extension = path.extname(fileName);
     const baseName = path.basename(fileName, extension);
 
@@ -226,6 +226,7 @@ export class ChatMessageService {
       '피신고자 누적 신고 수': number;
       '메시지 발송 사용자 ID': number;
       '메시지 내용': string | undefined;
+      '신고 사유': string | undefined;
       '신고 시간': Date;
       '신고 처리 상태': ReportStatus;
       파일?: string;
@@ -234,7 +235,10 @@ export class ChatMessageService {
       '신고자 누적 신고 수': reporterUserTotalReportsCount,
       '피신고자 누적 신고 수': reportedUserTotalReportsCount,
       '메시지 발송 사용자 ID': dto.senderId,
-      '메시지 내용': dto.messageContent,
+      '메시지 내용': dto.messageContent
+        ? this.messageEncryptionService.encrypt(dto.messageContent)
+        : undefined,
+      '신고 사유': dto.reason,
       '신고 시간': log.reportedAt,
       '신고 처리 상태': ReportStatus.PENDING,
     };

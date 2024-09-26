@@ -20,6 +20,9 @@ export class LogChatMessageReportEntity {
   @Column('text', { nullable: true })
   content: string;
 
+  @Column('text', { nullable: true })
+  reason: string;
+
   @Column('int')
   reportingUserId: number;
 
