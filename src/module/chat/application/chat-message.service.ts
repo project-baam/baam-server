@@ -208,46 +208,52 @@ export class ChatMessageService {
     userId: number,
     dto: ReportDisruptiveMessageDto,
   ) {
+    const encryptedMessageContent = dto.messageContent
+      ? this.messageEncryptionService.encrypt(dto.messageContent)
+      : undefined;
+
     const log =
       await this.chatMessageRepository.insertLogReportingDisruptiveMessage(
         userId,
-        dto,
+        {
+          ...dto,
+          messageContent: encryptedMessageContent,
+        },
       );
 
-    const [reportedUserTotalReportsCount, reporterUserTotalReportsCount] =
-      await Promise.all([
-        this.chatMessageRepository.countReportedUserTotalReports(dto.senderId),
-        this.chatMessageRepository.countReporterTotalReports(userId),
-      ]);
+    // TODO: 우선 DB에 저장만 하고 있으므로 추후 신고 처리 로직 추가(기획 부재)
+    // const [reportedUserTotalReportsCount, reporterUserTotalReportsCount] =
+    //   await Promise.all([
+    //     this.chatMessageRepository.countReportedUserTotalReports(dto.senderId),
+    //     this.chatMessageRepository.countReporterTotalReports(userId),
+    //   ]);
 
-    const reportContent: {
-      '신고한 사용자 ID': number;
-      '신고자 누적 신고 수': number;
-      '피신고자 누적 신고 수': number;
-      '메시지 발송 사용자 ID': number;
-      '메시지 내용': string | undefined;
-      '신고 사유': string | undefined;
-      '신고 시간': Date;
-      '신고 처리 상태': ReportStatus;
-      파일?: string;
-    } = {
-      '신고한 사용자 ID': userId,
-      '신고자 누적 신고 수': reporterUserTotalReportsCount,
-      '피신고자 누적 신고 수': reportedUserTotalReportsCount,
-      '메시지 발송 사용자 ID': dto.senderId,
-      '메시지 내용': dto.messageContent
-        ? this.messageEncryptionService.encrypt(dto.messageContent)
-        : undefined,
-      '신고 사유': dto.reason,
-      '신고 시간': log.reportedAt,
-      '신고 처리 상태': ReportStatus.PENDING,
-    };
-    if (dto?.fileUrl) {
-      reportContent['파일'] = `${dto?.fileUrl} ${dto?.fileSize}`;
-    }
+    // const reportContent: {
+    //   '신고한 사용자 ID': number;
+    //   '신고자 누적 신고 수': number;
+    //   '피신고자 누적 신고 수': number;
+    //   '메시지 발송 사용자 ID': number;
+    //   '메시지 내용': string | undefined;
+    //   '신고 사유': string | undefined;
+    //   '신고 시간': Date;
+    //   '신고 처리 상태': ReportStatus;
+    //   파일?: string;
+    // } = {
+    //   '신고한 사용자 ID': userId,
+    //   '신고자 누적 신고 수': reporterUserTotalReportsCount,
+    //   '피신고자 누적 신고 수': reportedUserTotalReportsCount,
+    //   '메시지 발송 사용자 ID': dto.senderId,
+    //   '메시지 내용': encryptedMessageContent,
+    //   '신고 사유': dto.reason,
+    //   '신고 시간': log.reportedAt,
+    //   '신고 처리 상태': ReportStatus.PENDING,
+    // };
+    // if (dto?.fileUrl) {
+    //   reportContent['파일'] = `${dto?.fileUrl} ${dto?.fileSize}`;
+    // }
 
-    if (log) {
-      ReportProvider.reportChatIssue(reportContent);
-    }
+    // if (log) {
+    //   ReportProvider.reportChatIssue(reportContent);
+    // }
   }
 }
