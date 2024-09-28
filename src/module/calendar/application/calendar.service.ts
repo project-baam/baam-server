@@ -122,8 +122,10 @@ export class CalendarService {
   }
 
   async createEvent(user: UserEntity, params: CreateEventRequest) {
+    let subjectId: number;
+
     if (params.type === EventType.CLASS) {
-      const subjectId = await this.subjectRepository.findIdByNameOrFail(
+      subjectId = await this.subjectRepository.findIdByNameOrFail(
         params.subjectName!,
       );
 
@@ -155,6 +157,7 @@ export class CalendarService {
     const event = await this.eventRepository.insertOne({
       userId: user.id,
       ...params,
+      subjectId: params.type === EventType.CLASS ? subjectId! : null,
       datetime: dayjs(params.datetime).toDate(),
     });
 

@@ -14,7 +14,15 @@ s   * @param month  0 ~ 11
   abstract insertOne(
     event:
       | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime'>
-      | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime' | 'memo'>,
+      | Pick<EventEntity, 'userId' | 'type' | 'title' | 'datetime' | 'memo'>
+      | Pick<
+          EventEntity,
+          'userId' | 'type' | 'title' | 'datetime' | 'memo' | 'subjectId'
+        >
+      | Pick<
+          EventEntity,
+          'userId' | 'type' | 'title' | 'datetime' | 'subjectId'
+        >,
   ): Promise<EventEntity>;
   abstract insertMany(
     events:
