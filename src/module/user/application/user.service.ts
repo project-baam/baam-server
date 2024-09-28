@@ -161,7 +161,7 @@ export class UserService {
 
     await this.userRepository.upsertProfile({
       userId: user.id,
-      fullName: params.fullName ?? user.profile?.fullName,
+      fullName: params.fullName.trim() ?? user.profile?.fullName,
       classId: classId ?? user.profile?.classId,
       isClassPublic: params.isClassPublic ?? user.profile?.isClassPublic,
       isTimetablePublic:

@@ -100,7 +100,8 @@ export class UserController {
     description: `모든 필드 optional,\n
     학교 정보 변경시 schoolId(학교), className(학급), grade(학년)\n
     모두 포함, 하나라도 미포함시 ${ErrorCode.MissingRequiredFields}\n\
-    존재하지 않는 학교나 학급의 경우 ${ErrorCode.ContentNotFound}`,
+    존재하지 않는 학교나 학급의 경우 ${ErrorCode.ContentNotFound}\n\n\
+    - fullName 에 중간 공백이 아닌 앞 뒤 공백이 있는 경우 서버에서 자체 제거해서 저장함\n`,
     auth: AuthorizationToken.BearerUserToken,
     dataResponse: {
       status: HttpStatus.OK,
