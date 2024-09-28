@@ -161,7 +161,7 @@ export class UserService {
 
     await this.userRepository.upsertProfile({
       userId: user.id,
-      fullName: params.fullName.trim() ?? user.profile?.fullName,
+      fullName: params.fullName.trim() || user.profile?.fullName, // 앞 뒤 공백 제거한 후, 값이 없으면 기존 값 사용
       classId: classId ?? user.profile?.classId,
       isClassPublic: params.isClassPublic ?? user.profile?.isClassPublic,
       isTimetablePublic:
