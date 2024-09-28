@@ -10,7 +10,7 @@ import {
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
-import { IsOptionalKoreanEnglishMax10 } from '../decorators/korean-english-max-10-optional.validator.decorator';
+import { IsOptionalKoreanEnglishMaxLength } from '../decorators/is-optional-korean-english-max-length.validator';
 
 export class GetUserResponse {
   @ApiProperty()
@@ -49,7 +49,7 @@ export class UpdateProfileRequest {
 
   @ApiProperty()
   @Expose()
-  @IsOptionalKoreanEnglishMax10()
+  @IsOptionalKoreanEnglishMaxLength()
   fullName: string;
 
   @ApiProperty()
@@ -66,13 +66,14 @@ export class UpdateProfileRequest {
 }
 // UpdateProfileRequest 랑 동일
 export const updateProfileProperty = {
-  schoolId: { type: 'number' },
+  schoolId: { type: 'number', required: false },
   grade: {
     type: 'enum',
     enum: Object.values(UserGrade).filter((e) => typeof e === 'number'),
+    required: false,
   },
-  className: { type: 'string' },
-  fullName: { type: 'string' },
-  isClassPublic: { type: 'boolean' },
-  isTimetablePublic: { type: 'boolean' },
+  className: { type: 'string', required: false },
+  fullName: { type: 'string', required: false },
+  isClassPublic: { type: 'boolean', required: false },
+  isTimetablePublic: { type: 'boolean', required: false },
 };

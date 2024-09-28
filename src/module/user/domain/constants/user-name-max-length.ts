@@ -1,0 +1,2 @@
+export const USER_NAME_MAX_KOREAN_LENGTH = 10;
+export const USER_NAME_MAX_ENGLISH_LENGTH = 20;
