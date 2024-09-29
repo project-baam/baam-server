@@ -154,7 +154,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() payload: JoinRoomDto,
   ) {
-    WebsocketAuthGuard(client);
+    if (!WebsocketAuthGuard(client)) {
+      return;
+    }
     await this.chatService.isUserInChatRoomOrFail(
       client.user.id,
       payload.roomId,
@@ -179,7 +181,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() payload: LeaveRoomDto,
   ) {
-    WebsocketAuthGuard(client);
+    if (!WebsocketAuthGuard(client)) {
+      return;
+    }
 
     client.leave(payload.roomId);
 
@@ -199,7 +203,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: SendTextMessageDto,
   ) {
-    WebsocketAuthGuard(client);
+    if (!WebsocketAuthGuard(client)) {
+      return;
+    }
 
     const userId = client.user.id;
 
@@ -219,7 +225,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: SendFileMessageDto,
   ) {
-    WebsocketAuthGuard(client);
+    if (!WebsocketAuthGuard(client)) {
+      return;
+    }
 
     const userId = client.user.id;
     const { roomId, fileName, fileType, fileSize, fileData } = payload;
