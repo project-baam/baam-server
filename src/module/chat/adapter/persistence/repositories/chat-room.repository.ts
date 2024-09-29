@@ -8,6 +8,7 @@ import { MessageEntity } from '../entities/message.entity';
 import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.entity';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.repository.abstract';
+import { MessageEncryptionService } from '../chat-message-encryption.service';
 
 export class OrmChatRoomRepository implements ChatRoomRepository {
   constructor(
@@ -16,6 +17,8 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
 
     @InjectRepository(ChatParticipantEntity)
     private readonly participantRepository: Repository<ChatParticipantEntity>,
+
+    private messageEncryptionService: MessageEncryptionService,
   ) {}
 
   async deleteChatRooms(roomIds: string[]): Promise<void> {
@@ -166,7 +169,7 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
   }
 
   async getUserChatRooms(userId: number): Promise<ChatRoom[]> {
-    return await this.chatRoomRepository
+    const chatRooms = await this.chatRoomRepository
       .createQueryBuilder('cr')
       .select('cr.id', 'id')
       .addSelect('cr.name', 'name')
@@ -203,6 +206,19 @@ export class OrmChatRoomRepository implements ChatRoomRepository {
       .where('cp.user_id = :userId', { userId })
       .orderBy('cr.last_message_id', 'DESC')
       .getRawMany();
+
+    return chatRooms.map((chatRoom) => {
+      return {
+        id: chatRoom.id,
+        name: chatRoom.name,
+        participantsCount: chatRoom.participantsCount,
+        lastMessage: chatRoom.lastMessage
+          ? this.messageEncryptionService.decrypt(chatRoom.lastMessage)
+          : null,
+        timeAgo: chatRoom.timeAgo,
+        unreadMessageCount: chatRoom.unreadMessageCount,
+      };
+    });
   }
 
   async findUserChatRooms(userId: number): Promise<ChatRoomEntity[]> {
