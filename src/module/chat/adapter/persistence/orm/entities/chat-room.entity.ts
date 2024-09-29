@@ -14,10 +14,10 @@ import { ClassSchedule } from 'src/module/chat/domain/types/subject-chatroom-nam
 import { createHash } from 'crypto';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { ChatRoomType } from 'src/module/chat/domain/enums/chat-room-type';
-import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entities/class.entity';
-import { SchoolEntity } from 'src/module/school-dataset/adapter/persistence/entities/school.entity';
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { Weekday } from 'src/module/timetable/domain/enums/weekday';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
+import { SchoolEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/school.entity';
+import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/class.entity';
 
 /**
  * 톡방 종류: 학급톡방 / 과목톡방

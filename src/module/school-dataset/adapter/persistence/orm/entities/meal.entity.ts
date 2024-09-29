@@ -7,9 +7,9 @@ import {
   Unique,
 } from 'typeorm';
 
-import { SchoolEntity } from './school.entity';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { MealType } from 'src/module/school-dataset/domain/value-objects/meal-type';
+import { SchoolEntity } from './school.entity';
 
 @Unique(['schoolId', 'date', 'type'])
 @Entity('meal', { comment: '학교별 급식 정보' })

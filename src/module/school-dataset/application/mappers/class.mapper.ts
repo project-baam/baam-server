@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
-import { ClassEntity } from '../../adapter/persistence/entities/class.entity';
 import { Class } from '../../domain/class';
+import { ClassEntity } from '../../adapter/persistence/orm/entities/class.entity';
 
 export class ClassMapper {
   static toDomain(classEntity: ClassEntity): Class {

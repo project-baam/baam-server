@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FriendRepository } from '../../application/port/friend.repository.abstract';
+import { FriendRepository } from '../../../application/port/friend.repository.abstract';
 import { OrmFriendRepository } from './repositories/friendship.repository';
 import { FriendshipEntity } from './entities/friendship.entity';
 import { FriendRequestsEntity } from './entities/friend-requests.entity';

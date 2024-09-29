@@ -9,7 +9,7 @@ import {
 import { EventType } from 'src/module/calendar/domain/event';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
 
 @Entity('event')
 export class EventEntity extends BaseEntity {

@@ -1,11 +1,11 @@
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
-import { UserTimetableEntity } from '../../adapter/persistence/entities/user-timetable.entity';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
+import { UserTimetableEntity } from '../../adapter/persistence/orm/entities/user-timetable.entity';
 import {
   DeleteUserTimetable,
   FindUserTimetable,
   IsSubjectInUserTimetable,
   UpsertUserTimetable,
-} from '../../adapter/persistence/types/user-timetable';
+} from '../../adapter/persistence/orm/types/user-timetable';
 
 export abstract class UserTimetableRepository {
   abstract upsert(

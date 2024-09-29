@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
-import { HighSchoolType } from './../../../domain/value-objects/school-type';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
+import { HighSchoolType } from 'src/module/school-dataset/domain/value-objects/school-type';
 
 @Unique(['officeName', 'name'])
 @Entity('school')

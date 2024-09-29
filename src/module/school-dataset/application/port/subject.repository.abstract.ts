@@ -1,7 +1,7 @@
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { CurriculumVersion } from '../../domain/value-objects/curriculum-version';
 import { SubjectCategoryResponse } from '../../adapter/presenter/rest/dto/subject-categories.dto';
-import { SubjectEntity } from '../../adapter/persistence/entities/subject.entity';
+import { SubjectEntity } from '../../adapter/persistence/orm/entities/subject.entity';
 
 export abstract class SubjectRepository {
   /**

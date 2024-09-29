@@ -15,18 +15,18 @@ import {
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { SubjectsRequest } from '../adapter/presenter/rest/dto/subjects.dto';
 import { getCurriculumVersion } from '../domain/value-objects/curriculum-version';
-import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
+import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/orm/types/default-timetable';
 import { Dayjs } from 'dayjs';
 import { MealRepository } from './port/meal.repository.abstract';
 import { Meal } from '../domain/meal';
 import { MealMapper } from './mappers/meal.mapper';
-import { MealEntity } from '../adapter/persistence/entities/meal.entity';
 import { SubjectRepository } from './port/subject.repository.abstract';
 import { DefaultTimetableRepository } from 'src/module/timetable/application/repository/default-timetable.repository.abstract';
 import { SchoolEvent } from '../domain/event';
 import { SchoolEventRepository } from './port/school-event.repository.abstract';
 import { SchoolEventMapper } from './mappers/school-event.mapper';
 import { Transactional } from 'typeorm-transactional';
+import { MealEntity } from '../adapter/persistence/orm/entities/meal.entity';
 
 export class SchoolDatasetService {
   constructor(

@@ -6,7 +6,7 @@ import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.e
 import { MessageType } from 'src/module/chat/domain/enums/message-type';
 import { ChatMessageRepository } from 'src/module/chat/application/port/chat-message.repository.abstract';
 import { LogChatMessageReportEntity } from '../entities/log-chat-message-report.entity';
-import { ReportDisruptiveMessageDto } from '../../presenter/rest/dto/report.dto';
+import { ReportDisruptiveMessageDto } from '../../../presenter/rest/dto/report.dto';
 import { MessageEncryptionService } from 'src/module/chat/adapter/persistence/chat-message-encryption.service';
 
 export class OrmChatMessageRepository implements ChatMessageRepository {

@@ -1,4 +1,4 @@
-import { ClassEntity } from '../../adapter/persistence/entities/class.entity';
+import { ClassEntity } from '../../adapter/persistence/orm/entities/class.entity';
 import { UserGrade } from '../../domain/value-objects/grade';
 
 export abstract class ClassRepository {

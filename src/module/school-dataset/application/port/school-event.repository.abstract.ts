@@ -1,4 +1,4 @@
-import { SchoolEventEntity } from '../../adapter/persistence/entities/school-event.entity';
+import { SchoolEventEntity } from '../../adapter/persistence/orm/entities/school-event.entity';
 
 export abstract class SchoolEventRepository {
   abstract upsertMany(

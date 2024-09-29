@@ -9,7 +9,7 @@ import { Message } from '../domain/message';
 import { MessageType } from '../domain/enums/message-type';
 import { StorageCategory } from 'src/module/object-storage/domain/enums/storage-category.enum';
 import { SupportedEnvironment } from 'src/config/environment/environment';
-import { MessageEntity } from '../adapter/persistence/entities/message.entity';
+import { MessageEntity } from '../adapter/persistence/orm/entities/message.entity';
 import { ReportProvider } from 'src/common/provider/report.provider';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';

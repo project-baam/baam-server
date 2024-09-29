@@ -1,10 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ClassEntity } from '../../entities/class.entity';
 import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
+import { ClassEntity } from '../entities/class.entity';
 
 export class OrmClassRepository implements ClassRepository {
   constructor(

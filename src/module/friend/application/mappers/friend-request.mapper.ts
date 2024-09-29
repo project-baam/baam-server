@@ -1,4 +1,4 @@
-import { FriendRequestsEntity } from '../../adapter/persistence/entities/friend-requests.entity';
+import { FriendRequestsEntity } from '../../adapter/persistence/orm/entities/friend-requests.entity';
 import { FriendRequest } from '../../domain/friend';
 
 export class ReceivedFriendRequestsMapper {

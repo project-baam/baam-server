@@ -1,4 +1,4 @@
-import { SchoolTimeSettingsEntity } from '../../adapter/persistence/entities/school-time-settings.entity';
+import { SchoolTimeSettingsEntity } from '../../adapter/persistence/orm/entities/school-time-settings.entity';
 
 export abstract class SchoolTimeSettingsRepository {
   abstract find(): Promise<SchoolTimeSettingsEntity[]>;

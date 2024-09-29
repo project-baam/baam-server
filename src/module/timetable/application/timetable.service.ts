@@ -9,14 +9,14 @@ import { SubjectRepository } from 'src/module/school-dataset/application/port/su
 import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { DefaultTimetableRepository } from './repository/default-timetable.repository.abstract';
-import { DefaultTimetableEntity } from '../adapter/persistence/entities/default-timetable.entity';
+import { DefaultTimetableEntity } from '../adapter/persistence/orm/entities/default-timetable.entity';
 import { DateUtilService } from 'src/module/util/date-util.service';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import {
   DefaultTimetableRequest,
   EditOrAddTimetableRequest,
 } from '../adapter/presenter/rest/dto/timetable.dto';
-import { UserTimetableEntity } from '../adapter/persistence/entities/user-timetable.entity';
+import { UserTimetableEntity } from '../adapter/persistence/orm/entities/user-timetable.entity';
 import { Weekday } from '../domain/enums/weekday';
 import { Period } from '../domain/enums/period';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
@@ -24,11 +24,11 @@ import { SchoolDatasetService } from 'src/module/school-dataset/application/scho
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { SchoolTimeSettingsUpsertRequest } from '../adapter/presenter/rest/dto/school-time-settings.dto';
 import { precomputeTimes } from 'src/module/util/timetable-utils';
-import { SchoolTimeSettingsEntity } from '../adapter/persistence/entities/school-time-settings.entity';
+import { SchoolTimeSettingsEntity } from '../adapter/persistence/orm/entities/school-time-settings.entity';
 import { ReportProvider } from 'src/common/provider/report.provider';
 import { SubjectMemoService } from 'src/module/subject-memo/application/subject-memo.service';
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { LogProvider } from 'src/common/provider/log.provider';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
 
 @Injectable()
 export class TimetableService {

@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ClassEntity } from './../entities/class.entity';
-import { SchoolEntity } from '../entities/school.entity';
 import { OrmSchoolRepository } from './repositories/school.repository';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { OrmClassRepository } from './repositories/class.repository';
-import { SubjectEntity } from '../entities/subject.entity';
 import { OrmSubjectRepository } from './repositories/subject.repository';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { MealRepository } from 'src/module/school-dataset/application/port/meal.repository.abstract';
 import { OrmMealRepository } from './repositories/meal.repository';
-import { MealEntity } from '../entities/meal.entity';
-import { SchoolEventEntity } from '../entities/school-event.entity';
 import { SchoolEventRepository } from 'src/module/school-dataset/application/port/school-event.repository.abstract';
 import { OrmSchoolEventRepository } from './repositories/school-event.repository';
+import { ClassEntity } from './entities/class.entity';
+import { MealEntity } from './entities/meal.entity';
+import { SchoolEventEntity } from './entities/school-event.entity';
+import { SchoolEntity } from './entities/school.entity';
+import { SubjectEntity } from './entities/subject.entity';
 
 @Module({
   imports: [

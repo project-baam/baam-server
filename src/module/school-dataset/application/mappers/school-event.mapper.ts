@@ -1,7 +1,7 @@
 import { plainToInstance } from 'class-transformer';
-import { SchoolEventEntity } from '../../adapter/persistence/entities/school-event.entity';
 import { SchoolEvent } from '../../domain/event';
 import dayjs from 'dayjs';
+import { SchoolEventEntity } from '../../adapter/persistence/orm/entities/school-event.entity';
 
 export class SchoolEventMapper {
   static toDomain(entity: SchoolEventEntity): SchoolEvent {

@@ -1,7 +1,7 @@
 import { shortenSubject } from 'src/module/util/subject.service';
-import { UserTimetableEntity } from '../../adapter/persistence/entities/user-timetable.entity';
+import { UserTimetableEntity } from '../../adapter/persistence/orm/entities/user-timetable.entity';
 import { Timetable } from '../../domain/timetable';
-import { DefaultTimetableEntity } from './../../adapter/persistence/entities/default-timetable.entity';
+import { DefaultTimetableEntity } from '../../adapter/persistence/orm/entities/default-timetable.entity';
 
 import { plainToInstance } from 'class-transformer';
 

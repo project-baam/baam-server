@@ -1,5 +1,5 @@
-import { FindFriendsDto } from '../../adapter/persistence/dto/find-friends.dto';
-import { FindSchoolmateDto } from '../../adapter/persistence/dto/find-school-mates.dto';
+import { FindFriendsDto } from '../../adapter/persistence/orm/dto/find-friends.dto';
+import { FindSchoolmateDto } from '../../adapter/persistence/orm/dto/find-school-mates.dto';
 import { Friend, Schoolmate } from '../../domain/friend';
 
 export class FriendMapper {

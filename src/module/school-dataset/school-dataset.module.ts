@@ -4,7 +4,7 @@ import { OrmSchoolDatasetPersistenceModule } from './adapter/persistence/orm/orm
 import { SchoolDatasetProviderModule } from './adapter/external/school-dataset-provider/school-dataset-provider.module';
 import { SchoolDatasetService } from './application/school-dataset.service';
 import { SchoolDatasetController } from './adapter/presenter/rest/school-dataset.controller';
-import { OrmTimetablePersistenceModule } from '../timetable/adapter/persistence/orm-timetable-persistence.module';
+import { OrmTimetablePersistenceModule } from '../timetable/adapter/persistence/orm/orm-timetable-persistence.module';
 
 @Module({
   imports: [

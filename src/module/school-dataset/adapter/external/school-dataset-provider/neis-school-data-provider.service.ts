@@ -20,23 +20,23 @@ import { LogProvider } from 'src/common/provider/log.provider';
 import { SchoolInfo, SchoolInfoRequest } from './dto/school-info.dto';
 import { EnvironmentService } from 'src/config/environment/environment.service';
 import { SchoolDatasetProvider } from './school-dataset-provider.abstract';
-import { ClassEntity } from '../../persistence/entities/class.entity';
-import { SchoolEntity } from '../../persistence/entities/school.entity';
 import { ClassInfo, ClassInfoRequest } from './dto/class-info.dto';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { HighSchoolType } from 'src/module/school-dataset/domain/value-objects/school-type';
-import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
+import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/orm/types/default-timetable';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { Weekday } from 'src/module/timetable/domain/enums/weekday';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { MealInfo, MealInfoRequest } from './dto/meal-info.dto';
-import { MealEntity } from '../../persistence/entities/meal.entity';
 import { toMealType } from './mapper/meal.mapper';
 import { SchoolEvent } from 'src/module/school-dataset/domain/event';
 import {
   SchoolSchedule,
   SchoolScheduleRequest,
 } from './dto/school-schedule.dto';
+import { SchoolEntity } from '../../persistence/orm/entities/school.entity';
+import { ClassEntity } from '../../persistence/orm/entities/class.entity';
+import { MealEntity } from '../../persistence/orm/entities/meal.entity';
 
 @Injectable()
 export class NeisSchoolDatasetProviderService extends SchoolDatasetProvider {

@@ -10,7 +10,7 @@ import {
   GetFriendRequestRequest,
   GetFriendsRequest,
   GetSchoolmatesRequest,
-} from '../../presenter/rest/dto/friend.dto';
+} from '../../../presenter/rest/dto/friend.dto';
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { FindFriendsDto } from '../dto/find-friends.dto';

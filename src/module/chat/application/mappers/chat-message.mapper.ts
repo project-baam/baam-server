@@ -1,5 +1,5 @@
 import { Message } from '../../domain/message';
-import { MessageEntity } from './../../adapter/persistence/entities/message.entity';
+import { MessageEntity } from '../../adapter/persistence/orm/entities/message.entity';
 export class ChatMessageMapper {
   static toDomain(entity: MessageEntity): Message {
     return {

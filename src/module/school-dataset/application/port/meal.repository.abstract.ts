@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs';
-import { MealEntity } from '../../adapter/persistence/entities/meal.entity';
+import { MealEntity } from '../../adapter/persistence/orm/entities/meal.entity';
 
 export abstract class MealRepository {
   abstract upsertMany(classes: Partial<MealEntity>[]): Promise<void>;

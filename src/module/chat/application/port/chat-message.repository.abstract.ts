@@ -1,6 +1,6 @@
 import { MessageType } from 'src/module/chat/domain/enums/message-type';
-import { MessageEntity } from '../../adapter/persistence/entities/message.entity';
-import { LogChatMessageReportEntity } from '../../adapter/persistence/entities/log-chat-message-report.entity';
+import { MessageEntity } from '../../adapter/persistence/orm/entities/message.entity';
+import { LogChatMessageReportEntity } from '../../adapter/persistence/orm/entities/log-chat-message-report.entity';
 import { ReportDisruptiveMessageDto } from '../../adapter/presenter/rest/dto/report.dto';
 
 export abstract class ChatMessageRepository {

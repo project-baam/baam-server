@@ -1,10 +1,10 @@
-import { SchoolEntity } from '../../persistence/entities/school.entity';
-import { ClassEntity } from '../../persistence/entities/class.entity';
-import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/types/default-timetable';
+import { UpsertDefaultTimetable } from 'src/module/timetable/adapter/persistence/orm/types/default-timetable';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { Dayjs } from 'dayjs';
 import { Meal } from 'src/module/school-dataset/domain/meal';
 import { SchoolEvent } from 'src/module/school-dataset/domain/event';
+import { SchoolEntity } from '../../persistence/orm/entities/school.entity';
+import { ClassEntity } from '../../persistence/orm/entities/class.entity';
 
 export abstract class SchoolDatasetProvider {
   abstract fetchSchoolData(): Promise<Partial<SchoolEntity>[]>;

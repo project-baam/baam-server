@@ -21,7 +21,7 @@ import {
 import { FriendMapper, SchoolmateMapper } from './mappers/friend.mapper';
 import { UserTimetableRepository } from 'src/module/timetable/application/repository/user-timetable.repository.abstract';
 import { Timetable } from 'src/module/timetable/domain/timetable';
-import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
+import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/orm/entities/user-timetable.entity';
 import { FavoriteFriendMapper } from './mappers/favorite-friend.mapper';
 import dayjs from 'dayjs';
 import { TimetableMapper } from 'src/module/timetable/application/mappers/timetable.mapper';
@@ -39,7 +39,7 @@ import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/use
 import { Transactional } from 'typeorm-transactional';
 import { UserStatus } from 'src/module/user/domain/enum/user-status.enum';
 import { FriendshipStatus } from '../domain/enums/friendship-status.enum';
-import { FindFriendsDto } from '../adapter/persistence/dto/find-friends.dto';
+import { FindFriendsDto } from '../adapter/persistence/orm/dto/find-friends.dto';
 import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
 
 @Injectable()

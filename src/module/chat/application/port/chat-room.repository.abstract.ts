@@ -1,5 +1,5 @@
-import { ChatParticipantEntity } from '../../adapter/persistence/entities/chat-participant.entity';
-import { ChatRoomEntity } from '../../adapter/persistence/entities/chat-room.entity';
+import { ChatParticipantEntity } from '../../adapter/persistence/orm/entities/chat-participant.entity';
+import { ChatRoomEntity } from '../../adapter/persistence/orm/entities/chat-room.entity';
 import { ChatRoom } from '../../domain/chat-room';
 
 export abstract class ChatRoomRepository {

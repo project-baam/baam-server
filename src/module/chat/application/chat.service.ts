@@ -5,8 +5,8 @@ import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.r
 import { TimetableService } from './../../timetable/application/timetable.service';
 import { FriendService } from 'src/module/friend/application/friend.service';
 import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
-import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/entities/user-timetable.entity';
-import { ChatRoomEntity } from '../adapter/persistence/entities/chat-room.entity';
+import { UserTimetableEntity } from 'src/module/timetable/adapter/persistence/orm/entities/user-timetable.entity';
+import { ChatRoomEntity } from '../adapter/persistence/orm/entities/chat-room.entity';
 import { Participant } from '../domain/participant';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { plainToInstance } from 'class-transformer';
@@ -19,9 +19,9 @@ import { CommonSubjects } from 'src/module/school-dataset/domain/constants/commo
 import { ChatRoomType } from '../domain/enums/chat-room-type';
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
 import { UserRepository } from 'src/module/user/application/port/user.repository.abstract';
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
 import { CHAT_ROOM_MAX_PARTICIPANTS } from '../domain/constants/chat.constants';
 import { ReportProvider } from 'src/common/provider/report.provider';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
 
 @Injectable()
 export class ChatService {

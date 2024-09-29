@@ -7,13 +7,13 @@ import {
   Unique,
 } from 'typeorm';
 
-import { SchoolEntity } from './school.entity';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
+import { SchoolEntity } from './school.entity';
 
-@Unique(['schoolId', 'grade', 'title', 'content', 'date'])
-@Entity('school_event', { comment: '학교별 이벤트 정보' }) // 유저가 가입하면 해당 학년 이벤트를 유저_이벤트 테이블에 뿌려주기
-export class SchoolEventEntity extends BaseEntity {
+@Unique(['schoolId', 'grade', 'name'])
+@Entity('class', { comment: '학교별 학급 정보' })
+export class ClassEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -23,14 +23,8 @@ export class SchoolEventEntity extends BaseEntity {
   @Column({ type: 'enum', enum: UserGrade, comment: '학년' })
   grade: UserGrade;
 
-  @Column('varchar')
-  title: string;
-
-  @Column('varchar', { nullable: true })
-  content: string | null;
-
-  @Column('timestamp')
-  date: Date;
+  @Column('varchar', { comment: '학급명' })
+  name: string;
 
   @ManyToOne(() => SchoolEntity, {
     onDelete: 'CASCADE',

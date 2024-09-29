@@ -1,10 +1,10 @@
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
-import { SchoolEntity } from '../../entities/school.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOptionsWhere, Like, Repository } from 'typeorm';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { GetSchoolsRequest } from '../../../presenter/rest/dto/school.dto';
 import { PaginatedList } from 'src/common/dto/response.dto';
+import { SchoolEntity } from '../entities/school.entity';
 
 export class OrmSchoolRepository implements SchoolRepository {
   constructor(

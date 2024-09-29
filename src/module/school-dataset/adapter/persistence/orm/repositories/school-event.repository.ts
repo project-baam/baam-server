@@ -1,7 +1,7 @@
 import { SchoolEventRepository } from 'src/module/school-dataset/application/port/school-event.repository.abstract';
-import { SchoolEventEntity } from '../../entities/school-event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { And, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { SchoolEventEntity } from '../entities/school-event.entity';
 
 export class OrmSchoolEventRepository implements SchoolEventRepository {
   constructor(

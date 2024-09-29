@@ -9,7 +9,7 @@ import {
   UpsertUserTimetable,
 } from '../types/user-timetable';
 import { CommonSubjects } from 'src/module/school-dataset/domain/constants/common-subjects';
-import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/entities/subject.entity';
+import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
 
 export class OrmUserTimetableRepository implements UserTimetableRepository {
   constructor(

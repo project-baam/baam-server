@@ -5,11 +5,11 @@ import {
   GetSchoolmatesRequest,
 } from './../../adapter/presenter/rest/dto/friend.dto';
 import { FriendRequestStatus } from '../../domain/enums/friend-request-status.enum';
-import { FriendRequestsEntity } from '../../adapter/persistence/entities/friend-requests.entity';
+import { FriendRequestsEntity } from '../../adapter/persistence/orm/entities/friend-requests.entity';
 import { PaginatedList } from 'src/common/dto/response.dto';
-import { FindFriendsDto } from '../../adapter/persistence/dto/find-friends.dto';
-import { FindFavoriteFriendsDto } from '../../adapter/persistence/dto/find-favorite-friends.dto';
-import { FindSchoolmateDto } from '../../adapter/persistence/dto/find-school-mates.dto';
+import { FindFriendsDto } from '../../adapter/persistence/orm/dto/find-friends.dto';
+import { FindFavoriteFriendsDto } from '../../adapter/persistence/orm/dto/find-favorite-friends.dto';
+import { FindSchoolmateDto } from '../../adapter/persistence/orm/dto/find-school-mates.dto';
 
 export abstract class FriendRepository {
   abstract createFriendship(userId1: number, userId2: number): Promise<void>;

@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
-import { SchoolEntity } from './../../adapter/persistence/entities/school.entity';
 import { School } from '../../domain/school';
+import { SchoolEntity } from '../../adapter/persistence/orm/entities/school.entity';
 
 export class SchoolMapper {
   static toDomain(schoolEntity: SchoolEntity): School {

@@ -1,5 +1,5 @@
 import { FavoriteFriendInHome } from './../../domain/friend';
-import { FindFavoriteFriendsDto } from '../../adapter/persistence/dto/find-favorite-friends.dto';
+import { FindFavoriteFriendsDto } from '../../adapter/persistence/orm/dto/find-favorite-friends.dto';
 
 export class FavoriteFriendMapper {
   static toDomain(

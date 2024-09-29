@@ -8,7 +8,7 @@ import { MessageEntity } from '../entities/message.entity';
 import { UnreadMessageTrackerEntity } from '../entities/unread-message-tracker.entity';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
 import { ChatRoomRepository } from 'src/module/chat/application/port/chat-room.repository.abstract';
-import { MessageEncryptionService } from '../chat-message-encryption.service';
+import { MessageEncryptionService } from '../../chat-message-encryption.service';
 
 export class OrmChatRoomRepository implements ChatRoomRepository {
   constructor(

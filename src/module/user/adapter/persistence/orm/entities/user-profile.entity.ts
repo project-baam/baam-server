@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { BaseEntity } from 'src/config/database/orm/base.entity';
-import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/entities/class.entity';
 import { getInitialAndSortKey } from 'src/module/util/name-util.service';
+import { ClassEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/class.entity';
 
 @Entity('user_profile')
 export class UserProfileEntity extends BaseEntity {

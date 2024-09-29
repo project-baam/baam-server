@@ -1,6 +1,6 @@
 import { Semester } from 'src/module/school-dataset/domain/value-objects/semester';
-import { DefaultTimetableEntity } from '../../adapter/persistence/entities/default-timetable.entity';
-import { UpsertDefaultTimetable } from '../../adapter/persistence/types/default-timetable';
+import { DefaultTimetableEntity } from '../../adapter/persistence/orm/entities/default-timetable.entity';
+import { UpsertDefaultTimetable } from '../../adapter/persistence/orm/types/default-timetable';
 
 export abstract class DefaultTimetableRepository {
   abstract findDefaultClassTimetable(

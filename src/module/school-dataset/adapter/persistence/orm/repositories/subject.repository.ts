@@ -1,12 +1,12 @@
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
 import { CurriculumVersion } from 'src/module/school-dataset/domain/value-objects/curriculum-version';
-import { SubjectEntity } from '../../entities/subject.entity';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubjectCategoryResponse } from '../../../presenter/rest/dto/subject-categories.dto';
 import { plainToInstance } from 'class-transformer';
 import { ContentNotFoundError } from 'src/common/types/error/application-exceptions';
+import { SubjectEntity } from '../entities/subject.entity';
 
 export class OrmSubjectRepository implements SubjectRepository {
   constructor(

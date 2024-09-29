@@ -1,6 +1,6 @@
-import { MealEntity } from './../../adapter/persistence/entities/meal.entity';
 import { plainToInstance } from 'class-transformer';
 import { Meal } from '../../domain/meal';
+import { MealEntity } from '../../adapter/persistence/orm/entities/meal.entity';
 
 export class MealMapper {
   static toDomain(mealEntity: MealEntity): Meal {

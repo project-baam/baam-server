@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { Period } from '../timetable/domain/enums/period';
-import { UserTimetableEntity } from '../timetable/adapter/persistence/entities/user-timetable.entity';
+import { UserTimetableEntity } from '../timetable/adapter/persistence/orm/entities/user-timetable.entity';
 
 type TimeInMinutes = number;
 
