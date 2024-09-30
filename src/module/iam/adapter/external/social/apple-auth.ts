@@ -4,6 +4,7 @@ import { AuthenticationStrategy } from 'src/module/iam/application/port/\bauthen
 import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enum';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
+import jwkToBuffer from 'jwk-to-pem';
 
 export class AppleAuth implements AuthenticationStrategy {
   constructor(private readonly environmentService: EnvironmentService) {}
@@ -36,8 +37,9 @@ export class AppleAuth implements AuthenticationStrategy {
     }
 
     try {
-      // TODO: apple payload type
-      const verified: any = jwt.verify(idToken, publicKey.n, {
+      const pem = jwkToBuffer(publicKey);
+
+      const verified: any = jwt.verify(idToken, pem, {
         algorithms: ['RS256'],
       });
 
@@ -50,11 +52,12 @@ export class AppleAuth implements AuthenticationStrategy {
       ) {
         throw new Error('Invalid audience');
       }
+
       if (verified.exp < Date.now() / 1000) {
         throw new Error('Token expired');
       }
 
-      return verified.sub;
+      return { id: verified.sub };
     } catch (error: any) {
       throw new SocialAuthenticationError(
         SignInProvider.APPLE,
