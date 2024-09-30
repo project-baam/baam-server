@@ -105,12 +105,10 @@ export class FriendService {
   async addFriendsActiveClass<T extends { userId: number }>(
     dto: T[],
   ): Promise<{ friend: T; activeClassNow: string | null }[]> {
-    const addFriendActiveClass = async (dto: T) => {
+    const addFriendActiveClass = (dto: T) => {
       return {
         friend: dto,
-        activeClassNow: await this.timetableService.getCurrentSubject(
-          dto.userId,
-        ),
+        activeClassNow: this.timetableService.getCurrentSubject(dto.userId),
       };
     };
 

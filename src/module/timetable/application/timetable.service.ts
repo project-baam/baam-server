@@ -1,10 +1,8 @@
+import { ChatService } from 'src/module/chat/application/chat.service';
 import {
   memoizedGetCurrentSubject,
-  precomputeTimes,
-} from 'src/module/util/timetable-utils';
-import { optimizeTimetable } from './../../util/timetable-utils';
-import { ChatService } from 'src/module/chat/application/chat.service';
-
+  optimizeTimetable,
+} from './../../util/timetable-utils';
 import { SchoolTimeSettingsRepository } from 'src/module/timetable/application/repository/school-time-settings.repository.abstract';
 import { ClassRepository } from 'src/module/school-dataset/application/port/class.repository.abstract';
 import { SubjectRepository } from 'src/module/school-dataset/application/port/subject.repository.abstract';
@@ -25,14 +23,18 @@ import { Semester } from 'src/module/school-dataset/domain/value-objects/semeste
 import { SchoolDatasetService } from 'src/module/school-dataset/application/school-dataset.service';
 import { SchoolRepository } from 'src/module/school-dataset/application/port/school.repository.abstract';
 import { SchoolTimeSettingsUpsertRequest } from '../adapter/presenter/rest/dto/school-time-settings.dto';
+import { precomputeTimes } from 'src/module/util/timetable-utils';
 import { SchoolTimeSettingsEntity } from '../adapter/persistence/orm/entities/school-time-settings.entity';
 import { ReportProvider } from 'src/common/provider/report.provider';
 import { SubjectMemoService } from 'src/module/subject-memo/application/subject-memo.service';
+import { LogProvider } from 'src/common/provider/log.provider';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
-import { TimetableRedisStorage } from '../adapter/persistence/in-memory/\btimetable.storage';
 
 @Injectable()
 export class TimetableService {
+  private optimizedTimetables: Map<number, Map<string, string>> = new Map();
+  private precomputedTimes: Map<number, ReturnType<typeof precomputeTimes>> =
+    new Map();
   private currentYear: number;
   private currentSemester: Semester;
 
@@ -48,7 +50,6 @@ export class TimetableService {
     @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
     private readonly subjectMemoSerivce: SubjectMemoService,
-    private readonly timetableRedisStorage: TimetableRedisStorage,
   ) {}
 
   async onModuleInit() {
@@ -69,32 +70,28 @@ export class TimetableService {
       await this.schoolTimeSettingsRepository.findByUserId(userId);
 
     if (userTimeSettings) {
-      await this.timetableRedisStorage.setPrecomputedTimes(
-        userId,
+      this.precomputedTimes.set(
+        userTimeSettings.userId,
         precomputeTimes(userTimeSettings),
       );
-
       const timetable = await this.userTimetableRepository.find({
         userId: userTimeSettings.userId,
         year: this.currentYear,
         semester: this.currentSemester,
       });
-
-      await this.timetableRedisStorage.setOptimizedTimetable(
-        userId,
+      this.optimizedTimetables.set(
+        userTimeSettings.userId,
         optimizeTimetable(timetable),
       );
     }
   }
 
-  async getCurrentSubject(
+  getCurrentSubject(
     userId: number,
     currentTime: Date = new Date(),
-  ): Promise<string | null> {
-    const [optimizedTimetable, precomputedTimes] = await Promise.all([
-      this.timetableRedisStorage.getOptimizedTimetable(userId),
-      this.timetableRedisStorage.getPrecomputedTimes(userId),
-    ]);
+  ): string | null {
+    const optimizedTimetable = this.optimizedTimetables.get(userId);
+    const precomputedTimes = this.precomputedTimes.get(userId);
 
     if (!optimizedTimetable || !precomputedTimes) {
       return null;
