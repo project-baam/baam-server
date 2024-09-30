@@ -30,7 +30,6 @@ import { SchoolTimeSettingsEntity } from '../adapter/persistence/orm/entities/sc
 import { ReportProvider } from 'src/common/provider/report.provider';
 import { SubjectMemoService } from 'src/module/subject-memo/application/subject-memo.service';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
-import { TimetableRedisStorage } from '../adapter/persistence/in-memory/\btimetable.storage';
 
 @Injectable()
 export class TimetableService {
