@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  OnApplicationBootstrap,
-  OnApplicationShutdown,
-} from '@nestjs/common';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
 
 import { EnvironmentService } from 'src/config/environment/environment.service';
@@ -10,18 +6,22 @@ import { InMemoryRepository } from './in-memory.repository.abstract';
 
 @Injectable()
 export class RedisRepository
-  implements InMemoryRepository, OnApplicationBootstrap, OnApplicationShutdown
+  implements InMemoryRepository, OnApplicationShutdown
 {
   private memory: Redis;
 
-  constructor(private readonly environmentService: EnvironmentService) {}
+  constructor(private readonly environmentService: EnvironmentService) {
+    this.initializeRedisConnection();
+  }
 
-  async onApplicationBootstrap() {
+  private initializeRedisConnection() {
     this.memory = new Redis(this.environmentService.get<string>('REDIS_PATH')!);
   }
 
-  onApplicationShutdown() {
-    return this.memory.quit();
+  async onApplicationShutdown() {
+    if (this.memory) {
+      await this.memory.quit();
+    }
   }
 
   /**
