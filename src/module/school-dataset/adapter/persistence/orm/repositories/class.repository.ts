@@ -47,13 +47,13 @@ export class OrmClassRepository implements ClassRepository {
   }
 
   findByNameAndGrade(
-    schooId: number,
+    schoolId: number,
     className: string,
     grade: UserGrade,
   ): Promise<ClassEntity | null> {
     return this.classRepository.findOne({
       relations: ['school'],
-      where: { name: className, grade, school: { id: schooId } },
+      where: { name: className, grade, school: { id: schoolId } },
     });
   }
 

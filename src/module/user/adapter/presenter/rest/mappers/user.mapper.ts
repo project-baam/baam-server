@@ -11,7 +11,7 @@ export class UserMapper {
         id: entity.id,
         status: entity.status,
         provider: entity.provider,
-        schooId: entity.profile?.class.schoolId,
+        schoolId: entity.profile?.class.schoolId,
         schoolName: entity.profile?.class.school.name,
         grade: entity.profile?.class.grade,
         className: entity.profile?.class.name,
