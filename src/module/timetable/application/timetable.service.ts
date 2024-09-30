@@ -1,3 +1,4 @@
+import { TimetableCacheStorage } from './../adapter/persistence/in-memory/timetable-cache.storage';
 import {
   memoizedGetCurrentSubject,
   precomputeTimes,
@@ -48,7 +49,7 @@ export class TimetableService {
     @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
     private readonly subjectMemoSerivce: SubjectMemoService,
-    private readonly timetableRedisStorage: TimetableRedisStorage,
+    private readonly timetableCacheStorage: TimetableCacheStorage,
   ) {}
 
   async onModuleInit() {
@@ -69,7 +70,7 @@ export class TimetableService {
       await this.schoolTimeSettingsRepository.findByUserId(userId);
 
     if (userTimeSettings) {
-      await this.timetableRedisStorage.setPrecomputedTimes(
+      await this.timetableCacheStorage.setPrecomputedTimes(
         userId,
         precomputeTimes(userTimeSettings),
       );
@@ -80,7 +81,7 @@ export class TimetableService {
         semester: this.currentSemester,
       });
 
-      await this.timetableRedisStorage.setOptimizedTimetable(
+      await this.timetableCacheStorage.setOptimizedTimetable(
         userId,
         optimizeTimetable(timetable),
       );
@@ -92,8 +93,8 @@ export class TimetableService {
     currentTime: Date = new Date(),
   ): Promise<string | null> {
     const [optimizedTimetable, precomputedTimes] = await Promise.all([
-      this.timetableRedisStorage.getOptimizedTimetable(userId),
-      this.timetableRedisStorage.getPrecomputedTimes(userId),
+      this.timetableCacheStorage.getOptimizedTimetable(userId),
+      this.timetableCacheStorage.getPrecomputedTimes(userId),
     ]);
 
     if (!optimizedTimetable || !precomputedTimes) {

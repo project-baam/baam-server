@@ -25,6 +25,7 @@ import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enu
 import { ReportProvider } from 'src/common/provider/report.provider';
 import { UserGrade } from 'src/module/school-dataset/domain/value-objects/grade';
 import { Weekday } from 'src/module/timetable/domain/enums/weekday';
+import { TimetableCacheStorage } from 'src/module/timetable/adapter/persistence/in-memory/timetable-cache.storage';
 
 export class UserService {
   constructor(
@@ -37,6 +38,7 @@ export class UserService {
     private readonly timetableService: TimetableService,
     private readonly calendarService: CalendarService,
     private readonly chatService: ChatService,
+    private readonly timetableCacheStorage: TimetableCacheStorage,
   ) {}
 
   async insertTestUser(schoolId: number) {
@@ -565,6 +567,7 @@ export class UserService {
       ReportProvider.warn(error, { describe: '탈퇴 로그 저장 실패' });
     }
 
+    await this.timetableCacheStorage.removeUserData(user.id);
     await this.userRepository.deleteOne(user.id);
   }
 
