@@ -483,7 +483,7 @@ GROUP BY
       ),
     ]);
 
-    const total = Number(totalAndInitialCounts[0]?.total);
+    const total = Number(totalAndInitialCounts[0]?.total) || 0;
     const initialCounts = (<
       {
         total: number;

@@ -63,7 +63,7 @@ export class EditOrAddTimetableRequest {
   @IsEnum(Weekday)
   day: Weekday;
 
-  @ApiProperty({ description: '교시, 1~8' })
+  @ApiProperty({ description: '교시, 1~11' })
   @IsEnum(Period)
   period: Period;
 
