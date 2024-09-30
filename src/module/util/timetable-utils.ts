@@ -81,7 +81,7 @@ export const memoizedGetCurrentSubject = (() => {
 
     // 1분 이내의 연속 호출은 이전 결과 반환
     if (lastCheck && Math.abs(currentMinutes - lastCheck.time) < 1) {
-      return lastCheck.result;
+      // return lastCheck.result;
     }
 
     const weekday = now.day();
