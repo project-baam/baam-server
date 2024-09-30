@@ -5,6 +5,7 @@ import { SignInProvider } from 'src/module/iam/domain/enums/sign-in-provider.enu
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
 import jwkToBuffer from 'jwk-to-pem';
+import { Logger } from '@nestjs/common';
 
 export class AppleAuth implements AuthenticationStrategy {
   constructor(private readonly environmentService: EnvironmentService) {}
@@ -59,6 +60,7 @@ export class AppleAuth implements AuthenticationStrategy {
 
       return { id: verified.sub };
     } catch (error: any) {
+      Logger.error(error);
       throw new SocialAuthenticationError(
         SignInProvider.APPLE,
         'Token verification failed: ' + error.message,
