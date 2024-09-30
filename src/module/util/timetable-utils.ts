@@ -10,7 +10,7 @@ interface SchoolTimeSettings {
   lunchTimeEnd: string;
 }
 
-interface PrecomputedTimes {
+export interface PrecomputedTimes {
   readonly periodStarts: readonly TimeInMinutes[];
   readonly lunchStart: TimeInMinutes;
   readonly lunchEnd: TimeInMinutes;
@@ -68,7 +68,7 @@ export const optimizeTimetable = (
 };
 
 export const memoizedGetCurrentSubject = (() => {
-  let lastCheck: { time: TimeInMinutes; result: string | null } | null = null;
+  let lastCheck: { time: number; result: string | null } | null = null;
 
   return (
     optimizedTimetable: Map<string, string>,
@@ -81,10 +81,23 @@ export const memoizedGetCurrentSubject = (() => {
 
     // 1분 이내의 연속 호출은 이전 결과 반환
     if (lastCheck && Math.abs(currentMinutes - lastCheck.time) < 1) {
-      // return lastCheck.result;
+      return lastCheck.result;
     }
 
     const weekday = now.day();
+
+    // 수업 시간 이전 또는 이후 체크
+    if (
+      currentMinutes < precomputedTimes.periodStarts[0] ||
+      currentMinutes >=
+        precomputedTimes.periodStarts[
+          precomputedTimes.periodStarts.length - 1
+        ] +
+          60
+    ) {
+      lastCheck = { time: currentMinutes, result: null };
+      return null;
+    }
 
     // 점심 시간 체크
     if (
@@ -95,29 +108,17 @@ export const memoizedGetCurrentSubject = (() => {
       return null;
     }
 
-    // 이진 탐색으로 현재 교시 찾기
-    let left = 0;
-    let right = precomputedTimes.periodStarts.length - 1;
-    while (left <= right) {
-      const mid = (left + right) >>> 1;
-      if (currentMinutes < precomputedTimes.periodStarts[mid]) {
-        right = mid - 1;
-      } else if (
-        mid === precomputedTimes.periodStarts.length - 1 ||
-        currentMinutes < precomputedTimes.periodStarts[mid + 1]
-      ) {
-        // 현재 교시를 찾음
-        const currentPeriod = (mid + 1) as Period;
-        const result =
-          optimizedTimetable.get(`${weekday}-${currentPeriod}`) ?? null;
+    // 현재 교시 찾기
+    for (let i = 0; i < precomputedTimes.periodStarts.length; i++) {
+      if (currentMinutes < precomputedTimes.periodStarts[i] + 60) {
+        const result = optimizedTimetable.get(`${weekday}-${i + 1}`) ?? null;
         lastCheck = { time: currentMinutes, result };
         return result;
-      } else {
-        left = mid + 1;
       }
     }
 
+    // 여기까지 오면 수업 시간이 아님
     lastCheck = { time: currentMinutes, result: null };
-    return null; // 수업 시간이 아님
+    return null;
   };
 })();
