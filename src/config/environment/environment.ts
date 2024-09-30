@@ -144,6 +144,11 @@ export class EnvironmentVariables {
   @Expose()
   readonly APPLE_APP_ID: string;
 
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly APPLE_BUNDLE_ID: string;
+
   // TODO:
   // @IsNotEmpty()
   // @IsString()
