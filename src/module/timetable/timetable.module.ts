@@ -6,6 +6,7 @@ import { OrmSchoolDatasetPersistenceModule } from '../school-dataset/adapter/per
 import { SchoolDatasetModule } from '../school-dataset/school-dataset.module';
 import { ChatModule } from '../chat/application/chat.module';
 import { SubjectMemoModule } from '../subject-memo/application/subject-memo.module';
+import { TimetableRedisStorage } from './adapter/persistence/in-memory/\btimetable.storage';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { SubjectMemoModule } from '../subject-memo/application/subject-memo.modu
     ChatModule,
     SubjectMemoModule,
   ],
-  providers: [TimetableService],
+  providers: [TimetableService, TimetableRedisStorage],
   controllers: [TimetableController],
   exports: [TimetableService],
 })
