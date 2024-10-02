@@ -11,7 +11,7 @@ export class OrmMealRepository implements MealRepository {
   ) {}
 
   async upsertMany(meals: Partial<MealEntity>[]): Promise<void> {
-    await this.mealRepository.save(meals);
+    await this.mealRepository.upsert(meals, ['schoolId', 'date', 'type']);
   }
 
   async findBySchoolIdAndDate(
