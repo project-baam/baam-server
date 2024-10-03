@@ -80,4 +80,8 @@ export class Notification {
   @ApiProperty()
   @Expose()
   isRead: boolean;
+
+  @ApiProperty()
+  @Expose()
+  message: string;
 }
