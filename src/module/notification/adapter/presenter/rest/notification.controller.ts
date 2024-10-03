@@ -145,7 +145,7 @@ export class NotificationController {
     summary: '알림 목록',
     description: '최근 발송된 순',
     auth: AuthorizationToken.BearerUserToken,
-    dataResponse: {
+    listResponse: {
       status: HttpStatus.OK,
       schema: Notification,
     },
