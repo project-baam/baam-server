@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { Period } from '../timetable/domain/enums/period';
 import { UserTimetableEntity } from '../timetable/adapter/persistence/orm/entities/user-timetable.entity';
+import { CurrentSubjectInfo } from '../timetable/adapter/presenter/rest/dto/current-subject-info.dto';
 
 type TimeInMinutes = number;
 
@@ -80,9 +81,9 @@ export const memoizedGetCurrentSubject = (() => {
       (now.hour() * MINUTES_PER_HOUR + now.minute()) % MINUTES_PER_DAY;
 
     // 1분 이내의 연속 호출은 이전 결과 반환
-    if (lastCheck && Math.abs(currentMinutes - lastCheck.time) < 1) {
-      // return lastCheck.result; // TODO: null 반환 이슈로 잠시 주석 처리
-    }
+    // if (lastCheck && Math.abs(currentMinutes - lastCheck.time) < 1) {
+    //   return lastCheck.result; // TODO: null 반환 이슈로 잠시 주석 처리
+    // }
 
     const weekday = now.day();
 
@@ -120,5 +121,75 @@ export const memoizedGetCurrentSubject = (() => {
     // 여기까지 오면 수업 시간이 아님
     lastCheck = { time: currentMinutes, result: null };
     return null;
+  };
+})();
+
+export const memoizedGetCurrentSubjectWithTimes = (() => {
+  let lastCheck: { time: number; result: CurrentSubjectInfo } | null = null;
+
+  return (
+    optimizedTimetable: Map<string, string>,
+    precomputedTimes: PrecomputedTimes,
+    currentTime: Date = new Date(),
+  ): CurrentSubjectInfo => {
+    const now = dayjs(currentTime);
+    const currentMinutes = now.hour() * MINUTES_PER_HOUR + now.minute();
+
+    if (lastCheck && Math.abs(currentMinutes - lastCheck.time) < 1) {
+      return lastCheck.result;
+    }
+
+    const weekday = now.day();
+
+    if (
+      currentMinutes < precomputedTimes.periodStarts[0] ||
+      currentMinutes >=
+        precomputedTimes.periodStarts[
+          precomputedTimes.periodStarts.length - 1
+        ] +
+          60
+    ) {
+      lastCheck = {
+        time: currentMinutes,
+        result: { subject: null, startTime: null, endTime: null },
+      };
+      return lastCheck.result;
+    }
+
+    if (
+      currentMinutes >= precomputedTimes.lunchStart &&
+      currentMinutes < precomputedTimes.lunchEnd
+    ) {
+      lastCheck = {
+        time: currentMinutes,
+        result: { subject: null, startTime: null, endTime: null },
+      };
+      return lastCheck.result;
+    }
+
+    for (let i = 0; i < precomputedTimes.periodStarts.length; i++) {
+      if (currentMinutes < precomputedTimes.periodStarts[i] + 60) {
+        const subject = optimizedTimetable.get(`${weekday}-${i + 1}`) ?? null;
+        const startTime = now
+          .startOf('day')
+          .add(precomputedTimes.periodStarts[i], 'minute')
+          .toDate();
+        const endTime = dayjs(startTime).add(1, 'hour').toDate();
+
+        const result = {
+          subject,
+          startTime: dayjs(startTime).format('YYYY-MM-DD HH:mm:ss'),
+          endTime: dayjs(endTime).format('YYYY-MM-DD HH:mm:ss'),
+        };
+        lastCheck = { time: currentMinutes, result };
+        return result;
+      }
+    }
+
+    lastCheck = {
+      time: currentMinutes,
+      result: { subject: null, startTime: null, endTime: null },
+    };
+    return lastCheck.result;
   };
 })();

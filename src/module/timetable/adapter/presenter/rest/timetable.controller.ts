@@ -31,6 +31,7 @@ import { SchoolTimeNotSetError } from 'src/common/types/error/application-except
 import { SchoolTimeSettingsUpsertRequest } from './dto/school-time-settings.dto';
 import { ApiBooleanResponse } from 'src/docs/decorator/api-boolean-response';
 import { SchoolTimeSettings } from 'src/module/timetable/domain/school-time-settings';
+import { CurrentSubjectInfo } from './dto/current-subject-info.dto';
 
 @RestApi('timetable')
 export class TimetableController {
@@ -239,5 +240,22 @@ export class TimetableController {
   @Post('update-year-semester')
   async updateCurrentYearAndSemester() {
     await this.timetableService.updateCurrentYearAndSemester();
+  }
+
+  @ApiDescription({
+    tags: ['시간표'],
+    summary: '현재 듣고 있는 과목 정보 조회',
+    description: '과목명, 현재 교시 시작/종료 시간',
+    auth: AuthorizationToken.BearerUserToken,
+    dataResponse: {
+      status: HttpStatus.OK,
+      schema: CurrentSubjectInfo,
+    },
+  })
+  @Get('current-subject')
+  async getCurrentSubject(
+    @ActiveUser() user: UserEntity,
+  ): Promise<CurrentSubjectInfo> {
+    return this.timetableService.getCurrentSubjectWithTimes(user.id);
   }
 }

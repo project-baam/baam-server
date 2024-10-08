@@ -1,6 +1,7 @@
 import { TimetableCacheStorage } from './../adapter/persistence/in-memory/timetable-cache.storage';
 import {
   memoizedGetCurrentSubject,
+  memoizedGetCurrentSubjectWithTimes,
   precomputeTimes,
 } from 'src/module/util/timetable-utils';
 import { optimizeTimetable } from './../../util/timetable-utils';
@@ -30,6 +31,7 @@ import { SchoolTimeSettingsEntity } from '../adapter/persistence/orm/entities/sc
 import { ReportProvider } from 'src/common/provider/report.provider';
 import { SubjectMemoService } from 'src/module/subject-memo/application/subject-memo.service';
 import { SubjectEntity } from 'src/module/school-dataset/adapter/persistence/orm/entities/subject.entity';
+import { CurrentSubjectInfo } from '../adapter/presenter/rest/dto/current-subject-info.dto';
 
 @Injectable()
 export class TimetableService {
@@ -101,6 +103,26 @@ export class TimetableService {
     }
 
     return memoizedGetCurrentSubject(
+      optimizedTimetable,
+      precomputedTimes,
+      currentTime,
+    );
+  }
+
+  async getCurrentSubjectWithTimes(
+    userId: number,
+    currentTime: Date = new Date(),
+  ): Promise<CurrentSubjectInfo> {
+    const [optimizedTimetable, precomputedTimes] = await Promise.all([
+      this.timetableCacheStorage.getOptimizedTimetable(userId),
+      this.timetableCacheStorage.getPrecomputedTimes(userId),
+    ]);
+
+    if (!optimizedTimetable || !precomputedTimes) {
+      return { subject: null, startTime: null, endTime: null };
+    }
+
+    return memoizedGetCurrentSubjectWithTimes(
       optimizedTimetable,
       precomputedTimes,
       currentTime,
