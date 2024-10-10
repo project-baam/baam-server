@@ -1,4 +1,4 @@
-import { MessageRequestFormat } from './dto/expo.dto';
+import { MessageRequestFormat } from './dto/fcm.dto';
 import { NotificationResult } from './dto/notification-result.dto';
 
 export abstract class PushNotificationService {

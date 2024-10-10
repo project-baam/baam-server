@@ -20,12 +20,11 @@ import { AuthorizationToken } from 'src/docs/constant/authorization-token';
 import { RegisterDeviceTokenDto } from './dto/register-device-token.dto';
 import {
   ContentNotFoundError,
-  MalformedExpoPushTokenError,
+  MalformedDevicePushTokenError,
   NotificationAlreadyRead,
 } from 'src/common/types/error/application-exceptions';
 import { DeactivateDeviceDto } from './dto/deactivate-device.token.dto';
 import { PushNotificationService } from '../../external/push-notification.abstract.service';
-import { MessageRequestFormat } from '../../external/dto/expo.dto';
 import { Auth } from 'src/module/iam/adapter/presenter/rest/decorators/auth.decorator';
 import { AuthType } from 'src/module/iam/domain/enums/auth-type.enum';
 import { ApiResponse } from '@nestjs/swagger';
@@ -33,6 +32,7 @@ import { RestApi } from 'src/common/decorator/rest-api.decorator';
 import { GetNotificationRequest } from './dto/get-notification.dto';
 import { Notification } from 'src/module/notification/domain/notification';
 import { ResponseListDto } from 'src/common/dto/responses-list.dto';
+import { MessageRequestFormat } from '../../external/dto/fcm.dto';
 
 @RestApi()
 export class NotificationController {
@@ -67,7 +67,7 @@ export class NotificationController {
     - 푸시 알림 권한을 사용자가 허용한 직후
     - 앱이 새로운 푸시 토큰을 받았을 때 (토큰 갱신)`,
     auth: AuthorizationToken.BearerUserToken,
-    exceptions: [MalformedExpoPushTokenError],
+    exceptions: [MalformedDevicePushTokenError],
   })
   @HttpCode(HttpStatus.OK)
   @Post('device-token')
@@ -87,7 +87,7 @@ export class NotificationController {
     summary: '디바이스 토큰 비활성화',
     description: '로그아웃시 호출',
     auth: AuthorizationToken.BearerUserToken,
-    exceptions: [ContentNotFoundError, MalformedExpoPushTokenError],
+    exceptions: [ContentNotFoundError, MalformedDevicePushTokenError],
   })
   @Patch('device-token/deactivate')
   async deactivateDevice(
@@ -108,7 +108,7 @@ export class NotificationController {
   @ApiDescription({
     tags: ['알림'],
     summary: '알림 전송(테스트용)',
-    exceptions: [MalformedExpoPushTokenError],
+    exceptions: [MalformedDevicePushTokenError],
   })
   @HttpCode(HttpStatus.OK)
   @Post('send-notification-test')

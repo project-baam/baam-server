@@ -6,10 +6,10 @@ import { PushNotificationService } from '../adapter/external/push-notification.a
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ScheduledNotificationEntity } from '../adapter/persistence/orm/entities/scheduled-notification.entity';
 import dayjs from 'dayjs';
-import { MessageRequestFormat } from '../adapter/external/dto/expo.dto';
 import { createConcurrencyLimiter } from 'src/module/util/concurrency-util.service';
-import { EXPO_LIMITS } from '../adapter/external/constants/expo-limits.constant';
 import { ReportProvider } from 'src/common/provider/report.provider';
+import { MessageRequestFormat } from '../adapter/external/dto/fcm.dto';
+import { FCM_LIMITS } from '../adapter/external/constants/fcm.constants';
 
 @Injectable()
 export class NotificationSchedulerService {
@@ -22,7 +22,7 @@ export class NotificationSchedulerService {
     private readonly environmentService: EnvironmentService,
   ) {
     this.runWithLimit = createConcurrencyLimiter(
-      EXPO_LIMITS.FREE_ACCOUNT.REQUESTS_PER_SECOND,
+      FCM_LIMITS.REQUESTS_PER_SECOND,
     );
   }
 

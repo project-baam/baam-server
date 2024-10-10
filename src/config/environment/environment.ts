@@ -190,6 +190,22 @@ export class EnvironmentVariables {
   @IsString()
   @Expose()
   readonly MESSAGE_ENCRYPTION_KEY: string;
+
+  // 푸시 알림
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly FIREBASE_PROJECT_ID: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly FIREBASE_CLIENT_EMAIL: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Expose()
+  readonly FIREBASE_PRIVATE_KEY: string;
 }
 
 export const getEnvFilePath = (): string =>

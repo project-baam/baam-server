@@ -12,13 +12,13 @@ import {
 } from './dto/notification.dto';
 import { ScheduledNotificationMapper } from './mapper/scheduled-notification.mapper';
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
-import { MessageRequestFormat } from '../adapter/external/dto/expo.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Notification } from 'src/module/notification/domain/notification';
 import { GetNotificationRequest } from '../adapter/presenter/rest/dto/get-notification.dto';
 import { PaginatedList } from 'src/common/dto/response.dto';
 import { NotificationMapper } from './mapper/notification.mapper';
 import dayjs from 'dayjs';
+import { MessageRequestFormat } from '../adapter/external/dto/fcm.dto';
 
 @Injectable()
 export class NotificationService {

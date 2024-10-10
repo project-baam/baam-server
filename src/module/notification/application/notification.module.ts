@@ -4,8 +4,9 @@ import { UserModule } from 'src/module/user/user.module';
 import { NotificationService } from './notification.service';
 import { OrmNotificationPersistenceModule } from '../adapter/persistence/orm/orm-notification-persistence.module';
 import { PushNotificationService } from '../adapter/external/push-notification.abstract.service';
-import { ExpoPushNotificationService } from '../adapter/external/push-notification.service';
 import { NotificationSchedulerService } from './notification-scheduler.service';
+import { FcmPushNotificationService } from '../adapter/external/fcm/fcm-push-notification.service';
+import { FcmConfig } from '../adapter/external/fcm/fcm.config';
 
 @Module({
   imports: [forwardRef(() => UserModule), OrmNotificationPersistenceModule],
@@ -14,9 +15,10 @@ import { NotificationSchedulerService } from './notification-scheduler.service';
     NotificationService,
     {
       provide: PushNotificationService,
-      useClass: ExpoPushNotificationService,
+      useClass: FcmPushNotificationService,
     },
     NotificationSchedulerService,
+    FcmConfig,
   ],
   exports: [NotificationService],
 })
