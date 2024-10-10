@@ -9,7 +9,7 @@ export enum ErrorCode {
   MissingRequiredFields = 4003,
   InvalidProfileImageField = 4004,
   UnexpectedFields = 4005,
-  MalformedExpoPushToken = 4006,
+  MalformedDevicePushToken = 4006,
   UserNotOnlineInRoom = 4007,
   InvalidFileSize = 4008,
 

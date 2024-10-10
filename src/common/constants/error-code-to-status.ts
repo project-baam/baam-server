@@ -12,7 +12,7 @@ export const CodeToStatus: {
   [ErrorCode.InvalidProfileImageField]: HttpStatus.BAD_REQUEST,
   [ErrorCode.InvalidFileSize]: HttpStatus.BAD_REQUEST,
   [ErrorCode.UnexpectedFields]: HttpStatus.BAD_REQUEST,
-  [ErrorCode.MalformedExpoPushToken]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.MalformedDevicePushToken]: HttpStatus.BAD_REQUEST,
   [ErrorCode.UserNotOnlineInRoom]: HttpStatus.BAD_REQUEST,
   [ErrorCode.MissingAuthToken]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.InvalidAccessToken]: HttpStatus.UNAUTHORIZED,
