@@ -164,11 +164,18 @@ export class CalendarService {
     if (user.profile.notificationsEnabled) {
       this.notificationService.createOrScheduleNotification(
         user.id,
-        NotificationCategory.Calendar,
-        {
-          eventId: event.id,
-          eventTitle: params.title,
-        },
+        params.type === EventType.CLASS
+          ? NotificationCategory.SubjectMemo
+          : NotificationCategory.Calendar,
+        params.type === EventType.CLASS
+          ? {
+              eventId: event.id,
+              subjectName: params.subjectName!,
+            }
+          : {
+              eventId: event.id,
+              eventTitle: params.title,
+            },
         dayjs(params.datetime).toDate(),
       );
     }
