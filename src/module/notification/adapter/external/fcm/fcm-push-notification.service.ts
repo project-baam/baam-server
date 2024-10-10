@@ -43,7 +43,7 @@ export class FcmPushNotificationService implements PushNotificationService {
             title: dto.title,
             body: dto.body,
           },
-          data: dto.data ? this.stringifyData(dto.data) : undefined,
+          data: dto.data ? this.convertToStringObject(dto.data) : undefined,
         });
 
         results.push({ token: dto.to, status: 'success', messageId: response });
@@ -65,15 +65,23 @@ export class FcmPushNotificationService implements PushNotificationService {
     return results;
   }
 
-  private stringifyData(data: Record<string, any>): Record<string, string> {
-    const result: Record<string, string> = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (value !== null && value !== undefined) {
-        // 객체나 배열인 경우 JSON.stringify를 사용하고, 그 외에는 그대로 문자열로 변환
-        result[key] =
-          typeof value === 'object' ? JSON.stringify(value) : String(value);
+  convertToStringObject(obj: any): { [key: string]: string } {
+    if (typeof obj === 'string') {
+      try {
+        obj = JSON.parse(obj);
+      } catch (e) {
+        return {};
       }
     }
+
+    const result: { [key: string]: string } = {};
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        result[key] = String(obj[key]);
+      }
+    }
+
     return result;
   }
 
