@@ -70,8 +70,8 @@ export class ScheduledNotificationMapper {
           dto as FriendRequestNotificationDto;
         const notificatioinTitle =
           requestType === 'sent'
-            ? `친구 요청: ${friendName} 님이 친구가 되고 싶어해요!`
-            : `친구 요청: ${friendName} 님께 친구 요청을 보냈어요!`;
+            ? `친구 요청: ${friendName} 님께 친구 요청을 보냈어요!`
+            : `친구 요청: ${friendName} 님이 친구가 되고 싶어해요!`;
 
         return {
           userId,

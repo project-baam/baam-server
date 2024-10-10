@@ -12,7 +12,7 @@ import {
 } from './dto/notification.dto';
 import { ScheduledNotificationMapper } from './mapper/scheduled-notification.mapper';
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Notification } from 'src/module/notification/domain/notification';
 import { GetNotificationRequest } from '../adapter/presenter/rest/dto/get-notification.dto';
 import { PaginatedList } from 'src/common/dto/response.dto';
@@ -134,7 +134,7 @@ export class NotificationService {
           }
         }
       } else {
-        ReportProvider.info('등록된 디바이스 토큰이 없으므로 알림 발송 불가', {
+        Logger.debug('등록된 디바이스 토큰이 없으므로 알림 발송 불가', {
           userId,
           category,
           id:

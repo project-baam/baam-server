@@ -1,5 +1,5 @@
 import { EnvironmentService } from './../../../config/environment/environment.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ScheduledNotificationRepository } from './port/scheduled-notification.repository.abstract';
 import { NotificationRepository } from './port/notification.repository.abstract';
 import { PushNotificationService } from '../adapter/external/push-notification.abstract.service';
@@ -84,7 +84,7 @@ export class NotificationSchedulerService {
         });
       }
 
-      ReportProvider.info(
+      Logger.debug(
         `예약 알림 발송 결과 [${notification.category}] ${results.length} 중 ${successfulResults.length} 성공`,
         {
           notification,
