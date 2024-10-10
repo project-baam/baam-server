@@ -8,6 +8,8 @@ import { MessageRequestFormat } from '../dto/fcm.dto';
 import { NotificationResult } from '../dto/notification-result.dto';
 import { MalformedDevicePushTokenError } from 'src/common/types/error/application-exceptions';
 import { PushNotificationConfig } from 'src/module/notification/domain/constants/push-notification-config.constant';
+import { NotificationData } from 'src/module/notification/domain/notification';
+import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
 
 @Injectable()
 export class FcmPushNotificationService implements PushNotificationService {
@@ -64,13 +66,17 @@ export class FcmPushNotificationService implements PushNotificationService {
   }
 
   private stringifyData(data: Record<string, any>): Record<string, string> {
-    const stringifiedData: Record<string, string> = {};
+    const result: Record<string, string> = {};
     for (const [key, value] of Object.entries(data)) {
-      stringifiedData[key] =
-        typeof value === 'string' ? value : JSON.stringify(value);
+      if (value !== null && value !== undefined) {
+        // 객체나 배열인 경우 JSON.stringify를 사용하고, 그 외에는 그대로 문자열로 변환
+        result[key] =
+          typeof value === 'object' ? JSON.stringify(value) : String(value);
+      }
     }
-    return stringifiedData;
+    return result;
   }
+
   private async handleNotificationFailure(
     token: string,
     error: string,
