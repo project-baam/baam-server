@@ -132,6 +132,7 @@ export class NotificationController {
     status: HttpStatus.NOT_MODIFIED,
     description: '이미 읽은 알림',
   })
+  @HttpCode(HttpStatus.OK)
   @Post('notifications/:id/read')
   async markAsRead(
     @Param('id', ParseIntPipe) id: number,

@@ -132,21 +132,6 @@ export class NotificationService {
               sendResults,
             });
           }
-
-          ReportProvider.info(
-            `알림 발송 결과 [${category}] ${sendResults.length} 중 ${successfulResults.length} 성공`,
-            {
-              parameter: {
-                userId,
-                category,
-                id:
-                  (dto as SubjectMemoNotificationDto)['eventId'] ??
-                  (dto as FriendRequestNotificationDto)['requestId'],
-                scheduledAt,
-              },
-              sendResults,
-            },
-          );
         }
       } else {
         ReportProvider.info('등록된 디바이스 토큰이 없으므로 알림 발송 불가', {
