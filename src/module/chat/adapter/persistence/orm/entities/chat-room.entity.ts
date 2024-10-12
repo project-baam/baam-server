@@ -69,7 +69,7 @@ export class ChatRoomEntity extends BaseEntity {
   @Column('int', { default: 0 })
   participantsCount: number;
 
-  @OneToOne(() => MessageEntity, { nullable: true })
+  @OneToOne(() => MessageEntity, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'last_message_id' })
   lastMessage: MessageEntity;
 

@@ -44,6 +44,7 @@ export class MessageEntity extends BaseEntity {
   @Column({ default: false })
   isLastMessage: boolean;
 
+  // Message 는 ChatRoom 이 사라지면 같이 사라지고, Sender 가 사라져도 Message 는 남아있어야 한다.
   @ManyToOne(() => ChatRoomEntity, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -52,7 +53,7 @@ export class MessageEntity extends BaseEntity {
   chatRoom: ChatRoomEntity;
 
   @ManyToOne(() => UserProfileEntity, {
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'sender_id' })

@@ -74,7 +74,9 @@ export class OrmChatMessageRepository implements ChatMessageRepository {
       messageData.fileName = fileInfo.fileName;
       messageData.fileSize = fileInfo.fileSize;
       messageData.fileExpiredAt = fileInfo.fileExpiredAt;
-      messageData.content = fileInfo.fileName;
+      messageData.content = this.messageEncryptionService.encrypt(
+        fileInfo.fileName,
+      );
     }
 
     const message = await this.messageRepository.save(
