@@ -85,17 +85,16 @@ export class SubjectMemoService {
       datetime: params.datetime,
     });
 
-    if (user.profile.notificationsEnabled) {
-      this.notificationService.createOrScheduleNotification(
-        user.id,
-        NotificationCategory.SubjectMemo,
-        {
-          eventId: event.id,
-          subjectName: params.subjectName,
-        },
-        params.datetime,
-      );
-    }
+    this.notificationService.createOrScheduleNotification(
+      user.profile.notificationsEnabled,
+      user.id,
+      NotificationCategory.SubjectMemo,
+      {
+        eventId: event.id,
+        subjectName: params.subjectName,
+      },
+      params.datetime,
+    );
   }
 
   async updateOne(

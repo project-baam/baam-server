@@ -245,30 +245,28 @@ export class FriendService {
     );
 
     // 친구요청 수신 유저에게 알림
-    if (friend.profile.notificationsEnabled) {
-      this.notificationService.createOrScheduleNotification(
-        friendId,
-        NotificationCategory.FriendRequest,
-        {
-          requestId: request.id,
-          requestType: 'received',
-          friendName: user.profile.fullName,
-        },
-      );
-    }
+    this.notificationService.createOrScheduleNotification(
+      friend.profile.notificationsEnabled,
+      friendId,
+      NotificationCategory.FriendRequest,
+      {
+        requestId: request.id,
+        requestType: 'received',
+        friendName: user.profile.fullName,
+      },
+    );
 
     // 친구요청 발신 유저에게 알림
-    if (friend.profile.notificationsEnabled) {
-      this.notificationService.createOrScheduleNotification(
-        user.id,
-        NotificationCategory.FriendRequest,
-        {
-          requestId: request.id,
-          requestType: 'sent',
-          friendName: friend.profile.fullName,
-        },
-      );
-    }
+    this.notificationService.createOrScheduleNotification(
+      user.profile.notificationsEnabled,
+      user.id,
+      NotificationCategory.FriendRequest,
+      {
+        requestId: request.id,
+        requestType: 'sent',
+        friendName: friend.profile.fullName,
+      },
+    );
   }
 
   async getSentRequests(

@@ -73,6 +73,7 @@ export class NotificationService {
   }
 
   async createOrScheduleNotification(
+    notificationEnabled: boolean,
     userId: number,
     category: NotificationCategory,
     dto: NotificationDto,
@@ -90,6 +91,19 @@ export class NotificationService {
         dto,
         scheduledAt ?? new Date(),
       );
+
+      // 유저의 알림 설정이 꺼져있으면 알림 발송하지 않고, DB에만 저장
+      if (!notificationEnabled) {
+        await this.notificationRepository.insertOne({
+          userId: userId,
+          category: category,
+          title: entity.notificationTitle,
+          body: entity.notificationBody,
+          message: entity.notificationMessage,
+          sentAt: new Date(),
+        });
+        return;
+      }
 
       if (deviceTokens.length) {
         // 미래 시간이면 예약된 알림으로 저장

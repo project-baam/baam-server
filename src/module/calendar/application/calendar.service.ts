@@ -161,24 +161,23 @@ export class CalendarService {
       datetime: dayjs(params.datetime).toDate(),
     });
 
-    if (user.profile.notificationsEnabled) {
-      this.notificationService.createOrScheduleNotification(
-        user.id,
-        params.type === EventType.CLASS
-          ? NotificationCategory.SubjectMemo
-          : NotificationCategory.Calendar,
-        params.type === EventType.CLASS
-          ? {
-              eventId: event.id,
-              subjectName: params.subjectName!,
-            }
-          : {
-              eventId: event.id,
-              eventTitle: params.title,
-            },
-        dayjs(params.datetime).toDate(),
-      );
-    }
+    this.notificationService.createOrScheduleNotification(
+      user.profile.notificationsEnabled,
+      user.id,
+      params.type === EventType.CLASS
+        ? NotificationCategory.SubjectMemo
+        : NotificationCategory.Calendar,
+      params.type === EventType.CLASS
+        ? {
+            eventId: event.id,
+            subjectName: params.subjectName!,
+          }
+        : {
+            eventId: event.id,
+            eventTitle: params.title,
+          },
+      dayjs(params.datetime).toDate(),
+    );
 
     return event;
   }
