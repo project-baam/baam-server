@@ -1,7 +1,7 @@
 import { BaseEntity } from 'src/config/database/orm/base.entity';
 import { NotificationCategory } from 'src/module/notification/domain/enums/notification-category.enum';
 import { NotificationData } from 'src/module/notification/domain/notification';
-import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import {
   Column,
   Entity,
@@ -36,10 +36,10 @@ export class NotificationEntity extends BaseEntity {
   @Column('boolean', { default: false })
   isRead: boolean;
 
-  @ManyToOne(() => UserProfileEntity, {
+  @ManyToOne(() => UserEntity, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: UserProfileEntity;
+  user: UserEntity;
 }
