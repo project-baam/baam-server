@@ -41,7 +41,13 @@ export class AccessTokenGuard implements CanActivate {
     }
 
     // 프로필 업데이트 API는 INCOMPLETE_PROFILE도 접근 가능(회원가입시 사용)
-    const allowedApis = [{ path: '/user', method: 'PATCH' }];
+    const allowedApis = [
+      { path: '/user', method: 'PATCH' },
+      {
+        path: '/device-token',
+        method: 'POST',
+      },
+    ];
     const isAllowed = allowedApis.some(
       (api) => api.path === request.path && api.method === request.method,
     );
