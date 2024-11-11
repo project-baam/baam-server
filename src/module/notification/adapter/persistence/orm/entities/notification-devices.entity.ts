@@ -3,7 +3,7 @@ import {
   DeviceType,
   OSType,
 } from 'src/module/notification/domain/enums/device.enum';
-import { UserProfileEntity } from 'src/module/user/adapter/persistence/orm/entities/user-profile.entity';
+import { UserEntity } from 'src/module/user/adapter/persistence/orm/entities/user.entity';
 import {
   Column,
   Entity,
@@ -42,10 +42,10 @@ export class NotificationDevicesEntity extends BaseEntity {
   @Column({ default: true })
   isActive: boolean;
 
-  @ManyToOne(() => UserProfileEntity, {
+  @ManyToOne(() => UserEntity, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: UserProfileEntity;
+  user: UserEntity;
 }
